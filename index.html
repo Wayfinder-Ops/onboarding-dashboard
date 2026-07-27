@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wayfinder Real Estate — Agent Onboarding Command Center</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP NAV BAR -->
+  <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="bg-gradient-to-tr from-brand-600 to-teal-400 text-slate-950 p-2.5 rounded-xl font-bold tracking-wider text-xl shadow-lg shadow-brand-500/20">
+        WF
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-white tracking-wide">WAYFINDER <span class="text-xs font-normal text-slate-400">× SKALVYA</span></h1>
+        <p class="text-xs text-slate-400">Agent Onboarding & Transition Command Center</p>
+      </div>
+    </div>
+
+    <!-- Active Agent Switcher & Sync Controls -->
+    <div class="flex items-center space-x-3">
+      <label class="text-xs font-medium text-slate-400">Active Agent:</label>
+      <select id="agentSelect" onchange="switchAgent(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        <!-- Dynamically populated -->
+      </select>
+
+      <button onclick="addNewAgentPrompt()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-1 shadow-md">
+        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Add Agent
+      </button>
+
+      <div class="h-6 w-[1px] bg-slate-800 mx-1"></div>
+
+      <button onclick="exportData()" title="Export JSON State" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition">
+        <i data-lucide="download" class="w-4 h-4"></i>
+      </button>
+      <button onclick="importDataPrompt()" title="Import JSON State" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition">
+        <i data-lucide="upload" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+
+    <!-- KPI / TYSON EXECUTIVE OVERVIEW BAR -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active Onboardings</span>
+          <i data-lucide="users" class="w-5 h-5 text-brand-500"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiActiveAgents" class="text-3xl font-bold text-white">0</span>
+          <span class="text-xs text-slate-400">Agents in pipeline</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Overall Progress</span>
+          <i data-lucide="pie-chart" class="w-5 h-5 text-teal-400"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiAvgProgress" class="text-3xl font-bold text-white">0%</span>
+          <span class="text-xs text-emerald-400 font-medium">Active Agent Completion</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Current Phase</span>
+          <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+        </div>
+        <div class="mt-2">
+          <span id="kpiCurrentPhase" class="text-lg font-bold text-indigo-200">Phase 1</span>
+          <p id="kpiPhaseSub" class="text-xs text-slate-400 truncate">Application & License Transfer</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-700 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Risk / Blockers</span>
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiRiskStatus" class="text-lg font-bold text-emerald-400">On Track</span>
+          <span id="kpiBlockerCount" class="text-xs text-slate-400">(0 Active Blockers)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENT PORTFOLIO MATRIX TABLE (TYSON / EXECUTIVE VIEW) -->
+    <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-500"></i>
+            All Agents Status Overview (Tyson & Leadership Live View)
+          </h2>
+          <p class="text-xs text-slate-400">Live summary across all onboarding agents without needing manual status requests.</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase tracking-wider bg-slate-950/50">
+              <th class="p-3">Agent</th>
+              <th class="p-3">Start Date</th>
+              <th class="p-3">Target Transfer</th>
+              <th class="p-3">Phase</th>
+              <th class="p-3">Progress</th>
+              <th class="p-3">Risk Status</th>
+              <th class="p-3">Blockers</th>
+              <th class="p-3">Next Action</th>
+            </tr>
+          </thead>
+          <tbody id="agentMatrixBody" class="text-sm divide-y divide-slate-800/60 text-slate-300">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PROGRESS BREAKDOWN SECTION -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Overall Chart -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center">
+        <h3 class="text-sm font-semibold text-slate-300 mb-2 w-full text-left flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-500"></i> Active Agent Completion Progress
+        </h3>
+        <div class="relative w-48 h-48 my-2">
+          <canvas id="progressGaugeChart"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="gaugePercentage" class="text-3xl font-extrabold text-white">0%</span>
+            <span class="text-[10px] uppercase text-slate-400 font-medium">Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RACI / Party Breakdown -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md lg:col-span-2 space-y-4">
+        <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-teal-400"></i> Progress by Responsible Party (RACI Breakdown)
+        </h3>
+        
+        <div class="space-y-3">
+          <!-- Agent Progress -->
+          <div>
+            <div class="flex justify-between text-xs font-medium mb-1">
+              <span class="text-slate-300">Agent Responsible Tasks</span>
+              <span id="agentPartyPct" class="text-slate-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div id="agentPartyBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Skalvya Ops Progress -->
+          <div>
+            <div class="flex justify-between text-xs font-medium mb-1">
+              <span class="text-slate-300">Skalvya Ops Responsible Tasks</span>
+              <span id="skalvyaPartyPct" class="text-slate-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div id="skalvyaPartyBar" class="bg-brand-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Wayfinder / Broker Progress -->
+          <div>
+            <div class="flex justify-between text-xs font-medium mb-1">
+              <span class="text-slate-300">Wayfinder / Broker Responsible Tasks</span>
+              <span id="wayfinderPartyPct" class="text-slate-400">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div id="wayfinderPartyBar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENT METADATA EDITORS -->
+        <div class="pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">Risk Status & Blocker Notes</label>
+            <div class="flex gap-2">
+              <select id="activeRiskSelect" onchange="updateActiveAgentRisk(this.value)" class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1">
+                <option value="On Track">On Track</option>
+                <option value="At Risk">At Risk</option>
+                <option value="Blocked">Blocked</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <input type="text" id="activeBlockerInput" onchange="updateActiveAgentBlocker(this.value)" placeholder="Enter blocker details..." class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 flex-1">
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Next Immediate Action</label>
+            <input type="text" id="activeNextActionInput" onchange="updateActiveAgentNextAction(this.value)" placeholder="e.g. Schedule FUB call..." class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 w-full">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKLIST & PHASES ACCORDION -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <i data-lucide="check-square" class="w-5 h-5 text-brand-500"></i> Interactive Onboarding Checklist
+        </h2>
+        <span class="text-xs text-slate-400">Subtask requirements must be satisfied before major tasks are complete.</span>
+      </div>
+
+      <div id="phasesContainer" class="space-y-4">
+        <!-- Dynamically rendered phases and tasks -->
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // INITIAL MASTER TASKS SCHEMA WITH DEFINITION OF DONE (SUBTASKS)
+    const TASK_SCHEMA = [
+      {
+        phaseId: 1,
+        phaseName: "Phase 1 — Application & License Transfer",
+        tasks: [
+          {
+            id: "p1_1",
+            title: "Join Real Application & ICA Signing",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent | C: Skalvya",
+            dueDateOffset: 1,
+            subtasks: [
+              "Pre-filled application details verified by Skalvya",
+              "ICA signed by agent",
+              "$285 join fee paid"
+            ]
+          },
+          {
+            id: "p1_2",
+            title: "OHID Account & License Transfer Submission",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent | C: Skalvya",
+            dueDateOffset: 2,
+            subtasks: [
+              "OHID login created / verified",
+              "License transfer / exam application submitted",
+              "Confirmation screenshot shared on Slack"
+            ]
+          },
+          {
+            id: "p1_3",
+            title: "Background Check & Fingerprints (First Time Only)",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent",
+            dueDateOffset: 3,
+            subtasks: [
+              "Fingerprints scheduled / taken",
+              "Background check submitted to BCI/FBI"
+            ]
+          },
+          {
+            id: "p1_4",
+            title: "Notify Current Sponsoring Brokerage",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent",
+            dueDateOffset: 3,
+            subtasks: [
+              "Written notice sent to current broker",
+              "Offboarding confirmation received"
+            ]
+          }
+        ]
+      },
+      {
+        phaseId: 2,
+        phaseName: "Phase 2 — First Day / First Week Technical Activation",
+        tasks: [
+          {
+            id: "p2_1",
+            title: "Board & MLS Affiliation Transfer",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent | C: Skalvya | I: Tyson",
+            dueDateOffset: 5,
+            subtasks: [
+              "MLS NOW affiliation verified",
+              "Local Board notified within 30-day window",
+              "Transfer fees settled"
+            ]
+          },
+          {
+            id: "p2_2",
+            title: "Dotloop E-Signature Setup",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | I: Agent",
+            dueDateOffset: 2,
+            subtasks: [
+              "Dotloop account created",
+              "Wayfinder standard loop templates pre-loaded",
+              "Agent test access verified"
+            ]
+          },
+          {
+            id: "p2_3",
+            title: "reZEN Portal Onboarding & Profile Setup",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya & Agent | A: Agent",
+            dueDateOffset: 3,
+            subtasks: [
+              "Banking / routing details submitted",
+              "Business entity selection (S-Corp/LLC/Sole) set",
+              "Profile setup completed"
+            ]
+          },
+          {
+            id: "p2_4",
+            title: "Wayfinder Google Workspace Provisioning",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
+            dueDateOffset: 2,
+            subtasks: [
+              "Google Workspace email account created",
+              "Brand-compliant HTML email signature attached",
+              "Wayfinder shared Google Calendar synced"
+            ]
+          },
+          {
+            id: "p2_5",
+            title: "Follow Up Boss (FUB) CRM Setup",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
+            dueDateOffset: 4,
+            subtasks: [
+              "FUB user account created and permissions set",
+              "Cleaned contact CSV imported successfully",
+              "Required pipeline stages and tags configured",
+              "Wayfinder Smart Lists applied",
+              "Agent login confirmed",
+              "Successful test lead record verified"
+            ]
+          },
+          {
+            id: "p2_6",
+            title: "Slack & Communication Channels Setup",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder",
+            dueDateOffset: 2,
+            subtasks: [
+              "Slack account invited",
+              "Added to team channels (#ops, #general, #announcements)",
+              "Mobile and desktop apps confirmed active"
+            ]
+          },
+          {
+            id: "p2_7",
+            title: "WorkVivo & Facebook Communities Integration",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya & Agent | A: Wayfinder",
+            dueDateOffset: 4,
+            subtasks: [
+              "WorkVivo account created and joined Ohio State Space",
+              "Introductory bio post drafted and published",
+              "Joined Ohio Facebook state/regional communities"
+            ]
+          },
+          {
+            id: "p2_8",
+            title: "Agent Intro Form & Leadership Connection",
+            raci: "Agent",
+            raciCode: "R: Agent | A: Agent | I: Broker Nicole",
+            dueDateOffset: 5,
+            subtasks: [
+              "Agent Introduction Form submitted to Broker Nicole",
+              "Introductory call with Sponsor & Broker Nicole completed"
+            ]
+          }
+        ]
+      },
+      {
+        phaseId: 3,
+        phaseName: "Phase 3 — Branding & Marketing Assets",
+        tasks: [
+          {
+            id: "p3_1",
+            title: "Branding Refresh & Compliance Update",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Broker Nicole",
+            dueDateOffset: 7,
+            subtasks: [
+              "Real-compliant logos applied to email & socials",
+              "Social media banners and web graphics created",
+              "Broker Nicole compliance review completed"
+            ]
+          },
+          {
+            id: "p3_2",
+            title: "Print & Signage Collateral Order",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Broker Nicole",
+            dueDateOffset: 8,
+            subtasks: [
+              "Business card draft approved by Broker Nicole",
+              "Yard signs & name tags ordered",
+              "Tracking info sent to agent"
+            ]
+          },
+          {
+            id: "p3_3",
+            title: "Google Drive Storage & Asset Archive",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
+            dueDateOffset: 6,
+            subtasks: [
+              "Agent archive folder structure created",
+              "Headshots, branding files, and past assets backed up"
+            ]
+          }
+        ]
+      },
+      {
+        phaseId: 4,
+        phaseName: "Phase 4 — Post-Transfer Wrap-Up & Launch",
+        tasks: [
+          {
+            id: "p4_1",
+            title: "Active Listing Migration & MLS Re-upload",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya & Agent | A: Agent | I: Tyson",
+            dueDateOffset: 10,
+            subtasks: [
+              "Board transfer verified in system",
+              "Active listings re-uploaded under Wayfinder/Real",
+              "Signage updated on active properties"
+            ]
+          },
+          {
+            id: "p4_2",
+            title: "Brokerage Launch & Announcements",
+            raci: "Skalvya",
+            raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
+            dueDateOffset: 12,
+            subtasks: [
+              "Social media announcement graphic & copy drafted",
+              "Brokerage announcement published on personal socials",
+              "Welcome post submitted to Real official brokerage channels"
+            ]
+          }
+        ]
+      }
+    ];
+
+    // DEFAULT DATA INITIALIZATION
+    const DEFAULT_AGENTS = [
+      {
+        id: "ag_1",
+        name: "Jane Doe",
+        startDate: "2026-07-01",
+        targetTransferDate: "2026-07-15",
+        riskStatus: "On Track",
+        blockers: "None",
+        nextAction: "Complete FUB smart list verification call",
+        evidenceLink: "https://drive.google.com",
+        completedSubtasks: {
+          "p1_1_0": true, "p1_1_1": true, "p1_1_2": true,
+          "p1_2_0": true, "p1_2_1": true, "p1_2_2": true,
+          "p2_4_0": true, "p2_4_1": true, "p2_4_2": true
+        }
+      },
+      {
+        id: "ag_2",
+        name: "John Smith",
+        startDate: "2026-07-10",
+        targetTransferDate: "2026-07-25",
+        riskStatus: "At Risk",
+        blockers: "Waiting on Board transfer window confirmation",
+        nextAction: "Ping local Board for affiliation status",
+        evidenceLink: "https://drive.google.com",
+        completedSubtasks: {
+          "p1_1_0": true, "p1_1_1": true
+        }
+      }
+    ];
+
+    // LOCAL STORAGE STATE MANAGEMENT
+    let appData = {
+      activeAgentId: "ag_1",
+      agents: DEFAULT_AGENTS
+    };
+
+    function loadState() {
+      const stored = localStorage.getItem("wayfinder_onboarding_data_v1");
+      if (stored) {
+        try {
+          appData = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to load local storage, using default.", e);
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem("wayfinder_onboarding_data_v1", JSON.stringify(appData));
+      render();
+    }
+
+    // HELPER FUNCTIONS
+    function getActiveAgent() {
+      return appData.agents.find(a => a.id === appData.activeAgentId) || appData.agents[0];
+    }
+
+    function switchAgent(id) {
+      appData.activeAgentId = id;
+      saveState();
+    }
+
+    function addNewAgentPrompt() {
+      const name = prompt("Enter new agent name:");
+      if (!name) return;
+      const newId = "ag_" + Date.now();
+      const today = new Date().toISOString().split('T')[0];
+      appData.agents.push({
+        id: newId,
+        name: name,
+        startDate: today,
+        targetTransferDate: today,
+        riskStatus: "On Track",
+        blockers: "None",
+        nextAction: "Complete Join Real Application",
+        evidenceLink: "",
+        completedSubtasks: {}
+      });
+      appData.activeAgentId = newId;
+      saveState();
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `wayfinder_onboarding_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataPrompt() {
+      const jsonStr = prompt("Paste exported JSON state here:");
+      if (!jsonStr) return;
+      try {
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.agents) {
+          appData = parsed;
+          saveState();
+          alert("Data imported successfully!");
+        }
+      } catch (e) {
+        alert("Invalid JSON format.");
+      }
+    }
+
+    // TASK COMPLETION CALCULATIONS
+    function isSubtaskDone(agent, taskId, subIndex) {
+      return !!(agent.completedSubtasks && agent.completedSubtasks[`${taskId}_${subIndex}`]);
+    }
+
+    function isTaskDone(agent, task) {
+      return task.subtasks.every((_, idx) => isSubtaskDone(agent, task.id, idx));
+    }
+
+    function toggleSubtask(taskId, subIndex) {
+      const agent = getActiveAgent();
+      if (!agent.completedSubtasks) agent.completedSubtasks = {};
+      const key = `${taskId}_${subIndex}`;
+      agent.completedSubtasks[key] = !agent.completedSubtasks[key];
+      saveState();
+    }
+
+    function updateActiveAgentRisk(val) {
+      const agent = getActiveAgent();
+      agent.riskStatus = val;
+      saveState();
+    }
+
+    function updateActiveAgentBlocker(val) {
+      const agent = getActiveAgent();
+      agent.blockers = val;
+      saveState();
+    }
+
+    function updateActiveAgentNextAction(val) {
+      const agent = getActiveAgent();
+      agent.nextAction = val;
+      saveState();
+    }
+
+    function updateAgentEvidenceLink(agentId, val) {
+      const agent = appData.agents.find(a => a.id === agentId);
+      if (agent) {
+        agent.evidenceLink = val;
+        saveState();
+      }
+    }
+
+    // CHART MANAGEMENT
+    let gaugeChartInstance = null;
+
+    function renderGaugeChart(percentage) {
+      const ctx = document.getElementById('progressGaugeChart').getContext('2d');
+      if (gaugeChartInstance) gaugeChartInstance.destroy();
+
+      gaugeChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [percentage, 100 - percentage],
+            backgroundColor: ['#14b8a6', '#1e293b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: '80%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: { enabled: false }, legend: { display: false } }
+        }
+      });
+    }
+
+    // RENDER MAIN DASHBOARD
+    function render() {
+      const agent = getActiveAgent();
+
+      // Render Dropdown
+      const select = document.getElementById('agentSelect');
+      select.innerHTML = appData.agents.map(a => `<option value="${a.id}" ${a.id === agent.id ? 'selected' : ''}>${a.name}</option>`).join('');
+
+      // Populate Executive Overview Matrix
+      const matrixBody = document.getElementById('agentMatrixBody');
+      matrixBody.innerHTML = appData.agents.map(a => {
+        let totalSubs = 0;
+        let doneSubs = 0;
+        TASK_SCHEMA.forEach(p => p.tasks.forEach(t => t.subtasks.forEach((_, idx) => {
+          totalSubs++;
+          if (isSubtaskDone(a, t.id, idx)) doneSubs++;
+        })));
+        const pct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+        
+        let riskBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        if (a.riskStatus === 'At Risk') riskBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        if (a.riskStatus === 'Blocked') riskBadge = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+        return `
+          <tr class="hover:bg-slate-900/50 transition">
+            <td class="p-3 font-semibold text-white flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full ${a.id === agent.id ? 'bg-brand-500' : 'bg-slate-600'}"></div>
+              ${a.name}
+            </td>
+            <td class="p-3 text-xs text-slate-400">${a.startDate}</td>
+            <td class="p-3 text-xs text-slate-400">${a.targetTransferDate}</td>
+            <td class="p-3 text-xs text-indigo-300 font-medium">Phase ${pct < 25 ? '1' : pct < 60 ? '2' : pct < 85 ? '3' : '4'}</td>
+            <td class="p-3">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-brand-500 h-full" style="width: ${pct}%"></div>
+                </div>
+                <span class="text-xs font-bold text-white">${pct}%</span>
+              </div>
+            </td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded-full text-[11px] border font-medium ${riskBadge}">${a.riskStatus}</span>
+            </td>
+            <td class="p-3 text-xs text-slate-400 truncate max-w-[150px]">${a.blockers || 'None'}</td>
+            <td class="p-3 text-xs text-slate-300 truncate max-w-[180px]">${a.nextAction || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Calculate Metrics for Active Agent
+      let totalSubtasks = 0;
+      let completedSubtasks = 0;
+
+      let agentRaciTotal = 0, agentRaciDone = 0;
+      let skalvyaRaciTotal = 0, skalvyaRaciDone = 0;
+      let wayfinderRaciTotal = 0, wayfinderRaciDone = 0;
+
+      TASK_SCHEMA.forEach(phase => {
+        phase.tasks.forEach(task => {
+          task.subtasks.forEach((_, idx) => {
+            totalSubtasks++;
+            const done = isSubtaskDone(agent, task.id, idx);
+            if (done) completedSubtasks++;
+
+            if (task.raci === "Agent") {
+              agentRaciTotal++;
+              if (done) agentRaciDone++;
+            } else if (task.raci === "Skalvya") {
+              skalvyaRaciTotal++;
+              if (done) skalvyaRaciDone++;
+            } else {
+              wayfinderRaciTotal++;
+              if (done) wayfinderRaciDone++;
+            }
+          });
+        });
+      });
+
+      const overallPct = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+      const agentPct = agentRaciTotal > 0 ? Math.round((agentRaciDone / agentRaciTotal) * 100) : 0;
+      const skalvyaPct = skalvyaRaciTotal > 0 ? Math.round((skalvyaRaciDone / skalvyaRaciTotal) * 100) : 0;
+      const wayfinderPct = wayfinderRaciTotal > 0 ? Math.round((wayfinderRaciDone / wayfinderRaciTotal) * 100) : 0;
+
+      // Update KPIs
+      document.getElementById('kpiActiveAgents').innerText = appData.agents.length;
+      document.getElementById('kpiAvgProgress').innerText = `${overallPct}%`;
+      document.getElementById('gaugePercentage').innerText = `${overallPct}%`;
+      
+      let currentPhaseText = "Phase 1";
+      let phaseSubText = "Application & License Transfer";
+      if (overallPct >= 25 && overallPct < 60) {
+        currentPhaseText = "Phase 2";
+        phaseSubText = "Technical Activation";
+      } else if (overallPct >= 60 && overallPct < 85) {
+        currentPhaseText = "Phase 3";
+        phaseSubText = "Branding & Marketing";
+      } else if (overallPct >= 85) {
+        currentPhaseText = "Phase 4";
+        phaseSubText = "Post-Transfer Wrap-Up";
+      }
+      document.getElementById('kpiCurrentPhase').innerText = currentPhaseText;
+      document.getElementById('kpiPhaseSub').innerText = phaseSubText;
+
+      document.getElementById('kpiRiskStatus').innerText = agent.riskStatus;
+      const blockerCount = appData.agents.filter(a => a.riskStatus === 'Blocked' || (a.blockers && a.blockers !== 'None')).length;
+      document.getElementById('kpiBlockerCount').innerText = `(${blockerCount} Active Blockers)`;
+
+      // Render Party Bars
+      document.getElementById('agentPartyPct').innerText = `${agentPct}%`;
+      document.getElementById('agentPartyBar').style.width = `${agentPct}%`;
+
+      document.getElementById('skalvyaPartyPct').innerText = `${skalvyaPct}%`;
+      document.getElementById('skalvyaPartyBar').style.width = `${skalvyaPct}%`;
+
+      document.getElementById('wayfinderPartyPct').innerText = `${wayfinderPct}%`;
+      document.getElementById('wayfinderPartyBar').style.width = `${wayfinderPct}%`;
+
+      // Update Form Control Fields
+      document.getElementById('activeRiskSelect').value = agent.riskStatus;
+      document.getElementById('activeBlockerInput').value = agent.blockers || '';
+      document.getElementById('activeNextActionInput').value = agent.nextAction || '';
+
+      // Render Gauge Chart
+      renderGaugeChart(overallPct);
+
+      // Render Dynamic Checklist Sections
+      const phasesContainer = document.getElementById('phasesContainer');
+      phasesContainer.innerHTML = TASK_SCHEMA.map(phase => {
+        return `
+          <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
+            <h3 class="text-md font-bold text-slate-200 border-b border-slate-800 pb-3 flex items-center justify-between">
+              <span>${phase.phaseName}</span>
+            </h3>
+
+            <div class="space-y-4">
+              ${phase.tasks.map(task => {
+                const taskDone = isTaskDone(agent, task);
+                return `
+                  <div class="bg-slate-950/60 border ${taskDone ? 'border-emerald-500/30' : 'border-slate-800'} rounded-xl p-4 transition">
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                          <span class="inline-flex items-center justify-center w-5 h-5 rounded-md ${taskDone ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-500'} font-bold text-xs">
+                            ${taskDone ? '✓' : ''}
+                          </span>
+                        </div>
+                        <div>
+                          <h4 class="text-sm font-bold ${taskDone ? 'text-emerald-300 line-through' : 'text-white'}">
+                            ${task.title}
+                          </h4>
+                          <p class="text-[11px] text-slate-400 mt-0.5">${task.raciCode}</p>
+                        </div>
+                      </div>
+
+                      <div class="text-right">
+                        <span class="text-[10px] font-semibold uppercase px-2 py-1 rounded bg-slate-800 text-slate-300">
+                          Owner: ${task.raci}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Subtask Verification Items -->
+                    <div class="mt-3 pl-8 space-y-2 border-t border-slate-800/60 pt-3">
+                      <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Required Definition of Done:</p>
+                      ${task.subtasks.map((sub, idx) => {
+                        const checked = isSubtaskDone(agent, task.id, idx);
+                        return `
+                          <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer hover:text-white transition">
+                            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubtask('${task.id}', ${idx})" class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-brand-600 focus:ring-brand-500">
+                            <span class="${checked ? 'line-through text-slate-500' : ''}">${sub}</span>
+                          </label>
+                        `;
+                      }).join('')}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // INITIALIZATION
+    window.onload = () => {
+      loadState();
+      render();
+    };
+  </script>
+</body>
+</html>
