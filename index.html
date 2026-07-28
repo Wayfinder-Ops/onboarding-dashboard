@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wayfinder Real Estate — Agent Onboarding Command Center</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -29,6 +30,56 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- FIREBASE SDKs (Modular CDN) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // =============================================================
+    // REPLACE THIS WITH YOUR FIREBASE CONFIG FROM STEP 1
+    // =============================================================
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'wayfinder_onboarding');
+
+    // Attach DB methods to global window object so UI events can access them
+    window.db = db;
+    window.dbRef = dbRef;
+    window.set = set;
+    window.ref = ref;
+
+    // LIVE LISTEN: Syncs instantly across all connected screens
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        window.appData = data;
+        // Keep active agent valid
+        if (!window.appData.agents.find(a => a.id === window.appData.activeAgentId)) {
+          window.appData.activeAgentId = window.appData.agents[0]?.id || "ag_1";
+        }
+      } else {
+        // Initialize DB with seed data if empty
+        window.saveStateToFirebase();
+      }
+      window.renderDashboard();
+      window.updateLiveIndicator(true);
+    }, (error) => {
+      console.error("Firebase Sync Error:", error);
+      window.updateLiveIndicator(false);
+    });
+  </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white">
 
@@ -39,7 +90,13 @@
         WF
       </div>
       <div>
-        <h1 class="text-lg font-bold text-white tracking-wide">WAYFINDER <span class="text-xs font-normal text-slate-400">× SKALVYA</span></h1>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-bold text-white tracking-wide">WAYFINDER <span class="text-xs font-normal text-slate-400">× SKALVYA</span></h1>
+          <!-- LIVE CONNECTION INDICATOR -->
+          <span id="liveStatusBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Connecting...
+          </span>
+        </div>
         <p class="text-xs text-slate-400">Agent Onboarding & Transition Command Center</p>
       </div>
     </div>
@@ -53,15 +110,6 @@
 
       <button onclick="addNewAgentPrompt()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-1 shadow-md">
         <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Add Agent
-      </button>
-
-      <div class="h-6 w-[1px] bg-slate-800 mx-1"></div>
-
-      <button onclick="exportData()" title="Export JSON State" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition">
-        <i data-lucide="download" class="w-4 h-4"></i>
-      </button>
-      <button onclick="importDataPrompt()" title="Import JSON State" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition">
-        <i data-lucide="upload" class="w-4 h-4"></i>
       </button>
     </div>
   </header>
@@ -257,7 +305,6 @@
             title: "Join Real Application & ICA Signing",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent | C: Skalvya",
-            dueDateOffset: 1,
             subtasks: [
               "Pre-filled application details verified by Skalvya",
               "ICA signed by agent",
@@ -269,7 +316,6 @@
             title: "OHID Account & License Transfer Submission",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent | C: Skalvya",
-            dueDateOffset: 2,
             subtasks: [
               "OHID login created / verified",
               "License transfer / exam application submitted",
@@ -281,7 +327,6 @@
             title: "Background Check & Fingerprints (First Time Only)",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent",
-            dueDateOffset: 3,
             subtasks: [
               "Fingerprints scheduled / taken",
               "Background check submitted to BCI/FBI"
@@ -292,7 +337,6 @@
             title: "Notify Current Sponsoring Brokerage",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent",
-            dueDateOffset: 3,
             subtasks: [
               "Written notice sent to current broker",
               "Offboarding confirmation received"
@@ -309,7 +353,6 @@
             title: "Board & MLS Affiliation Transfer",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent | C: Skalvya | I: Tyson",
-            dueDateOffset: 5,
             subtasks: [
               "MLS NOW affiliation verified",
               "Local Board notified within 30-day window",
@@ -321,7 +364,6 @@
             title: "Dotloop E-Signature Setup",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | I: Agent",
-            dueDateOffset: 2,
             subtasks: [
               "Dotloop account created",
               "Wayfinder standard loop templates pre-loaded",
@@ -333,7 +375,6 @@
             title: "reZEN Portal Onboarding & Profile Setup",
             raci: "Skalvya",
             raciCode: "R: Skalvya & Agent | A: Agent",
-            dueDateOffset: 3,
             subtasks: [
               "Banking / routing details submitted",
               "Business entity selection (S-Corp/LLC/Sole) set",
@@ -345,7 +386,6 @@
             title: "Wayfinder Google Workspace Provisioning",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
-            dueDateOffset: 2,
             subtasks: [
               "Google Workspace email account created",
               "Brand-compliant HTML email signature attached",
@@ -357,7 +397,6 @@
             title: "Follow Up Boss (FUB) CRM Setup",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
-            dueDateOffset: 4,
             subtasks: [
               "FUB user account created and permissions set",
               "Cleaned contact CSV imported successfully",
@@ -372,7 +411,6 @@
             title: "Slack & Communication Channels Setup",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder",
-            dueDateOffset: 2,
             subtasks: [
               "Slack account invited",
               "Added to team channels (#ops, #general, #announcements)",
@@ -384,7 +422,6 @@
             title: "WorkVivo & Facebook Communities Integration",
             raci: "Skalvya",
             raciCode: "R: Skalvya & Agent | A: Wayfinder",
-            dueDateOffset: 4,
             subtasks: [
               "WorkVivo account created and joined Ohio State Space",
               "Introductory bio post drafted and published",
@@ -396,7 +433,6 @@
             title: "Agent Intro Form & Leadership Connection",
             raci: "Agent",
             raciCode: "R: Agent | A: Agent | I: Broker Nicole",
-            dueDateOffset: 5,
             subtasks: [
               "Agent Introduction Form submitted to Broker Nicole",
               "Introductory call with Sponsor & Broker Nicole completed"
@@ -413,7 +449,6 @@
             title: "Branding Refresh & Compliance Update",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Broker Nicole",
-            dueDateOffset: 7,
             subtasks: [
               "Real-compliant logos applied to email & socials",
               "Social media banners and web graphics created",
@@ -425,7 +460,6 @@
             title: "Print & Signage Collateral Order",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Broker Nicole",
-            dueDateOffset: 8,
             subtasks: [
               "Business card draft approved by Broker Nicole",
               "Yard signs & name tags ordered",
@@ -437,7 +471,6 @@
             title: "Google Drive Storage & Asset Archive",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
-            dueDateOffset: 6,
             subtasks: [
               "Agent archive folder structure created",
               "Headshots, branding files, and past assets backed up"
@@ -454,7 +487,6 @@
             title: "Active Listing Migration & MLS Re-upload",
             raci: "Skalvya",
             raciCode: "R: Skalvya & Agent | A: Agent | I: Tyson",
-            dueDateOffset: 10,
             subtasks: [
               "Board transfer verified in system",
               "Active listings re-uploaded under Wayfinder/Real",
@@ -466,7 +498,6 @@
             title: "Brokerage Launch & Announcements",
             raci: "Skalvya",
             raciCode: "R: Skalvya | A: Wayfinder | C: Agent",
-            dueDateOffset: 12,
             subtasks: [
               "Social media announcement graphic & copy drafted",
               "Brokerage announcement published on personal socials",
@@ -477,7 +508,7 @@
       }
     ];
 
-    // DEFAULT DATA INITIALIZATION
+    // DEFAULT SEED AGENTS
     const DEFAULT_AGENTS = [
       {
         id: "ag_1",
@@ -487,11 +518,9 @@
         riskStatus: "On Track",
         blockers: "None",
         nextAction: "Complete FUB smart list verification call",
-        evidenceLink: "https://drive.google.com",
         completedSubtasks: {
           "p1_1_0": true, "p1_1_1": true, "p1_1_2": true,
-          "p1_2_0": true, "p1_2_1": true, "p1_2_2": true,
-          "p2_4_0": true, "p2_4_1": true, "p2_4_2": true
+          "p1_2_0": true, "p1_2_1": true, "p1_2_2": true
         }
       },
       {
@@ -502,51 +531,51 @@
         riskStatus: "At Risk",
         blockers: "Waiting on Board transfer window confirmation",
         nextAction: "Ping local Board for affiliation status",
-        evidenceLink: "https://drive.google.com",
         completedSubtasks: {
           "p1_1_0": true, "p1_1_1": true
         }
       }
     ];
 
-    // LOCAL STORAGE STATE MANAGEMENT
-    let appData = {
+    // GLOBAL STATE CONTAINER
+    window.appData = {
       activeAgentId: "ag_1",
       agents: DEFAULT_AGENTS
     };
 
-    function loadState() {
-      const stored = localStorage.getItem("wayfinder_onboarding_data_v1");
-      if (stored) {
-        try {
-          appData = JSON.parse(stored);
-        } catch (e) {
-          console.error("Failed to load local storage, using default.", e);
-        }
+    window.saveStateToFirebase = function() {
+      if (window.set && window.dbRef) {
+        window.set(window.dbRef, window.appData);
       }
-    }
+    };
 
-    function saveState() {
-      localStorage.setItem("wayfinder_onboarding_data_v1", JSON.stringify(appData));
-      render();
-    }
+    window.updateLiveIndicator = function(isLive) {
+      const badge = document.getElementById('liveStatusBadge');
+      if (!badge) return;
+      if (isLive) {
+        badge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> LIVE SYNC`;
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> OFF LINE`;
+      }
+    };
 
-    // HELPER FUNCTIONS
     function getActiveAgent() {
-      return appData.agents.find(a => a.id === appData.activeAgentId) || appData.agents[0];
+      return window.appData.agents.find(a => a.id === window.appData.activeAgentId) || window.appData.agents[0];
     }
 
-    function switchAgent(id) {
-      appData.activeAgentId = id;
-      saveState();
-    }
+    window.switchAgent = function(id) {
+      window.appData.activeAgentId = id;
+      window.saveStateToFirebase();
+    };
 
-    function addNewAgentPrompt() {
+    window.addNewAgentPrompt = function() {
       const name = prompt("Enter new agent name:");
       if (!name) return;
       const newId = "ag_" + Date.now();
       const today = new Date().toISOString().split('T')[0];
-      appData.agents.push({
+      window.appData.agents.push({
         id: newId,
         name: name,
         startDate: today,
@@ -554,39 +583,12 @@
         riskStatus: "On Track",
         blockers: "None",
         nextAction: "Complete Join Real Application",
-        evidenceLink: "",
         completedSubtasks: {}
       });
-      appData.activeAgentId = newId;
-      saveState();
-    }
+      window.appData.activeAgentId = newId;
+      window.saveStateToFirebase();
+    };
 
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `wayfinder_onboarding_${new Date().toISOString().split('T')[0]}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function importDataPrompt() {
-      const jsonStr = prompt("Paste exported JSON state here:");
-      if (!jsonStr) return;
-      try {
-        const parsed = JSON.parse(jsonStr);
-        if (parsed.agents) {
-          appData = parsed;
-          saveState();
-          alert("Data imported successfully!");
-        }
-      } catch (e) {
-        alert("Invalid JSON format.");
-      }
-    }
-
-    // TASK COMPLETION CALCULATIONS
     function isSubtaskDone(agent, taskId, subIndex) {
       return !!(agent.completedSubtasks && agent.completedSubtasks[`${taskId}_${subIndex}`]);
     }
@@ -595,41 +597,32 @@
       return task.subtasks.every((_, idx) => isSubtaskDone(agent, task.id, idx));
     }
 
-    function toggleSubtask(taskId, subIndex) {
+    window.toggleSubtask = function(taskId, subIndex) {
       const agent = getActiveAgent();
       if (!agent.completedSubtasks) agent.completedSubtasks = {};
       const key = `${taskId}_${subIndex}`;
       agent.completedSubtasks[key] = !agent.completedSubtasks[key];
-      saveState();
-    }
+      window.saveStateToFirebase();
+    };
 
-    function updateActiveAgentRisk(val) {
+    window.updateActiveAgentRisk = function(val) {
       const agent = getActiveAgent();
       agent.riskStatus = val;
-      saveState();
-    }
+      window.saveStateToFirebase();
+    };
 
-    function updateActiveAgentBlocker(val) {
+    window.updateActiveAgentBlocker = function(val) {
       const agent = getActiveAgent();
       agent.blockers = val;
-      saveState();
-    }
+      window.saveStateToFirebase();
+    };
 
-    function updateActiveAgentNextAction(val) {
+    window.updateActiveAgentNextAction = function(val) {
       const agent = getActiveAgent();
       agent.nextAction = val;
-      saveState();
-    }
+      window.saveStateToFirebase();
+    };
 
-    function updateAgentEvidenceLink(agentId, val) {
-      const agent = appData.agents.find(a => a.id === agentId);
-      if (agent) {
-        agent.evidenceLink = val;
-        saveState();
-      }
-    }
-
-    // CHART MANAGEMENT
     let gaugeChartInstance = null;
 
     function renderGaugeChart(percentage) {
@@ -654,17 +647,18 @@
       });
     }
 
-    // RENDER MAIN DASHBOARD
-    function render() {
+    // MAIN RENDER ENGINE
+    window.renderDashboard = function() {
       const agent = getActiveAgent();
+      if (!agent) return;
 
       // Render Dropdown
       const select = document.getElementById('agentSelect');
-      select.innerHTML = appData.agents.map(a => `<option value="${a.id}" ${a.id === agent.id ? 'selected' : ''}>${a.name}</option>`).join('');
+      select.innerHTML = window.appData.agents.map(a => `<option value="${a.id}" ${a.id === agent.id ? 'selected' : ''}>${a.name}</option>`).join('');
 
       // Populate Executive Overview Matrix
       const matrixBody = document.getElementById('agentMatrixBody');
-      matrixBody.innerHTML = appData.agents.map(a => {
+      matrixBody.innerHTML = window.appData.agents.map(a => {
         let totalSubs = 0;
         let doneSubs = 0;
         TASK_SCHEMA.forEach(p => p.tasks.forEach(t => t.subtasks.forEach((_, idx) => {
@@ -703,7 +697,7 @@
         `;
       }).join('');
 
-      // Calculate Metrics for Active Agent
+      // Metrics for Active Agent
       let totalSubtasks = 0;
       let completedSubtasks = 0;
 
@@ -738,7 +732,7 @@
       const wayfinderPct = wayfinderRaciTotal > 0 ? Math.round((wayfinderRaciDone / wayfinderRaciTotal) * 100) : 0;
 
       // Update KPIs
-      document.getElementById('kpiActiveAgents').innerText = appData.agents.length;
+      document.getElementById('kpiActiveAgents').innerText = window.appData.agents.length;
       document.getElementById('kpiAvgProgress').innerText = `${overallPct}%`;
       document.getElementById('gaugePercentage').innerText = `${overallPct}%`;
       
@@ -758,7 +752,7 @@
       document.getElementById('kpiPhaseSub').innerText = phaseSubText;
 
       document.getElementById('kpiRiskStatus').innerText = agent.riskStatus;
-      const blockerCount = appData.agents.filter(a => a.riskStatus === 'Blocked' || (a.blockers && a.blockers !== 'None')).length;
+      const blockerCount = window.appData.agents.filter(a => a.riskStatus === 'Blocked' || (a.blockers && a.blockers !== 'None')).length;
       document.getElementById('kpiBlockerCount').innerText = `(${blockerCount} Active Blockers)`;
 
       // Render Party Bars
@@ -771,7 +765,7 @@
       document.getElementById('wayfinderPartyPct').innerText = `${wayfinderPct}%`;
       document.getElementById('wayfinderPartyBar').style.width = `${wayfinderPct}%`;
 
-      // Update Form Control Fields
+      // Form Control Fields
       document.getElementById('activeRiskSelect').value = agent.riskStatus;
       document.getElementById('activeBlockerInput').value = agent.blockers || '';
       document.getElementById('activeNextActionInput').value = agent.nextAction || '';
@@ -836,13 +830,9 @@
         `;
       }).join('');
 
-      lucide.createIcons();
-    }
-
-    // INITIALIZATION
-    window.onload = () => {
-      loadState();
-      render();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
     };
   </script>
 </body>
