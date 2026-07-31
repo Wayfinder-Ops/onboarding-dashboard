@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isSkalvya() { return signedIn() && me().role == 'skalvya'; }
+    function isTyson()   { return signedIn() && me().role == 'tyson'; }
+    function isAgent()   { return signedIn() && me().role == 'agent'; }
+    function isOwnAgent(agentId) { return isAgent() && me().agentId == agentId; }
+    function canRead(agentId) { return isSkalvya() || isTyson() || isOwnAgent(agentId); }
+
+    // Each user's own role/profile document. Skalvya creates these (via the
+    // app's "Add Agent" flow, or manually in the console for Skalvya/Tyson).
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isSkalvya());
+      allow write: if isSkalvya();
+    }
+
+    match /agents/{agentId} {
+      allow read: if canRead(agentId);
+      allow write: if isSkalvya(); // risk status, agent creation/edits
+
+      match /tasks/{taskId} {
+        allow read: if canRead(agentId);
+        allow update: if isSkalvya() || isOwnAgent(agentId);
+        allow create, delete: if isSkalvya();
+      }
+    }
+  }
+}
