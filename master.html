@@ -98,6 +98,18 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .blocker-agent{font-weight:700;color:var(--navy)} .blocker-task{color:var(--text)} .blocker-text{color:var(--red);font-weight:500}
 
 .empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.error-panel{text-align:center;padding:50px 24px;max-width:460px;margin:0 auto}
+.error-panel .icon{width:44px;height:44px;border-radius:12px;background:#FDECEC;color:#B23C3C;display:flex;align-items:center;justify-content:center;font-size:19px;margin:0 auto 16px}
+.error-panel h3{font-family:'Fraunces',serif;color:var(--navy);margin:0 0 8px;font-size:18px}
+.error-panel .code{font-size:12px;color:#B23C3C;background:#FDECEC;border-radius:7px;padding:6px 10px;display:inline-block;margin:6px 0 14px;font-family:monospace}
+.error-panel .hint{font-size:13px;color:var(--muted);line-height:1.6}
+.boat-loader{width:76px;height:76px;margin:0 auto 16px}
+.wave-anim{animation:waveMove 3.2s linear infinite}
+.wave-anim2{animation:waveMove 4s linear infinite reverse}
+@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
+.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+.loading-msg{text-align:center;color:var(--muted);font-size:13.5px;font-weight:500}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(10,15,28,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(3px)}
 .modal-overlay.open{display:flex}
@@ -126,7 +138,22 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 <body>
 
 <div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
-<div id="app"><div class="setup-screen"><div class="setup-card"><h2 class="serif">Loading...</h2></div></div></div>
+<div id="app"><div class="setup-screen">
+  <div style="text-align:center">
+    <div class="boat-loader"><svg viewBox="0 0 120 120" width="100%" height="100%">
+      <circle cx="60" cy="60" r="58" fill="#0F1B33"/>
+      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
+        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/></g>
+      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
+        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/></g>
+      <g class="boat-anim">
+        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
+        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
+        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/></g>
+    </svg></div>
+    <p class="loading-msg">Loading dashboard...</p>
+  </div>
+</div></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -217,6 +244,13 @@ if (!CONFIGURED) {
       const snap = await db.collection("users").doc(user.uid).get();
       if (!snap.exists) { alert("Your account isn't set up with a role yet. Ask Skalvya."); auth.signOut(); return; }
       me = { uid: user.uid, ...snap.data() };
+      if (!["skalvya", "agent", "tyson"].includes(me.role)) {
+        app.innerHTML = `<div class="setup-screen"><div class="setup-card">
+          <div class="icon">&#9888;</div><h2 class="serif">Hold on</h2>
+          <p>Your account's <code>role</code> field is missing or doesn't exactly match "skalvya", "agent", or "tyson". Check the <code>users/${user.uid}</code> document in the Firestore console — field names and values are case-sensitive.</p>
+        </div></div>`;
+        return;
+      }
       if (me.role === "agent") { window.location.href = "agent.html"; return; }
       boot();
     } catch (err) { console.error(err); alert("Couldn't load your account."); auth.signOut(); }
@@ -226,7 +260,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Master Dashboard</div></div></div>
+          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
           <div class="side-divider"></div>
           <div class="side-label">Overview</div>
           <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
@@ -234,7 +268,7 @@ if (!CONFIGURED) {
           ${me.role === "skalvya" ? `<button class="side-add-btn" id="addAgentBtn">+ Add Agent</button>` : ""}
           <div class="side-user">
             <div class="avatar">${initials(me.name)}</div>
-            <div><div class="n">${me.name || "You"}</div><div class="r">${me.role}</div></div>
+            <div><div class="n">${me.name || "You"}</div><div class="r">${me.role || "—"}</div></div>
           </div>
           <button class="logout-btn" id="logoutBtn">Sign Out</button>
         </aside>
@@ -288,7 +322,21 @@ if (!CONFIGURED) {
       render();
     }, handleErr);
   }
-  function handleErr(err){ console.error(err); document.getElementById("connectionBanner").style.display="flex"; }
+  function handleErr(err){
+    console.error(err);
+    const banner = document.getElementById("connectionBanner");
+    banner.style.display = "flex";
+    banner.textContent = "Can't reach the database — " + (err.code || "unknown error");
+    const main = document.getElementById("main");
+    if (!main) return;
+    main.innerHTML = `<div class="error-panel">
+      <div class="icon">&#9888;</div>
+      <h3>Couldn't load the dashboard</h3>
+      <div class="code">${err.code || "unknown"}</div>
+      <p class="hint">${err.message || String(err)}</p>
+      <p class="hint" style="margin-top:14px;">Most common cause: Firestore security rules aren't published yet, or your account's <code>role</code> field doesn't exactly match "skalvya" or "tyson" (check for capitalization or extra spaces in the Firestore console).</p>
+    </div>`;
+  }
 
   async function submitAddAgent(e) {
     e.preventDefault();
