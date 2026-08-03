@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign In — Wayfinder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
+  --gold:#C6A15B; --gold-light:#E9D6AC;
+  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
+  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
+  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.serif{font-family:'Fraunces',serif}
+
+.wrap{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+@media (max-width:880px){.wrap{grid-template-columns:1fr}.panel-left{display:none}}
+
+.panel-left{
+  position:relative;overflow:hidden;
+  background:radial-gradient(120% 120% at 15% 10%, #1a2c52 0%, #0e1930 55%, #070d1c 100%);
+  padding:56px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;
+}
+.panel-left::before{
+  content:"";position:absolute;inset:0;opacity:.5;
+  background-image:radial-gradient(circle at 80% 20%, rgba(198,161,91,.18), transparent 45%),
+                    radial-gradient(circle at 20% 85%, rgba(198,161,91,.12), transparent 50%);
+}
+.panel-left .top{position:relative;z-index:1}
+.brandmark{display:flex;align-items:center;gap:12px;margin-bottom:64px}
+.brandmark .box{
+  width:42px;height:42px;border-radius:11px;border:1.5px solid rgba(233,214,172,.4);
+  display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:14px;letter-spacing:.5px;
+  background:rgba(255,255,255,.04);
+}
+.brandmark .word{font-weight:800;font-size:15px;letter-spacing:2px;color:#fff}
+.panel-left h1{
+  font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.18;margin:0 0 20px;
+  max-width:420px;color:#fff;position:relative;z-index:1;
+}
+.panel-left h1 em{color:var(--gold-light);font-style:italic}
+.panel-left p{color:rgba(255,255,255,.6);font-size:15px;line-height:1.6;max-width:380px;position:relative;z-index:1}
+.panel-left .bottom{position:relative;z-index:1;display:flex;gap:28px;flex-wrap:wrap}
+.stat{}
+.stat .n{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--gold-light)}
+.stat .l{font-size:11.5px;color:rgba(255,255,255,.45);letter-spacing:.3px;margin-top:2px}
+
+.panel-right{display:flex;align-items:center;justify-content:center;padding:32px}
+.form-card{width:100%;max-width:380px}
+.form-card .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.form-card h2{font-family:'Fraunces',serif;font-size:28px;font-weight:600;margin:0 0 8px;color:var(--navy)}
+.form-card .sub{color:var(--muted);font-size:14px;margin:0 0 32px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:7px;letter-spacing:.2px}
+.field .input-wrap{position:relative}
+.field input{
+  width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:11px;font-size:14.5px;
+  background:#FBFAF7;transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.field input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(198,161,91,.14);background:#fff}
+
+.login-btn{
+  width:100%;padding:14px;border:none;border-radius:11px;margin-top:6px;cursor:pointer;
+  background:linear-gradient(135deg,var(--navy-2),var(--navy-light));color:#fff;font-weight:700;font-size:14.5px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .15s,box-shadow .15s,opacity .15s;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(15,27,51,.28)}
+.login-btn:disabled{opacity:.65;cursor:not-allowed;transform:none;box-shadow:none}
+.spinner{width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite;display:none}
+.login-btn.loading .spinner{display:inline-block}
+.login-btn.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.login-error{
+  background:#FDECEC;color:#B23C3C;border:1px solid #F5C6C6;border-radius:9px;padding:11px 13px;
+  font-size:13px;margin-bottom:16px;display:none;align-items:flex-start;gap:8px;font-weight:500;
+}
+.login-error.show{display:flex}
+
+.login-footer{margin-top:26px;text-align:center;font-size:12.5px;color:var(--muted)}
+.login-footer a{color:var(--navy);font-weight:600}
+
+/* Setup-not-connected screen */
+.setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.setup-card{max-width:520px;background:#fff;border-radius:18px;padding:36px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.setup-card .icon{width:44px;height:44px;border-radius:12px;background:#FCF1DC;color:#8A5A00;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.setup-card h2{font-family:'Fraunces',serif;margin:0 0 10px;font-size:22px;color:var(--navy)}
+.setup-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 16px}
+.setup-card ol{margin:0 0 18px;padding-left:20px;color:var(--text);font-size:13.5px;line-height:1.9}
+.setup-card code{background:#F3F1EA;padding:2px 6px;border-radius:5px;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="setup-screen"><div class="setup-card">
+    <div class="icon">&#9881;</div>
+    <h2>Loading...</h2>
+  </div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG — replace the REPLACE_ME values below.
+   This exact block also appears at the top of agent.html and
+   master.html — update it in all three files the same way.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME.appspot.com",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME",
+};
+const CONFIGURED = firebaseConfig.apiKey !== "REPLACE_ME" && firebaseConfig.apiKey.length > 10;
+
+const app = document.getElementById("app");
+
+if (!CONFIGURED) {
+  app.innerHTML = `
+    <div class="setup-screen"><div class="setup-card">
+      <div class="icon">&#9881;</div>
+      <h2>Dashboard not connected yet</h2>
+      <p>This page is working correctly — it just needs your Firebase project's keys before it can sign anyone in.</p>
+      <ol>
+        <li>Open <code>login.html</code> (this file) in your code editor</li>
+        <li>Find the block that starts with <code>const firebaseConfig = {</code></li>
+        <li>Replace all six <code>REPLACE_ME</code> values with your real Firebase config (see README.md, Step 4)</li>
+        <li>Do the same in <code>agent.html</code> and <code>master.html</code></li>
+        <li>Save and re-upload to GitHub</li>
+      </ol>
+      <p style="margin-bottom:0;">Once that's done, this screen is replaced automatically by the real sign-in page.</p>
+    </div></div>`;
+} else {
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="panel-left">
+        <div class="top">
+          <div class="brandmark">
+            <div class="box">WF</div>
+            <div class="word">WAYFINDER</div>
+          </div>
+          <h1>The operating system<br/>behind every agent's<br/><em>first 90 days.</em></h1>
+          <p>One place to track every step of onboarding — application, licensing, branding, and go-live — built by Skalvya for the Wayfinder team.</p>
+        </div>
+        <div class="bottom">
+          <div class="stat"><div class="n">4</div><div class="l">ONBOARDING PHASES</div></div>
+          <div class="stat"><div class="n">23</div><div class="l">TRACKED TASKS</div></div>
+          <div class="stat"><div class="n">Live</div><div class="l">REAL-TIME SYNC</div></div>
+        </div>
+      </div>
+
+      <div class="panel-right">
+        <div class="form-card">
+          <div class="eyebrow">Skalvya × Wayfinder</div>
+          <h2>Welcome back</h2>
+          <p class="sub">Sign in with the email and password Skalvya set up for you.</p>
+
+          <div id="loginError" class="login-error"></div>
+
+          <form id="loginForm">
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="email" required autocomplete="username" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••" />
+            </div>
+            <button type="submit" id="loginBtn" class="login-btn">
+              <span class="spinner"></span><span class="btn-text">Sign In</span>
+            </button>
+          </form>
+          <div class="login-footer">Trouble signing in? Message Skalvya on Slack.</div>
+        </div>
+      </div>
+    </div>`;
+
+  auth.onAuthStateChanged((user) => { if (user) routeByRole(user.uid); });
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const btn = document.getElementById("loginBtn");
+    const errorBox = document.getElementById("loginError");
+    errorBox.classList.remove("show");
+    btn.disabled = true; btn.classList.add("loading");
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, password);
+      await routeByRole(cred.user.uid);
+    } catch (err) {
+      errorBox.textContent = friendlyError(err);
+      errorBox.classList.add("show");
+      btn.disabled = false; btn.classList.remove("loading");
+    }
+  });
+
+  async function routeByRole(uid) {
+    try {
+      const snap = await db.collection("users").doc(uid).get();
+      if (!snap.exists) {
+        const errorBox = document.getElementById("loginError");
+        errorBox.textContent = "Your account doesn't have a role assigned yet. Ask Skalvya to finish setting it up.";
+        errorBox.classList.add("show");
+        auth.signOut();
+        return;
+      }
+      window.location.href = snap.data().role === "agent" ? "agent.html" : "master.html";
+    } catch (err) {
+      const errorBox = document.getElementById("loginError");
+      errorBox.textContent = "Something went wrong loading your account. Try again.";
+      errorBox.classList.add("show");
+    }
+  }
+
+  function friendlyError(err) {
+    const code = err.code || "";
+    if (code.includes("wrong-password") || code.includes("invalid-credential") || code.includes("user-not-found")) {
+      return "That email or password isn't right — double check with Skalvya.";
+    }
+    if (code.includes("too-many-requests")) return "Too many attempts — wait a minute and try again.";
+    if (code.includes("invalid-email")) return "That doesn't look like a valid email address.";
+    return "Couldn't sign in. Please try again.";
+  }
+}
+</script>
+</body>
+</html>

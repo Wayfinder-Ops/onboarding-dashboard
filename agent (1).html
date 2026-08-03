@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Checklist — Wayfinder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
+  --gold:#C6A15B; --gold-light:#E9D6AC;
+  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
+  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
+  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.serif{font-family:'Fraunces',serif}
+a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer} input,select{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#DCD9CF;border-radius:10px} ::-webkit-scrollbar-track{background:transparent}
+
+.setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.setup-card{max-width:520px;background:#fff;border-radius:18px;padding:36px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.setup-card .icon{width:44px;height:44px;border-radius:12px;background:#FCF1DC;color:#8A5A00;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.setup-card h2{font-family:'Fraunces',serif;margin:0 0 10px;font-size:22px;color:var(--navy)}
+.setup-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 16px}
+.setup-card code{background:#F3F1EA;padding:2px 6px;border-radius:5px;font-size:12.5px}
+
+.shell{display:flex;min-height:100vh}
+.sidebar{
+  width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,#080f1f 100%);color:#fff;
+  padding:26px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:8px;padding:0 4px}
+.brand .mark{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(233,214,172,.35);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:13px}
+.brand .name{font-weight:800;font-size:14.5px;letter-spacing:1px}
+.brand .sub{font-size:10.5px;color:rgba(255,255,255,.42)}
+.side-divider{height:1px;background:rgba(255,255,255,.08);margin:20px 4px}
+.side-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.32);margin:4px 10px 10px;font-weight:700}
+.side-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:11px;color:rgba(255,255,255,.72);font-size:13.5px;font-weight:600;border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s}
+.side-link:hover{background:rgba(255,255,255,.07);color:#fff}
+.side-spacer{flex:1}
+.side-user{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:rgba(255,255,255,.05);margin-bottom:8px}
+.side-user .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a8813f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.side-user .n{font-size:12.5px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-user .r{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:capitalize}
+.logout-btn{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.6);font-size:12.5px;font-weight:600;transition:background .15s,color .15s}
+.logout-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+
+.content{flex:1;padding:34px 42px 70px;max-width:1180px;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.connection-banner{display:none;align-items:center;justify-content:center;gap:8px;background:#FCEFD8;color:#8A5A00;font-size:13px;font-weight:600;padding:10px;position:sticky;top:0;z-index:200}
+
+.back-btn{background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:18px;padding:6px 0;display:inline-flex;align-items:center;gap:5px}
+.back-btn:hover{color:var(--navy)}
+.tyson-note{display:flex;align-items:center;gap:9px;background:#EEF4FC;color:#2C5C93;border:1px solid #D7E5F6;border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;margin-bottom:20px}
+
+.card{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
+
+.agent-header{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}
+.agent-header h1{font-family:'Fraunces',serif;margin:0 0 10px;font-size:27px;color:var(--navy);font-weight:600}
+.agent-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.agent-meta strong{color:var(--text);font-weight:600}
+.agent-header-side{display:flex;align-items:center;gap:18px}
+.ring{--pct:0;width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--pct)*1%),#EEEBE2 0);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;transition:background 1s ease}
+.ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
+.ring span{position:relative;font-weight:800;font-size:14.5px;color:var(--navy)}
+.risk-select{padding:9px 13px;border-radius:10px;border:1.5px solid var(--border);font-size:12.5px;font-weight:700}
+.risk-green{border-color:#BFE7CF;background:#F2FBF6;color:var(--green)}
+.risk-yellow{border-color:#F4DBA6;background:#FDF7EB;color:var(--yellow)}
+.risk-red{border-color:#F3BFBF;background:#FDF1F1;color:var(--red)}
+
+.celebrate{background:linear-gradient(135deg,#F5F0E4,#FBF8F1);border:1px solid var(--gold-light);border-radius:var(--radius);padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.celebrate .emoji{font-size:26px}
+.celebrate .t{font-weight:800;color:var(--navy);font-size:14.5px}
+.celebrate .s{font-size:12.5px;color:var(--muted)}
+
+.phase-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:20px}
+.phase-section-head h3{margin:0 0 3px;font-size:15.5px;color:var(--navy)}
+.phase-section-head .small{color:var(--muted);font-size:12.5px}
+.phase-section-progress{display:flex;align-items:center;white-space:nowrap}
+.progress-track{width:110px;height:7px;background:#EEEBE2;border-radius:6px;overflow:hidden;display:inline-block;vertical-align:middle}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--navy-2));border-radius:6px;transition:width .5s cubic-bezier(.3,.8,.4,1)}
+.progress-pct{font-size:11.5px;color:var(--muted);margin-left:9px;font-weight:700}
+
+.task-list{display:flex;flex-direction:column;gap:9px}
+.task-row{border:1px solid var(--border);border-radius:13px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.task-row:hover{box-shadow:0 4px 14px rgba(15,27,51,.05)}
+.task-row.task-complete{border-color:#CDE9D9;background:#FAFEFB}
+.task-toggle{width:100%;display:flex;align-items:center;gap:11px;padding:13px 15px;border:none;background:transparent;text-align:left;font-size:13.5px}
+.task-toggle .chevron{color:var(--muted);transition:transform .18s;font-size:17px;width:12px}
+.task-toggle.open .chevron{transform:rotate(90deg)}
+.task-status-dot{width:9px;height:9px;border-radius:50%;background:#D9D6CB;flex-shrink:0;transition:background .2s}
+.task-status-dot.dot-complete{background:var(--green)}
+.task-title{flex:1;font-weight:600;color:var(--text)}
+.task-complete .task-title{color:var(--muted);text-decoration:line-through;text-decoration-color:#C4E3D2}
+.owner-chip{font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:999px;color:#fff;letter-spacing:.2px}
+.owner-Agent{background:var(--gold)} .owner-Skalvya{background:var(--navy-2)} .owner-Shared{background:#5E7C8C}
+.task-subpct{font-size:11.5px;color:var(--muted);font-weight:700;min-width:34px;text-align:right}
+
+.task-body{max-height:0;overflow:hidden;transition:max-height .28s ease;background:#FBFAF7}
+.task-body.open{max-height:640px}
+.subtask-list{padding:6px 16px 10px 41px;display:flex;flex-direction:column;gap:7px}
+.subtask-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer}
+.subtask-item input{width:16px;height:16px;accent-color:var(--navy-2);cursor:pointer}
+.subtask-item input:disabled{cursor:not-allowed;opacity:.5}
+.task-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;padding:6px 16px 18px 41px}
+.task-fields label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--muted)}
+.task-fields input{padding:8px 10px;border:1.3px solid var(--border);border-radius:8px;font-size:12.5px;background:#fff}
+.task-fields input:disabled{background:#F3F2ED;color:var(--muted)}
+.readonly-note{font-size:11px;color:var(--muted);font-style:italic;padding:0 16px 14px 41px;margin:0}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+
+@media (max-width:880px){
+  .shell{flex-direction:column} .sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px}
+  .side-spacer,.side-divider,.side-label{display:none} .content{padding:20px}
+  .task-fields{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
+<div id="app"><div class="setup-screen"><div class="setup-card"><h2 class="serif">Loading...</h2></div></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG — replace the REPLACE_ME values below.
+   This exact block also appears in login.html and master.html —
+   update it in all three files the same way.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME.appspot.com",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME",
+};
+const CONFIGURED = firebaseConfig.apiKey !== "REPLACE_ME" && firebaseConfig.apiKey.length > 10;
+const app = document.getElementById("app");
+
+if (!CONFIGURED) {
+  app.innerHTML = `<div class="setup-screen"><div class="setup-card">
+    <div class="icon">&#9881;</div><h2 class="serif">Dashboard not connected yet</h2>
+    <p>Add your Firebase config to the top of <code>login.html</code>, <code>agent.html</code>, and <code>master.html</code> — see README.md, Step 4.</p>
+  </div></div>`;
+} else {
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  /* ---------------- Shared task template ---------------- */
+  const PHASES = [
+    { id: 1, name: "Application & License Transfer", blurb: "Tied to the agent's personal identity and legal filings." },
+    { id: 2, name: "First Day / First Week", blurb: "Technical setup — largely in parallel, so agents go live fast." },
+    { id: 3, name: "Branding & Marketing Materials", blurb: "Fully owned by Skalvya, start to finish." },
+    { id: 4, name: "Post-Transfer Wrap-Up", blurb: "Final steps once the license transfer is confirmed." },
+  ];
+  const TASK_TEMPLATE = [
+    { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"] },
+    { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"] },
+    { id:"p1-3", phase:1, title:"Background check & fingerprinting (first-time agents)", owner:"Agent", subtasks:["Scheduled","Completed","Cleared"] },
+    { id:"p1-4", phase:1, title:"Inform current sponsoring agent of the move", owner:"Agent", subtasks:["Sponsor notified"] },
+    { id:"p2-1", phase:2, title:"Contact local Board & MLS to notify/transfer affiliation (30-day window)", owner:"Agent", subtasks:["Board notified","MLS affiliation updated","Confirmation received"] },
+    { id:"p2-2", phase:2, title:"Set up e-signature platform (Dotloop)", owner:"Skalvya", subtasks:["Account created","Templates loaded","Agent login confirmed"] },
+    { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"] },
+    { id:"p2-4", phase:2, title:"Set up Wayfinder Google Workspace", owner:"Skalvya", subtasks:["Email account created","Calendar set up","Signature installed","Agent login confirmed"] },
+    { id:"p2-5", phase:2, title:"Set up Slack access", owner:"Skalvya", subtasks:["Account created","Added to team channels","Agent login confirmed"] },
+    { id:"p2-6", phase:2, title:"Subscribe to the Real of Ohio events calendar", owner:"Skalvya", subtasks:["Subscription added"] },
+    { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"] },
+    { id:"p2-8", phase:2, title:"Join Ohio Facebook communities", owner:"Skalvya", subtasks:["Added to statewide group","Added to regional group","Added to leadership group (if applicable)"] },
+    { id:"p2-9", phase:2, title:"Submit Agent Introduction Form to Broker Nicole", owner:"Agent", subtasks:["Form submitted"] },
+    { id:"p2-10", phase:2, title:"Set up Follow Up Boss CRM account", owner:"Skalvya", subtasks:["Account created","Permissions configured","Contacts imported & cleaned","Required stages/tags set up","Smart Lists built","Agent login confirmed","Successful test record created"] },
+    { id:"p2-11", phase:2, title:"Build relationship with sponsor & Broker Nicole", owner:"Agent", subtasks:["Intro call completed"] },
+    { id:"p3-1", phase:3, title:"Branding refresh — logos, signature, socials, website", owner:"Skalvya", subtasks:["Logos downloaded","Email signature updated","Social banners updated","Website updated","Broker compliance approval received"] },
+    { id:"p3-2", phase:3, title:"Order business cards, signage, name tags", owner:"Skalvya", subtasks:["Designs created","Broker compliance approval","Order placed","Materials delivered"] },
+    { id:"p3-3", phase:3, title:"Create Google Drive archive folder", owner:"Skalvya", subtasks:["Folder created","Access granted","3 years of records migrated"] },
+    { id:"p3-4", phase:3, title:"Export & clean up CRM contacts from previous brokerage", owner:"Skalvya", subtasks:["CSV exported","Data cleaned & deduped","Ready for FUB import"] },
+    { id:"p4-1", phase:4, title:"Re-confirm Board/MLS, re-upload active listings", owner:"Shared", subtasks:["Board/MLS confirmed under new brokerage","Active listings identified","Listings re-uploaded","Broker sign-off received"] },
+    { id:"p4-2", phase:4, title:"Update signage, socials, website with new brokerage identity", owner:"Skalvya", subtasks:["Signage updated","Socials updated","Website updated"] },
+    { id:"p4-3", phase:4, title:"Publish brokerage announcement on personal social media", owner:"Skalvya", subtasks:["Copy drafted","Agent approval received","Published"] },
+    { id:"p4-4", phase:4, title:"Submit welcome post info for Real's brokerage channels", owner:"Skalvya", subtasks:["Bio drafted","Agent approval received","Submitted to Real"] },
+  ];
+
+  function isTaskComplete(t){ return t.subtasks.length>0 && t.subtasks.every(s=>s.done); }
+  function taskProgress(t){ const total=t.subtasks.length||1; return t.subtasks.filter(s=>s.done).length/total; }
+  function overallProgress(tasks){ if(!tasks||tasks.length===0) return 0; return tasks.reduce((a,t)=>a+taskProgress(t),0)/tasks.length; }
+  function currentPhase(tasks){ for(const p of PHASES){ const pt=tasks.filter(t=>t.phase===p.id); if(pt.length && !pt.every(isTaskComplete)) return p; } return PHASES[PHASES.length-1]; }
+  function formatDate(iso){ if(!iso) return "—"; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+  function escapeAttr(str){ return (str||"").replace(/"/g,"&quot;"); }
+  function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+
+  /* ---------------- Auth guard ---------------- */
+  let me=null, viewedAgentId=null, liveTasks=[], liveAgent=null;
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    try {
+      const snap = await db.collection("users").doc(user.uid).get();
+      if (!snap.exists) { alert("Your account isn't set up with a role yet. Ask Skalvya."); auth.signOut(); return; }
+      me = { uid: user.uid, ...snap.data() };
+      boot();
+    } catch (err) { console.error(err); alert("Couldn't load your account."); auth.signOut(); }
+  });
+
+  function boot() {
+    const params = new URLSearchParams(window.location.search);
+    if (me.role === "agent") {
+      viewedAgentId = me.agentId;
+      if (!viewedAgentId) { renderShellError("Your account isn't linked to an agent record yet. Ask Skalvya."); return; }
+    } else {
+      viewedAgentId = params.get("agentId");
+      if (!viewedAgentId) { renderShellError("No agent selected. Go to the Master Dashboard and click an agent."); return; }
+    }
+    renderShell();
+    listenToAgent(viewedAgentId);
+  }
+
+  function renderShell() {
+    app.innerHTML = `
+      <div class="shell">
+        <aside class="sidebar">
+          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Onboarding Ops</div></div></div>
+          <div class="side-divider"></div>
+          ${me.role !== "agent" ? `<div class="side-label">Navigate</div><button class="side-link" id="toMasterBtn">&larr; Master Dashboard</button>` : ""}
+          <div class="side-spacer"></div>
+          <div class="side-user">
+            <div class="avatar">${initials(me.name)}</div>
+            <div><div class="n">${me.name || "You"}</div><div class="r">${me.role}</div></div>
+          </div>
+          <button class="logout-btn" id="logoutBtn">Sign Out</button>
+        </aside>
+        <main class="content" id="main"><div class="empty-state">Loading checklist...</div></main>
+      </div>`;
+    document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut().then(()=>window.location.href="login.html"));
+    if (me.role !== "agent") document.getElementById("toMasterBtn").addEventListener("click", () => window.location.href="master.html");
+  }
+
+  function renderShellError(msg) {
+    app.innerHTML = `<div class="setup-screen"><div class="setup-card"><h2 class="serif">Hold on</h2><p>${msg}</p></div></div>`;
+  }
+
+  function listenToAgent(agentId) {
+    db.collection("agents").doc(agentId).onSnapshot((doc) => {
+      if (!doc.exists) { document.getElementById("main").innerHTML = `<div class="empty-state">This agent record no longer exists.</div>`; return; }
+      liveAgent = { id: doc.id, ...doc.data() }; render();
+    }, showConnErr);
+    db.collection("agents").doc(agentId).collection("tasks").onSnapshot((snap) => {
+      liveTasks = snap.docs.map(d => ({ id: d.id, ...d.data() })); render();
+    }, showConnErr);
+  }
+  function showConnErr(err){ console.error(err); document.getElementById("connectionBanner").style.display="flex"; }
+
+  function canEditTask(task){ if(me.role==="skalvya") return true; if(me.role==="tyson") return false; return task.owner==="Agent"||task.owner==="Shared"; }
+
+  function render() {
+    if (!liveAgent) return;
+    const pct = Math.round(overallProgress(liveTasks)*100);
+    const phase = currentPhase(liveTasks);
+    const main = document.getElementById("main");
+    const complete = pct === 100;
+
+    main.innerHTML = `
+      ${me.role !== "agent" ? `<button class="back-btn" id="backBtn">&larr; Back to Master Dashboard</button>` : ""}
+      ${me.role === "tyson" ? `<div class="tyson-note">Read-only, live view — no need to ask for a status update.</div>` : ""}
+      ${complete ? `<div class="celebrate"><span class="emoji">🎉</span><div><div class="t">${liveAgent.name} is fully onboarded</div><div class="s">Every task across all 4 phases is complete.</div></div></div>` : ""}
+
+      <div class="agent-header card">
+        <div>
+          <h1 class="serif">${liveAgent.name}</h1>
+          <div class="agent-meta">
+            <span><strong>Start:</strong> ${formatDate(liveAgent.startDate)}</span>
+            <span><strong>Target Transfer:</strong> ${formatDate(liveAgent.targetDate)}</span>
+          </div>
+        </div>
+        <div class="agent-header-side">
+          <div class="ring" style="--pct:${pct}"><span>${pct}%</span></div>
+          <select id="riskSelect" class="risk-select risk-${liveAgent.riskStatus}" ${me.role==="skalvya"?"":"disabled"}>
+            <option value="green" ${liveAgent.riskStatus==="green"?"selected":""}>On Track</option>
+            <option value="yellow" ${liveAgent.riskStatus==="yellow"?"selected":""}>At Risk</option>
+            <option value="red" ${liveAgent.riskStatus==="red"?"selected":""}>Blocked</option>
+          </select>
+        </div>
+      </div>
+      ${PHASES.map(p => renderPhaseSection(p, liveTasks.filter(t=>t.phase===p.id))).join("")}
+    `;
+
+    if (me.role !== "agent") document.getElementById("backBtn").addEventListener("click", () => window.location.href="master.html");
+    if (me.role === "skalvya") document.getElementById("riskSelect").addEventListener("change", (e) => db.collection("agents").doc(viewedAgentId).update({riskStatus:e.target.value}));
+    wireTaskInteractions();
+  }
+
+  function renderPhaseSection(phase, tasks) {
+    const doneCount = tasks.filter(isTaskComplete).length;
+    const pct = tasks.length===0 ? 0 : Math.round((doneCount/tasks.length)*100);
+    return `<div class="card">
+      <div class="phase-section-head">
+        <div><h3>Phase ${phase.id} — ${phase.name}</h3><p class="small">${phase.blurb}</p></div>
+        <div class="phase-section-progress"><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
+      </div>
+      <div class="task-list">${tasks.map(renderTaskRow).join("")}</div>
+    </div>`;
+  }
+
+  function renderTaskRow(task) {
+    const complete = isTaskComplete(task);
+    const subPct = Math.round(taskProgress(task)*100);
+    const editable = canEditTask(task);
+    return `<div class="task-row ${complete?"task-complete":""}">
+      <button class="task-toggle" data-toggle-task="${task.id}">
+        <span class="chevron">&rsaquo;</span>
+        <span class="task-status-dot ${complete?"dot-complete":""}"></span>
+        <span class="task-title">${task.title}</span>
+        <span class="owner-chip owner-${task.owner}">${task.owner}</span>
+        <span class="task-subpct">${subPct}%</span>
+      </button>
+      <div class="task-body" data-task-body="${task.id}">
+        <div class="subtask-list">
+          ${task.subtasks.map(s => `<label class="subtask-item">
+            <input type="checkbox" data-subtask="${task.id}|${s.id}" ${s.done?"checked":""} ${editable?"":"disabled"} />
+            <span>${s.label}</span></label>`).join("")}
+        </div>
+        ${!editable && me.role==="agent" ? `<p class="readonly-note">This one's handled by Skalvya — you'll see it update automatically.</p>` : ""}
+        <div class="task-fields">
+          <label>Due Date<input type="date" data-field="dueDate" data-task="${task.id}" value="${task.dueDate||""}" ${editable?"":"disabled"} /></label>
+          <label>Blocker<input type="text" data-field="blocker" data-task="${task.id}" value="${escapeAttr(task.blocker)}" placeholder="None" ${editable?"":"disabled"} /></label>
+          <label>Completion Evidence<input type="text" data-field="evidence" data-task="${task.id}" value="${escapeAttr(task.evidence)}" placeholder="Link or note" ${editable?"":"disabled"} /></label>
+          <label>Next Action<input type="text" data-field="nextAction" data-task="${task.id}" value="${escapeAttr(task.nextAction)}" placeholder="What happens next" ${editable?"":"disabled"} /></label>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function wireTaskInteractions() {
+    document.querySelectorAll("[data-toggle-task]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.toggleTask;
+        document.querySelector(`[data-task-body="${id}"]`).classList.toggle("open");
+        btn.classList.toggle("open");
+      });
+    });
+    document.querySelectorAll("[data-subtask]").forEach(cb => {
+      if (cb.disabled) return;
+      cb.addEventListener("change", (e) => {
+        const [taskId, subId] = e.target.dataset.subtask.split("|");
+        const task = liveTasks.find(t => t.id === taskId);
+        const sub = task.subtasks.find(s => s.id === subId);
+        sub.done = e.target.checked;
+        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(taskId).update({ subtasks: task.subtasks });
+      });
+    });
+    document.querySelectorAll("[data-field]").forEach(input => {
+      if (input.disabled) return;
+      input.addEventListener("change", (e) => {
+        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(e.target.dataset.task).update({ [e.target.dataset.field]: e.target.value });
+      });
+    });
+  }
+}
+</script>
+</body>
+</html>
