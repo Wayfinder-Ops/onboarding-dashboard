@@ -88,6 +88,25 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .login-footer{margin-top:26px;text-align:center;font-size:12.5px;color:var(--muted)}
 .login-footer a{color:var(--navy);font-weight:600}
 
+/* Welcome transition */
+.welcome-overlay{
+  position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 40%,#16274A 0%,#0a1428 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;
+  opacity:0;pointer-events:none;transition:opacity .4s ease;
+}
+.welcome-overlay.show{opacity:1;pointer-events:all}
+.welcome-overlay .boat-wrap{width:110px;height:110px;margin-bottom:22px;opacity:0;transform:scale(.85);transition:opacity .5s ease .1s,transform .5s cubic-bezier(.2,.8,.3,1) .1s}
+.welcome-overlay.show .boat-wrap{opacity:1;transform:scale(1)}
+.welcome-overlay h2{font-family:'Fraunces',serif;color:#fff;font-size:24px;font-weight:600;margin:0 0 6px;opacity:0;transform:translateY(8px);transition:opacity .5s ease .25s,transform .5s ease .25s}
+.welcome-overlay.show h2{opacity:1;transform:none}
+.welcome-overlay p{color:rgba(255,255,255,.5);font-size:13.5px;margin:0;opacity:0;transition:opacity .5s ease .35s}
+.welcome-overlay.show p{opacity:1}
+.wave-anim{animation:waveMove 3.2s linear infinite}
+.wave-anim2{animation:waveMove 4s linear infinite reverse}
+@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
+.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+
 /* Setup-not-connected screen */
 .setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
 .setup-card{max-width:520px;background:#fff;border-radius:18px;padding:36px;box-shadow:var(--shadow);border:1px solid var(--border)}
@@ -105,6 +124,27 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="icon">&#9881;</div>
     <h2>Loading...</h2>
   </div></div>
+</div>
+
+<div id="welcomeOverlay" class="welcome-overlay">
+  <div class="boat-wrap">
+    <svg viewBox="0 0 120 120" width="100%" height="100%">
+      <circle cx="60" cy="60" r="58" fill="none" stroke="#C6A15B" stroke-width="1" opacity=".5"/>
+      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
+        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/>
+      </g>
+      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
+        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/>
+      </g>
+      <g class="boat-anim">
+        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
+        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
+        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/>
+      </g>
+    </svg>
+  </div>
+  <h2 id="welcomeText">Welcome back</h2>
+  <p>Charting your course into Wayfinder...</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -222,7 +262,11 @@ if (!CONFIGURED) {
         auth.signOut();
         return;
       }
-      window.location.href = snap.data().role === "agent" ? "agent.html" : "master.html";
+      const data = snap.data();
+      const dest = data.role === "agent" ? "agent.html" : "master.html";
+      document.getElementById("welcomeText").textContent = "Welcome back, " + (data.name ? data.name.split(" ")[0] : "there");
+      document.getElementById("welcomeOverlay").classList.add("show");
+      setTimeout(() => { window.location.href = dest; }, 950);
     } catch (err) {
       const errorBox = document.getElementById("loginError");
       errorBox.textContent = "Something went wrong loading your account. Try again.";
