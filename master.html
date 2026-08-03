@@ -1,245 +1,127 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Onboarding Dashboard — Skalvya</title>
+  <title>Master Onboarding Dashboard - Skalvya</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.4s ease-out forwards',
-            'slide-up': 'slideUp 0.5s ease-out forwards',
-            'pulse-glow': 'pulseGlow 2.5s infinite ease-in-out',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-            slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(12px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            pulseGlow: {
-              '0%, 100%': { opacity: '0.4' },
-              '50%': { opacity: '0.8' },
-            }
-          }
-        }
-      }
-    }
-  </script>
-
+  
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+    /* Styling for clickable table rows */
+    .clickable-row {
+      cursor: pointer;
+      transition: background-color 0.15s ease-in-out;
     }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
-    /* Glassmorphism Styles */
-    .glass-card {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-nav {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-modal {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    /* Interactive Row Hover Effect */
-    .agent-row {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .agent-row:hover {
-      background-color: rgba(30, 41, 59, 0.7);
-      transform: translateY(-1px);
-    }
-
-    /* Subtle Gradient Background Glows */
-    .bg-radial-glow {
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+    .clickable-row:hover {
+      background-color: #f3f4f6 !important; /* Soft grey highlight on hover */
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white bg-radial-glow">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
   <!-- Header / Navigation -->
-  <header class="glass-nav sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      
-      <!-- Brand Logo & Title -->
-      <div class="flex items-center space-x-4">
-        <div class="relative group">
-          <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300"></div>
-          <div class="relative w-11 h-11 bg-slate-900 border border-slate-700 text-indigo-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
-            <i class="fa-solid fa-layer-group"></i>
-          </div>
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 text-white p-2 rounded-lg">
+          <i class="fa-solid fa-layer-group text-xl"></i>
         </div>
         <div>
-          <h1 class="font-extrabold text-xl tracking-tight text-white flex items-center gap-2">
-            Master Onboarding <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold tracking-normal">Pro</span>
-          </h1>
-          <p class="text-xs text-slate-400">Skalvya Strategic Management Dashboard</p>
+          <h1 class="font-bold text-lg leading-tight">Master Onboarding Dashboard</h1>
+          <p class="text-xs text-slate-500">Internal Team & Administrative View</p>
         </div>
       </div>
       
-      <!-- Right Controls / User Profile -->
       <div class="flex items-center space-x-4">
-        <div id="user-display" class="hidden sm:flex items-center space-x-2 text-xs font-medium text-slate-300 bg-slate-900/80 px-3.5 py-2 rounded-xl border border-slate-800 shadow-sm">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="user-email-text"><i class="fa-regular fa-user mr-1.5 text-slate-500"></i> Authenticating...</span>
-        </div>
-        
-        <button id="logout-btn" class="text-xs text-slate-400 hover:text-red-400 font-medium px-3.5 py-2 rounded-xl border border-slate-800 hover:border-red-900/50 hover:bg-red-950/30 transition-all duration-200 flex items-center gap-2 group">
-          <i class="fa-solid fa-right-from-bracket text-slate-500 group-hover:text-red-400 transition-colors"></i>
-          <span>Log Out</span>
+        <span id="user-display" class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+          <i class="fa-regular fa-user mr-1.5"></i> Loading user...
+        </span>
+        <button id="logout-btn" class="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 flex-1 w-full animate-slide-up">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- Top KPI Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      
-      <!-- Total Agents -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Agents</p>
-            <h3 id="stat-total-agents" class="text-3xl font-extrabold text-white mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-            <i class="fa-solid fa-users"></i>
-          </div>
+    <!-- Top Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Agents</p>
+          <h3 id="stat-total-agents" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center text-xs text-slate-400">
-          <i class="fa-solid fa-chart-line text-indigo-400 mr-1.5"></i> Active Directory Roster
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-users"></i>
         </div>
       </div>
 
-      <!-- In Progress -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">In Progress</p>
-            <h3 id="stat-in-progress" class="text-3xl font-extrabold text-sky-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-            <i class="fa-solid fa-spinner fa-spin-pulse"></i>
-          </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">In Progress</p>
+          <h3 id="stat-in-progress" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center text-xs text-slate-400">
-          <i class="fa-solid fa-arrows-rotate text-sky-400 mr-1.5"></i> Workflow Execution
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-spinner"></i>
         </div>
       </div>
 
-      <!-- Completed -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed</p>
-            <h3 id="stat-completed" class="text-3xl font-extrabold text-emerald-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-            <i class="fa-solid fa-circle-check"></i>
-          </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed</p>
+          <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center text-xs text-slate-400">
-          <i class="fa-solid fa-check-double text-emerald-400 mr-1.5"></i> Fully Onboarded
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-circle-check"></i>
         </div>
       </div>
 
-      <!-- Blocked / Risks -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-slate-700 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
-            <h3 id="stat-blocked" class="text-3xl font-extrabold text-amber-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-          </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
+          <h3 id="stat-blocked" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center text-xs text-slate-400">
-          <i class="fa-solid fa-shield-cat text-amber-400 mr-1.5"></i> Action Required
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
       </div>
     </div>
 
-    <!-- Main Agent Roster Panel -->
-    <div class="glass-card rounded-2xl overflow-hidden shadow-2xl">
-      <div class="p-6 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Agent Roster Section -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            Agent Onboarding Roster
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Select any agent row to launch their dedicated task control workspace.</p>
+          <h2 class="text-lg font-bold text-slate-800">Agent Roster</h2>
+          <p class="text-sm text-slate-500">Click on any agent's row to open their full checklist and tasks.</p>
         </div>
-        
-        <button id="open-add-modal-btn" class="relative group overflow-hidden rounded-xl p-px font-semibold text-xs transition-all duration-300 shadow-lg shadow-indigo-500/20 active:scale-95">
-          <span class="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-xl"></span>
-          <span class="relative px-4 py-2.5 bg-slate-950 rounded-[11px] flex items-center gap-2 text-white group-hover:bg-opacity-0 transition-all duration-300">
-            <i class="fa-solid fa-plus text-indigo-400 group-hover:text-white transition-colors"></i> Add New Agent
-          </span>
+        <button id="open-add-modal-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add New Agent
         </button>
       </div>
 
-      <!-- Agent Table -->
+      <!-- Table -->
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-900/60 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              <th class="py-4 px-6">Agent Name</th>
-              <th class="py-4 px-6">Email Address</th>
-              <th class="py-4 px-6">Current Status</th>
-              <th class="py-4 px-6 w-56">Onboarding Progress</th>
-              <th class="py-4 px-6 text-right">Workspace</th>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="py-3.5 px-4">Agent Name</th>
+              <th class="py-3.5 px-4">Email</th>
+              <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 w-48">Progress</th>
+              <th class="py-3.5 px-4 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="agent-table-body" class="divide-y divide-slate-800/50 text-sm">
-            <!-- Skeleton Loader -->
+          <tbody id="agent-table-body" class="divide-y divide-slate-100 text-sm">
             <tr>
-              <td colspan="5" class="py-12 text-center text-slate-500">
-                <div class="flex flex-col items-center justify-center space-y-3">
-                  <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p class="text-xs font-medium text-slate-400">Synchronizing database records...</p>
-                </div>
+              <td colspan="5" class="py-8 text-center text-slate-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                <p>Loading agent roster...</p>
               </td>
             </tr>
           </tbody>
@@ -249,38 +131,32 @@
   </main>
 
   <!-- Add Agent Modal -->
-  <div id="add-agent-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all duration-300">
-    <div class="glass-modal rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-800 animate-slide-up">
-      <div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-user-plus text-indigo-400"></i>
-          <h3 class="font-bold text-white text-base">Add New Agent</h3>
-        </div>
-        <button id="close-add-modal-btn" class="text-slate-400 hover:text-white transition-colors p-1">
+  <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800">Add New Agent</h3>
+        <button id="close-add-modal-btn" class="text-slate-400 hover:text-slate-600">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      
-      <form id="add-agent-form" class="p-6 space-y-5">
+      <form id="add-agent-form" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Agent Full Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g. Sarah Connor" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Agent Name</label>
+          <input type="text" id="new-agent-name" required placeholder="e.g., Jane Doe" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-        
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g. sarah@company.com" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email Address</label>
+          <input type="email" id="new-agent-email" required placeholder="e.g., jane@example.com" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-
-        <div class="pt-3 flex items-center justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-900 transition-colors">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-500/25 transition-all duration-200">Save Agent</button>
+        <div class="pt-2 flex justify-end space-x-3">
+          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm">Save Agent</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Firebase Modular SDK Setup -->
+  <!-- Firebase Modular SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -298,63 +174,53 @@
       measurementId: "G-F2NWFG505B"
     };
 
-    // Initialization
+    // Initialize
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Core UI References
+    // Elements
     const userDisplay = document.getElementById("user-display");
-    const userEmailText = document.getElementById("user-email-text");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
     
-    // Modal References
+    // Modals
     const addModal = document.getElementById("add-agent-modal");
     const openAddModalBtn = document.getElementById("open-add-modal-btn");
     const closeAddModalBtn = document.getElementById("close-add-modal-btn");
     const cancelAddModalBtn = document.getElementById("cancel-add-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    // Stats Counter Elements
+    // Stats Elements
     const statTotal = document.getElementById("stat-total-agents");
     const statInProgress = document.getElementById("stat-in-progress");
     const statCompleted = document.getElementById("stat-completed");
     const statBlocked = document.getElementById("stat-blocked");
 
-    // Authenticated User Monitor
+    // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        userDisplay.classList.remove("hidden");
-        userEmailText.textContent = user.email;
+        userDisplay.innerHTML = `<i class="fa-regular fa-user mr-1.5"></i> ${user.email}`;
         loadAgents();
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // Handle User Sign Out
+    // Logout
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "login.html";
       });
     });
 
-    // Modal Display Controllers
-    const showModal = () => {
-      addModal.classList.remove("hidden");
-      addModal.classList.add("flex");
-    };
-    const hideModal = () => {
-      addModal.classList.add("hidden");
-      addModal.classList.remove("flex");
-    };
+    // Modal Handlers
+    openAddModalBtn.addEventListener("click", () => addModal.classList.remove("hidden"), addModal.classList.add("flex"));
+    const closeModal = () => addModal.classList.add("hidden");
+    closeAddModalBtn.addEventListener("click", closeModal);
+    cancelAddModalBtn.addEventListener("click", closeModal);
 
-    openAddModalBtn.addEventListener("click", showModal);
-    closeAddModalBtn.addEventListener("click", hideModal);
-    cancelAddModalBtn.addEventListener("click", hideModal);
-
-    // Create New Agent Record
+    // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("new-agent-name").value.trim();
@@ -371,14 +237,14 @@
           createdAt: serverTimestamp()
         });
         addAgentForm.reset();
-        hideModal();
+        closeModal();
       } catch (err) {
-        console.error("Firestore Write Error:", err);
-        alert("Failed to create agent record. Please verify database permissions.");
+        console.error("Error adding agent:", err);
+        alert("Failed to add agent. Check database permissions.");
       }
     });
 
-    // Realtime Listener & UI Renderer
+    // Load Realtime Roster & Attach Click Navigators
     function loadAgents() {
       onSnapshot(collection(db, "agents"), (snapshot) => {
         let agents = [];
@@ -397,84 +263,74 @@
           else inProgress++;
         });
 
-        // Update Counter Statistics
+        // Update Stats
         statTotal.textContent = total;
         statInProgress.textContent = inProgress;
         statCompleted.textContent = completed;
         statBlocked.textContent = blocked;
 
-        // Render Empty State
+        // Render Table
         if (agents.length === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="5" class="py-12 text-center text-slate-500">
-                <div class="flex flex-col items-center justify-center space-y-2">
-                  <i class="fa-solid fa-folder-open text-3xl text-slate-700"></i>
-                  <p class="text-sm font-medium">No agents added yet.</p>
-                  <p class="text-xs text-slate-600">Click "Add New Agent" above to populate your dashboard.</p>
-                </div>
+              <td colspan="5" class="py-8 text-center text-slate-400">
+                No agents found. Click "Add New Agent" above to create one.
               </td>
             </tr>`;
           return;
         }
 
-        // Render Agent Rows
         tableBody.innerHTML = agents.map((agent) => {
           const progressVal = agent.progress || 0;
-          
-          let statusBadgeClass = "bg-sky-500/10 text-sky-400 border-sky-500/20";
-          if (agent.status === 'Completed') statusBadgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-          if (agent.status === 'Blocked' || agent.status === 'Risk') statusBadgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-
           return `
-            <tr class="agent-row cursor-pointer group border-b border-slate-800/50" data-id="${agent.id}">
-              <td class="py-4 px-6 font-semibold text-white flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 group-hover:border-indigo-500/50 group-hover:text-indigo-400 transition-colors">
-                  <i class="fa-solid fa-user text-xs"></i>
-                </div>
-                <span>${agent.name || 'Unnamed Agent'}</span>
+            <tr class="clickable-row hover:bg-slate-50 transition border-b border-slate-100" data-id="${agent.id}">
+              <td class="py-4 px-4 font-semibold text-slate-800">
+                <i class="fa-solid fa-user-circle text-slate-400 mr-2"></i>${agent.name || 'Unnamed Agent'}
               </td>
-              <td class="py-4 px-6 text-slate-400 text-xs font-mono">${agent.email || 'N/A'}</td>
-              <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${statusBadgeClass}">
-                  <span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-current"></span>
+              <td class="py-4 px-4 text-slate-500">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  agent.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
+                  agent.status === 'Blocked' ? 'bg-amber-100 text-amber-800' :
+                  'bg-blue-100 text-blue-800'
+                }">
                   ${agent.status || 'In Progress'}
                 </span>
               </td>
-              <td class="py-4 px-6">
+              <td class="py-4 px-4">
                 <div class="flex items-center gap-3">
-                  <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden border border-slate-800">
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500" style="width: ${progressVal}%"></div>
+                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-indigo-600 h-2 rounded-full" style="width: ${progressVal}%"></div>
                   </div>
-                  <span class="text-xs text-slate-400 font-bold min-w-[2.5rem]">${progressVal}%</span>
+                  <span class="text-xs text-slate-500 font-medium">${progressVal}%</span>
                 </div>
               </td>
-              <td class="py-4 px-6 text-right">
-                <span class="text-xs font-semibold text-indigo-400 group-hover:text-indigo-300 inline-flex items-center gap-1 transition-colors">
-                  Open Checklist <i class="fa-solid fa-chevron-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
-                </span>
+              <td class="py-4 px-4 text-right">
+                <button class="text-indigo-600 hover:text-indigo-900 font-medium text-sm flex items-center justify-end gap-1 ml-auto">
+                  Open Checklist <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
               </td>
             </tr>
           `;
         }).join('');
 
-        // Attach Click Listeners to Navigation Rows
-        document.querySelectorAll('.agent-row').forEach((row) => {
+        // Attach click listener to each agent row
+        document.querySelectorAll('.clickable-row').forEach((row) => {
           row.addEventListener('click', () => {
             const agentId = row.getAttribute('data-id');
             if (agentId) {
+              // Redirect directly to the checklist page with the Agent ID
               window.location.href = `agent.html?agentId=${agentId}`;
             }
           });
         });
 
       }, (error) => {
-        console.error("Firestore Read Error:", error);
+        console.error("Firestore Error:", error);
         tableBody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-8 text-center text-rose-400 text-xs">
-              <i class="fa-solid fa-circle-exclamation text-lg mb-1 block"></i>
-              Unable to load roster data. Please check authentication status or Firestore security rules.
+            <td colspan="5" class="py-8 text-center text-red-500">
+              Error loading data. Make sure you are logged in and security rules permit access.
             </td>
           </tr>`;
       });
