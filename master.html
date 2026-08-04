@@ -1,255 +1,162 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-[#0B0F17]">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Onboarding Dashboard — Skalvya</title>
-
+  <title>Master Onboarding Dashboard — Wayfinder</title>
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter & Plus Jakarta Sans Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
           colors: {
             brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#312e81',
+              50: '#f0f3ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+              400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+              800: '#3730a3', 900: '#1e1b4b', 950: '#0f0e26',
             },
-            dark: {
-              bg: '#0B0F17',
-              card: '#121824',
-              border: 'rgba(255, 255, 255, 0.07)',
-              hover: '#1A2332'
+            accent: {
+              teal: '#14b8a6', emerald: '#10b981', amber: '#f59e0b',
+              rose: '#f43f5e', cyan: '#06b6d4', violet: '#8b5cf6',
+            },
+            surface: {
+              50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
+              800: '#1e293b', 900: '#0f172a', 950: '#020617',
             }
           },
-          animation: {
-            'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
-            'float': 'float 6s ease-in-out infinite',
-          },
-          keyframes: {
-            pulseGlow: {
-              '0%, 100%': { opacity: 0.4 },
-              '50%': { opacity: 0.8 },
-            },
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-6px)' },
-            }
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
           }
         }
       }
     }
   </script>
-
+  
   <style>
-    /* Smooth Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
     }
-    ::-webkit-scrollbar-track {
-      background: #0B0F17;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1F2937;
+    .status-badge {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 10px;
       border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #374151;
-    }
-
-    /* Subtle Glass Effects */
-    .glass-card {
-      background: rgba(18, 24, 36, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .glass-nav {
-      background: rgba(11, 15, 23, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    }
-
+    /* Styles for clickable table rows */
     .clickable-row {
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.15s ease-in-out;
     }
     .clickable-row:hover {
-      background-color: rgba(255, 255, 255, 0.03) !important;
-      transform: translateX(4px);
+      background-color: #f8fafc !important;
     }
   </style>
 </head>
-<body class="bg-[#0B0F17] text-slate-100 font-sans min-h-screen antialiased selection:bg-brand-500 selection:text-white flex flex-col">
+<body class="bg-surface-50 text-surface-800 font-sans min-h-screen">
 
-  <!-- Ambient Light Highlights -->
-  <div class="fixed top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none -z-10 animation-pulse-glow"></div>
-  <div class="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none -z-10 animation-pulse-glow"></div>
-
-  <!-- Global Loader Screen -->
-  <div id="app-loader" class="fixed inset-0 bg-[#0B0F17] z-50 flex flex-col items-center justify-center transition-opacity duration-500">
-    <div class="relative flex items-center justify-center">
-      <div class="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-      <i data-lucide="layers" class="w-6 h-6 text-indigo-400 absolute"></i>
-    </div>
-    <p class="mt-4 text-xs font-semibold tracking-widest uppercase text-slate-400">Loading Workspace...</p>
-  </div>
-
-  <!-- Header / Navigation -->
-  <header class="glass-nav sticky top-0 z-40 transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
-          <i data-lucide="layers" class="w-6 h-6"></i>
+  <!-- TOP HEADER -->
+  <header class="bg-surface-950 text-white border-b border-surface-800 sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center font-extrabold text-white text-lg tracking-wider shadow-md shadow-brand-600/30">
+          W
         </div>
         <div>
-          <h1 class="font-bold text-lg tracking-tight text-white flex items-center gap-2">
-            Master Dashboard
-            <span class="text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">v2.5</span>
-          </h1>
-          <p class="text-xs text-slate-400 font-medium">Internal Management & Workflow Control</p>
+          <h1 class="font-bold text-base leading-tight tracking-tight text-white">WAYFINDER</h1>
+          <p class="text-[10px] text-surface-300 font-medium tracking-wider uppercase">Master Dashboard • Internal View</p>
         </div>
       </div>
       
       <div class="flex items-center space-x-4">
-        <span id="user-display" class="hidden sm:inline-flex items-center gap-2 text-xs font-medium text-slate-300 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl backdrop-blur-sm">
-          <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span>Loading...</span>
-        </span>
-        <button id="logout-btn" class="text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-red-500/10 hover:text-red-400 border border-white/10 hover:border-red-500/30 px-3.5 py-2 rounded-xl transition duration-200 flex items-center gap-2">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out
+        <div id="user-display" class="text-xs font-semibold bg-surface-900 border border-surface-800 text-surface-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-accent-emerald animate-pulse"></div>
+          <span>Loading user...</span>
+        </div>
+        <button id="logout-btn" class="text-xs text-surface-300 hover:text-white bg-surface-900 hover:bg-surface-800 font-medium px-3 py-1.5 rounded-lg border border-surface-800 transition">
+          Log Out
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- Top Analytics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      
-      <!-- Total Agents Card -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-indigo-500/40 transition duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Agents</p>
-            <h3 id="stat-total-agents" class="text-3xl font-extrabold text-white mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition duration-300">
-            <i data-lucide="users" class="w-6 h-6"></i>
-          </div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center text-xs text-slate-400">
-          <span class="text-indigo-400 font-semibold flex items-center gap-1"><i data-lucide="activity" class="w-3 h-3"></i> Syncing live</span>
+    <!-- OVERVIEW STATS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-card p-5 rounded-2xl shadow-sm">
+        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Total Active Agents</p>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-total-agents" class="text-3xl font-extrabold text-surface-900">0</span>
+          <span class="text-xs font-medium text-surface-800 bg-surface-100 px-2 py-0.5 rounded-full">Roster Count</span>
         </div>
       </div>
 
-      <!-- In Progress Card -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-blue-500/40 transition duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">In Progress</p>
-            <h3 id="stat-in-progress" class="text-3xl font-extrabold text-blue-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition duration-300">
-            <i data-lucide="loader" class="w-6 h-6 animate-spin-slow"></i>
-          </div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center text-xs text-slate-400">
-          <span>Active workflows</span>
+      <div class="glass-card p-5 rounded-2xl shadow-sm">
+        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">In Progress</p>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-in-progress" class="text-3xl font-extrabold text-brand-600">0</span>
+          <span class="text-xs font-medium text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">Active</span>
         </div>
       </div>
 
-      <!-- Completed Card -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Completed</p>
-            <h3 id="stat-completed" class="text-3xl font-extrabold text-emerald-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition duration-300">
-            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-          </div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center text-xs text-slate-400">
-          <span>Fully onboarded</span>
+      <div class="glass-card p-5 rounded-2xl shadow-sm">
+        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Completed Onboarding</p>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-completed" class="text-3xl font-extrabold text-accent-emerald">0</span>
+          <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">100% Done</span>
         </div>
       </div>
 
-      <!-- Blocked / Risks Card -->
-      <div class="glass-card p-6 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition duration-300">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
-            <h3 id="stat-blocked" class="text-3xl font-extrabold text-amber-400 mt-2 tracking-tight">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition duration-300">
-            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-          </div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center text-xs text-slate-400">
-          <span>Requires attention</span>
+      <div class="glass-card p-5 rounded-2xl shadow-sm">
+        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Blocked / Risks</p>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-blocked" class="text-3xl font-extrabold text-accent-amber">0</span>
+          <span class="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Needs Attention</span>
         </div>
       </div>
-
     </div>
 
-    <!-- Agent Roster Section -->
-    <div class="glass-card rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-      
-      <!-- Section Header -->
-      <div class="p-6 border-b border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/[0.01]">
+    <!-- AGENT ROSTER SECTION -->
+    <div class="glass-card rounded-2xl shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-surface-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            Agent Roster
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Select any agent row to access and edit their dedicated checklist.</p>
+          <h2 class="text-lg font-bold text-surface-900">Agent Roster</h2>
+          <p class="text-xs text-surface-800 font-semibold mt-0.5">Click any row to open the agent's full 4-phase onboarding checklist.</p>
         </div>
-        <button id="open-add-modal-btn" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 ring-1 ring-white/20 transition-all duration-200 active:scale-95">
-          <i data-lucide="user-plus" class="w-4 h-4"></i> Add New Agent
+        <button id="open-add-modal-btn" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition flex items-center justify-center gap-2">
+          <span>+ Add New Agent</span>
         </button>
       </div>
 
-      <!-- Table Container -->
+      <!-- ROSTER TABLE -->
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-white/[0.02] border-b border-white/5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <tr class="bg-surface-100/50 border-b border-surface-200 text-[11px] font-bold uppercase tracking-wider text-surface-800">
               <th class="py-4 px-6">Agent Name</th>
-              <th class="py-4 px-6">Email Address</th>
+              <th class="py-4 px-6">Email</th>
               <th class="py-4 px-6">Status</th>
-              <th class="py-4 px-6 w-56">Progress</th>
+              <th class="py-4 px-6 w-56">Overall Progress</th>
               <th class="py-4 px-6 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="agent-table-body" class="divide-y divide-white/5 text-sm">
+          <tbody id="agent-table-body" class="divide-y divide-surface-200/60 text-sm">
             <tr>
-              <td colspan="5" class="py-12 text-center text-slate-400">
-                <div class="flex flex-col items-center justify-center space-y-3">
-                  <div class="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                  <p class="text-xs font-medium text-slate-400">Fetching live roster data...</p>
-                </div>
+              <td colspan="5" class="py-12 text-center text-surface-800 font-semibold">
+                Loading agent roster data...
               </td>
             </tr>
           </tbody>
@@ -258,43 +165,40 @@
     </div>
   </main>
 
-  <!-- Add Agent Modal -->
-  <div id="add-agent-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all duration-300">
-    <div class="glass-card rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-white/10 transform transition-all scale-95 opacity-0 duration-200" id="modal-container">
-      
-      <div class="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-        <h3 class="font-bold text-white text-base flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i> Add New Agent
-        </h3>
-        <button id="close-add-modal-btn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+  <!-- ADD AGENT MODAL -->
+  <div id="add-agent-modal" class="fixed inset-0 bg-surface-950/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-surface-200">
+      <div class="px-6 py-5 border-b border-surface-200 flex justify-between items-center bg-surface-50">
+        <div>
+          <h3 class="font-bold text-surface-900 text-base">Add New Agent</h3>
+          <p class="text-xs text-surface-800 font-semibold">Create a new agent profile for onboarding</p>
+        </div>
+        <button id="close-add-modal-btn" class="text-surface-800 hover:text-surface-900 font-bold text-lg">✕</button>
       </div>
-
-      <form id="add-agent-form" class="p-6 space-y-5">
+      <form id="add-agent-form" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Agent Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g. Sarah Jenkins" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+          <label class="block text-xs font-bold text-surface-800 uppercase tracking-wider mb-1.5">Agent Full Name</label>
+          <input type="text" id="new-agent-name" required placeholder="e.g., Sarah Jenkins" class="w-full border border-surface-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g. sarah@example.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+          <label class="block text-xs font-bold text-surface-800 uppercase tracking-wider mb-1.5">Email Address</label>
+          <input type="email" id="new-agent-email" required placeholder="e.g., sarah@wayfinder.com" class="w-full border border-surface-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
         </div>
-        <div class="pt-2 flex justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition border border-transparent">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition border border-indigo-400/20">Save Agent</button>
+        <div class="pt-3 flex justify-end space-x-3">
+          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2.5 border border-surface-300 rounded-xl text-xs font-bold text-surface-800 hover:bg-surface-100">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20">Create Agent</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Firebase Modular SDKs -->
+  <!-- FIREBASE MODULAR SDKS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your Exact Firebase Configuration
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDRWQYxeV2Hkize1Py7O4D-h2Av14sqMj4",
       authDomain: "wayfinder-onboarding.firebaseapp.com",
@@ -306,35 +210,30 @@
       measurementId: "G-F2NWFG505B"
     };
 
-    // Initialize Firebase Services
+    // Initialize
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM References
-    const loader = document.getElementById("app-loader");
+    // Elements
     const userDisplay = document.getElementById("user-display");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
     
-    // Modal References
+    // Modals
     const addModal = document.getElementById("add-agent-modal");
-    const modalContainer = document.getElementById("modal-container");
     const openAddModalBtn = document.getElementById("open-add-modal-btn");
     const closeAddModalBtn = document.getElementById("close-add-modal-btn");
     const cancelAddModalBtn = document.getElementById("cancel-add-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    // Stat Elements
+    // Stats Elements
     const statTotal = document.getElementById("stat-total-agents");
     const statInProgress = document.getElementById("stat-in-progress");
     const statCompleted = document.getElementById("stat-completed");
     const statBlocked = document.getElementById("stat-blocked");
 
-    // Initialize Lucide Icons
-    lucide.createIcons();
-
-    // Authentication Guard
+    // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (user) {
         userDisplay.querySelector("span").textContent = user.email;
@@ -344,37 +243,28 @@
       }
     });
 
-    // Logout Handler
+    // Logout
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "login.html";
       });
     });
 
-    // Modal Control Functions
-    const openModal = () => {
+    // Modal Handlers
+    openAddModalBtn.addEventListener("click", () => {
       addModal.classList.remove("hidden");
       addModal.classList.add("flex");
-      setTimeout(() => {
-        modalContainer.classList.remove("scale-95", "opacity-0");
-        modalContainer.classList.add("scale-100", "opacity-100");
-      }, 10);
-    };
-
+    });
+    
     const closeModal = () => {
-      modalContainer.classList.remove("scale-100", "opacity-100");
-      modalContainer.classList.add("scale-95", "opacity-0");
-      setTimeout(() => {
-        addModal.classList.add("hidden");
-        addModal.classList.remove("flex");
-      }, 200);
+      addModal.classList.add("hidden");
+      addModal.classList.remove("flex");
     };
-
-    openAddModalBtn.addEventListener("click", openModal);
+    
     closeAddModalBtn.addEventListener("click", closeModal);
     cancelAddModalBtn.addEventListener("click", closeModal);
 
-    // Form Submission
+    // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("new-agent-name").value.trim();
@@ -393,12 +283,12 @@
         addAgentForm.reset();
         closeModal();
       } catch (err) {
-        console.error("Error creating agent:", err);
-        alert("Failed to create agent document. Check database rules.");
+        console.error("Error adding agent:", err);
+        alert("Failed to add agent. Please check permissions.");
       }
     });
 
-    // Realtime Listener & UI Renderer
+    // Load Realtime Roster & Attach Row Click Listeners
     function loadAgents() {
       onSnapshot(collection(db, "agents"), (snapshot) => {
         let agents = [];
@@ -417,72 +307,59 @@
           else inProgress++;
         });
 
-        // Update Dashboard Stats
+        // Update Overview Stats
         statTotal.textContent = total;
         statInProgress.textContent = inProgress;
         statCompleted.textContent = completed;
         statBlocked.textContent = blocked;
 
-        // Render Roster Table
+        // Render Table
         if (agents.length === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="5" class="py-12 text-center text-slate-400">
-                <i data-lucide="users" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
-                <p class="text-sm font-medium">No agents registered yet.</p>
-                <p class="text-xs text-slate-500 mt-1">Click "Add New Agent" above to start onboarding someone.</p>
+              <td colspan="5" class="py-12 text-center text-surface-800 font-semibold">
+                No agents registered yet. Click "+ Add New Agent" to begin.
               </td>
             </tr>`;
-          lucide.createIcons();
-          hideLoader();
           return;
         }
 
         tableBody.innerHTML = agents.map((agent) => {
           const progressVal = agent.progress || 0;
-          let badgeStyle = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-          if (agent.status === 'Completed' || progressVal === 100) {
-            badgeStyle = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-          } else if (agent.status === 'Blocked' || agent.status === 'Risk') {
-            badgeStyle = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-          }
+          
+          let statusBadgeClass = 'bg-brand-50 text-brand-700';
+          if (agent.status === 'Completed') statusBadgeClass = 'bg-emerald-50 text-emerald-700';
+          if (agent.status === 'Blocked' || agent.status === 'Risk') statusBadgeClass = 'bg-amber-50 text-amber-700';
 
           return `
-            <tr class="clickable-row border-b border-white/5 group" data-id="${agent.id}">
-              <td class="py-4 px-6 font-semibold text-white flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400 group-hover:border-indigo-500/50 transition">
-                  <i data-lucide="user" class="w-4 h-4"></i>
-                </div>
-                <span>${agent.name || 'Unnamed Agent'}</span>
+            <tr class="clickable-row border-b border-surface-200/60" data-id="${agent.id}">
+              <td class="py-4 px-6 font-bold text-surface-900">
+                ${agent.name || 'Unnamed Agent'}
               </td>
-              <td class="py-4 px-6 text-slate-400 font-mono text-xs">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-6 text-surface-800 font-semibold">${agent.email || 'N/A'}</td>
               <td class="py-4 px-6">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${badgeStyle}">
-                  <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                <span class="status-badge ${statusBadgeClass}">
                   ${agent.status || 'In Progress'}
                 </span>
               </td>
               <td class="py-4 px-6">
                 <div class="flex items-center gap-3">
-                  <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
-                    <div class="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-500" style="width: ${progressVal}%"></div>
+                  <div class="w-full bg-surface-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-brand-600 h-2 rounded-full transition-all duration-300" style="width: ${progressVal}%"></div>
                   </div>
-                  <span class="text-xs font-semibold text-slate-400 w-8 text-right">${progressVal}%</span>
+                  <span class="text-xs text-surface-800 font-mono font-bold">${progressVal}%</span>
                 </div>
               </td>
               <td class="py-4 px-6 text-right">
-                <button class="text-xs font-semibold text-indigo-400 group-hover:text-indigo-300 inline-flex items-center gap-1 transition">
-                  Checklist <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition duration-200"></i>
+                <button class="text-brand-600 hover:text-brand-800 font-bold text-xs inline-flex items-center gap-1">
+                  View Checklist →
                 </button>
               </td>
             </tr>
           `;
         }).join('');
 
-        // Re-initialize Lucide icons for dynamically added rows
-        lucide.createIcons();
-
-        // Attach Row Event Listeners
+        // Attach click handler to rows for navigation
         document.querySelectorAll('.clickable-row').forEach((row) => {
           row.addEventListener('click', () => {
             const agentId = row.getAttribute('data-id');
@@ -492,24 +369,15 @@
           });
         });
 
-        hideLoader();
       }, (error) => {
-        console.error("Firestore error:", error);
+        console.error("Firestore Error:", error);
         tableBody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-8 text-center text-red-400 text-xs">
-              Error retrieving agents. Check security rules or network connection.
+            <td colspan="5" class="py-12 text-center text-accent-rose font-bold">
+              Failed to load agent roster. Please check database configuration.
             </td>
           </tr>`;
-        hideLoader();
       });
-    }
-
-    function hideLoader() {
-      if (loader) {
-        loader.classList.add("opacity-0");
-        setTimeout(() => loader.style.display = "none", 500);
-      }
     }
   </script>
 </body>
