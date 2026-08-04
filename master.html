@@ -70,9 +70,6 @@
         <div id="user-display" class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs font-medium text-slate-300">
           <i class="fa-regular fa-user text-brand-500"></i>
           <span id="user-email-text">Loading...</span>
-          <span id="role-badge" class="hidden ml-1 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-            View Only
-          </span>
         </div>
         <button id="logout-btn" class="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -153,10 +150,9 @@
       <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
           <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist and progress.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist and individual progress.</p>
         </div>
-        <!-- Add Agent Button (Hidden automatically for Tyson) -->
-        <button id="open-add-modal" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
+        <button id="open-add-modal" class="hidden inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
           <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Add New Agent</span>
         </button>
@@ -189,7 +185,7 @@
 
   </main>
 
-  <!-- Add Agent Modal -->
+  <!-- Add Agent Modal (Admin/Skalvya only) -->
   <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all duration-200">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 transform transition-all">
       <div class="px-6 py-4 bg-navy-900 text-white flex justify-between items-center">
@@ -219,7 +215,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -240,7 +236,6 @@
 
     // Elements
     const userEmailText = document.getElementById("user-email-text");
-    const roleBadge = document.getElementById("role-badge");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
     
@@ -257,30 +252,33 @@
     const cancelModalBtn = document.getElementById("cancel-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    let currentUserRole = null;
-
-    // Auth Guard & Role Check
+    // Auth Guard & Role Verification
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         userEmailText.textContent = user.email;
-
-        // Check User Role in Firestore
+        
+        // Fetch user document to check role
         try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            currentUserRole = userDoc.data().role;
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          let role = "skalvya"; // Default fallback
+          if (userDocSnap.exists()) {
+            role = userDocSnap.data().role || "skalvya";
           }
+
+          // Show "Add New Agent" button ONLY for Skalvya, hide for Tyson
+          if (role === "skalvya") {
+            openAddModalBtn.classList.remove("hidden");
+          } else {
+            openAddModalBtn.classList.add("hidden");
+          }
+
         } catch (err) {
           console.warn("Could not retrieve user role document:", err);
         }
 
-        // If logged in as Tyson, hide the Add Agent button and show "View Only" badge
-        if (currentUserRole === 'tyson') {
-          openAddModalBtn.classList.add("hidden");
-          roleBadge.classList.remove("hidden");
-        }
-
-        // Load Agents
+        // Fetch agents roster for both Tyson and Skalvya
         fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
@@ -297,38 +295,35 @@
     // Modal Visibility Controls
     const showModal = () => addModal.classList.remove("hidden"), addModal.classList.add("flex");
     const hideModal = () => addModal.classList.add("hidden");
-    openAddModalBtn.addEventListener("click", showModal);
-    closeModalBtn.addEventListener("click", hideModal);
-    cancelModalBtn.addEventListener("click", hideModal);
+    if (openAddModalBtn) openAddModalBtn.addEventListener("click", showModal);
+    if (closeModalBtn) closeModalBtn.addEventListener("click", hideModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener("click", hideModal);
 
     // Add Agent Form Submit
-    addAgentForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (currentUserRole === 'tyson') {
-        alert("Tyson account has read-only access.");
-        return;
-      }
+    if (addAgentForm) {
+      addAgentForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("new-agent-name").value.trim();
+        const email = document.getElementById("new-agent-email").value.trim();
 
-      const name = document.getElementById("new-agent-name").value.trim();
-      const email = document.getElementById("new-agent-email").value.trim();
+        if (!name || !email) return;
 
-      if (!name || !email) return;
-
-      try {
-        await addDoc(collection(db, "agents"), {
-          name: name,
-          email: email,
-          status: "In Progress",
-          progress: 0,
-          createdAt: serverTimestamp()
-        });
-        addAgentForm.reset();
-        hideModal();
-      } catch (err) {
-        console.error("Error adding agent:", err);
-        alert("Failed to add agent. Check database permissions.");
-      }
-    });
+        try {
+          await addDoc(collection(db, "agents"), {
+            name: name,
+            email: email,
+            status: "In Progress",
+            progress: 0,
+            createdAt: serverTimestamp()
+          });
+          addAgentForm.reset();
+          hideModal();
+        } catch (err) {
+          console.error("Error adding agent:", err);
+          alert("Failed to add agent. Please check database permissions.");
+        }
+      });
+    }
 
     // Fetch and Render Agent Roster
     function fetchAgentsRealtime() {
@@ -427,7 +422,7 @@
         tableBody.innerHTML = `
           <tr>
             <td colspan="5" class="py-8 text-center text-red-500 text-xs">
-              Failed to load agent roster. Check your database permissions.
+              Failed to load agent roster. Ensure your Firestore security rules permit access.
             </td>
           </tr>`;
       });
