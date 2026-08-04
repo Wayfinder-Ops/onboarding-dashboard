@@ -3,160 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Onboarding Dashboard — Wayfinder</title>
+  <title>Master Onboarding Dashboard - Wayfinder</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f3ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
-              400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
-              800: '#3730a3', 900: '#1e1b4b', 950: '#0f0e26',
-            },
-            accent: {
-              teal: '#14b8a6', emerald: '#10b981', amber: '#f59e0b',
-              rose: '#f43f5e', cyan: '#06b6d4', violet: '#8b5cf6',
-            },
-            surface: {
-              50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
-              800: '#1e293b', 900: '#0f172a', 950: '#020617',
-            }
-          },
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.8);
-    }
-    .status-badge {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 9999px;
-    }
-    /* Styles for clickable table rows */
+    /* Clickable row hover styles keeping original color scheme */
     .clickable-row {
       cursor: pointer;
-      transition: all 0.15s ease-in-out;
+      transition: background-color 0.15s ease-in-out;
     }
     .clickable-row:hover {
       background-color: #f8fafc !important;
     }
   </style>
 </head>
-<body class="bg-surface-50 text-surface-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
-  <!-- TOP HEADER -->
-  <header class="bg-surface-950 text-white border-b border-surface-800 sticky top-0 z-30 shadow-lg">
+  <!-- Header / Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center font-extrabold text-white text-lg tracking-wider shadow-md shadow-brand-600/30">
-          W
+        <div class="bg-slate-900 text-white p-2 rounded-lg">
+          <i class="fa-solid fa-compass text-xl"></i>
         </div>
         <div>
-          <h1 class="font-bold text-base leading-tight tracking-tight text-white">WAYFINDER</h1>
-          <p class="text-[10px] text-surface-300 font-medium tracking-wider uppercase">Master Dashboard • Internal View</p>
+          <h1 class="font-bold text-lg leading-tight text-slate-900">Wayfinder Onboarding</h1>
+          <p class="text-xs text-slate-500">Internal Team & Administrative Master View</p>
         </div>
       </div>
       
       <div class="flex items-center space-x-4">
-        <div id="user-display" class="text-xs font-semibold bg-surface-900 border border-surface-800 text-surface-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-accent-emerald animate-pulse"></div>
-          <span>Loading user...</span>
-        </div>
-        <button id="logout-btn" class="text-xs text-surface-300 hover:text-white bg-surface-900 hover:bg-surface-800 font-medium px-3 py-1.5 rounded-lg border border-surface-800 transition">
-          Log Out
+        <span id="user-display" class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+          <i class="fa-regular fa-user mr-1.5"></i> Loading user...
+        </span>
+        <button id="logout-btn" class="text-sm text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
+  <!-- Main Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- OVERVIEW STATS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="glass-card p-5 rounded-2xl shadow-sm">
-        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Total Active Agents</p>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="stat-total-agents" class="text-3xl font-extrabold text-surface-900">0</span>
-          <span class="text-xs font-medium text-surface-800 bg-surface-100 px-2 py-0.5 rounded-full">Roster Count</span>
+    <!-- Top Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Agents</p>
+          <h3 id="stat-total-agents" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+        </div>
+        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-users"></i>
         </div>
       </div>
 
-      <div class="glass-card p-5 rounded-2xl shadow-sm">
-        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">In Progress</p>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="stat-in-progress" class="text-3xl font-extrabold text-brand-600">0</span>
-          <span class="text-xs font-medium text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">Active</span>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">In Progress</p>
+          <h3 id="stat-in-progress" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-spinner"></i>
         </div>
       </div>
 
-      <div class="glass-card p-5 rounded-2xl shadow-sm">
-        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Completed Onboarding</p>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="stat-completed" class="text-3xl font-extrabold text-accent-emerald">0</span>
-          <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">100% Done</span>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed</p>
+          <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-circle-check"></i>
         </div>
       </div>
 
-      <div class="glass-card p-5 rounded-2xl shadow-sm">
-        <p class="text-[11px] font-bold text-surface-800 uppercase tracking-wider">Blocked / Risks</p>
-        <div class="mt-2 flex items-baseline justify-between">
-          <span id="stat-blocked" class="text-3xl font-extrabold text-accent-amber">0</span>
-          <span class="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Needs Attention</span>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
+          <h3 id="stat-blocked" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+        </div>
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+          <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
       </div>
     </div>
 
-    <!-- AGENT ROSTER SECTION -->
-    <div class="glass-card rounded-2xl shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-surface-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Agent Roster Section -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-surface-900">Agent Roster</h2>
-          <p class="text-xs text-surface-800 font-semibold mt-0.5">Click any row to open the agent's full 4-phase onboarding checklist.</p>
+          <h2 class="text-lg font-bold text-slate-800">Agent Roster</h2>
+          <p class="text-sm text-slate-500">Click on any agent's row to view their work checklist.</p>
         </div>
-        <button id="open-add-modal-btn" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition flex items-center justify-center gap-2">
-          <span>+ Add New Agent</span>
+        <button id="open-add-modal-btn" class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add New Agent
         </button>
       </div>
 
-      <!-- ROSTER TABLE -->
+      <!-- Table -->
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-surface-100/50 border-b border-surface-200 text-[11px] font-bold uppercase tracking-wider text-surface-800">
-              <th class="py-4 px-6">Agent Name</th>
-              <th class="py-4 px-6">Email</th>
-              <th class="py-4 px-6">Status</th>
-              <th class="py-4 px-6 w-56">Overall Progress</th>
-              <th class="py-4 px-6 text-right">Action</th>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="py-3.5 px-4">Agent Name</th>
+              <th class="py-3.5 px-4">Email</th>
+              <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 w-48">Progress</th>
+              <th class="py-3.5 px-4 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="agent-table-body" class="divide-y divide-surface-200/60 text-sm">
+          <tbody id="agent-table-body" class="divide-y divide-slate-100 text-sm">
             <tr>
-              <td colspan="5" class="py-12 text-center text-surface-800 font-semibold">
-                Loading agent roster data...
+              <td colspan="5" class="py-8 text-center text-slate-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+                <p>Loading agent roster...</p>
               </td>
             </tr>
           </tbody>
@@ -165,34 +130,33 @@
     </div>
   </main>
 
-  <!-- ADD AGENT MODAL -->
-  <div id="add-agent-modal" class="fixed inset-0 bg-surface-950/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-surface-200">
-      <div class="px-6 py-5 border-b border-surface-200 flex justify-between items-center bg-surface-50">
-        <div>
-          <h3 class="font-bold text-surface-900 text-base">Add New Agent</h3>
-          <p class="text-xs text-surface-800 font-semibold">Create a new agent profile for onboarding</p>
-        </div>
-        <button id="close-add-modal-btn" class="text-surface-800 hover:text-surface-900 font-bold text-lg">✕</button>
+  <!-- Add Agent Modal -->
+  <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
+      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800">Add New Agent</h3>
+        <button id="close-add-modal-btn" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
       <form id="add-agent-form" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-bold text-surface-800 uppercase tracking-wider mb-1.5">Agent Full Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g., Sarah Jenkins" class="w-full border border-surface-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Agent Name</label>
+          <input type="text" id="new-agent-name" required placeholder="e.g., Jane Doe" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900">
         </div>
         <div>
-          <label class="block text-xs font-bold text-surface-800 uppercase tracking-wider mb-1.5">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g., sarah@wayfinder.com" class="w-full border border-surface-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email Address</label>
+          <input type="email" id="new-agent-email" required placeholder="e.g., jane@example.com" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900">
         </div>
-        <div class="pt-3 flex justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2.5 border border-surface-300 rounded-xl text-xs font-bold text-surface-800 hover:bg-surface-100">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-600/20">Create Agent</button>
+        <div class="pt-2 flex justify-end space-x-3">
+          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-medium shadow-sm">Save Agent</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- FIREBASE MODULAR SDKS -->
+  <!-- Firebase Modular SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -236,7 +200,7 @@
     // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        userDisplay.querySelector("span").textContent = user.email;
+        userDisplay.innerHTML = `<i class="fa-regular fa-user mr-1.5"></i> ${user.email}`;
         loadAgents();
       } else {
         window.location.href = "login.html";
@@ -251,16 +215,8 @@
     });
 
     // Modal Handlers
-    openAddModalBtn.addEventListener("click", () => {
-      addModal.classList.remove("hidden");
-      addModal.classList.add("flex");
-    });
-    
-    const closeModal = () => {
-      addModal.classList.add("hidden");
-      addModal.classList.remove("flex");
-    };
-    
+    openAddModalBtn.addEventListener("click", () => addModal.classList.remove("hidden"), addModal.classList.add("flex"));
+    const closeModal = () => addModal.classList.add("hidden");
     closeAddModalBtn.addEventListener("click", closeModal);
     cancelAddModalBtn.addEventListener("click", closeModal);
 
@@ -284,11 +240,11 @@
         closeModal();
       } catch (err) {
         console.error("Error adding agent:", err);
-        alert("Failed to add agent. Please check permissions.");
+        alert("Failed to add agent. Check database permissions.");
       }
     });
 
-    // Load Realtime Roster & Attach Row Click Listeners
+    // Load Realtime Roster & Attach Click Navigators
     function loadAgents() {
       onSnapshot(collection(db, "agents"), (snapshot) => {
         let agents = [];
@@ -307,7 +263,7 @@
           else inProgress++;
         });
 
-        // Update Overview Stats
+        // Update Stats
         statTotal.textContent = total;
         statInProgress.textContent = inProgress;
         statCompleted.textContent = completed;
@@ -317,8 +273,8 @@
         if (agents.length === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="5" class="py-12 text-center text-surface-800 font-semibold">
-                No agents registered yet. Click "+ Add New Agent" to begin.
+              <td colspan="5" class="py-8 text-center text-slate-400">
+                No agents found. Click "Add New Agent" above to create one.
               </td>
             </tr>`;
           return;
@@ -326,40 +282,39 @@
 
         tableBody.innerHTML = agents.map((agent) => {
           const progressVal = agent.progress || 0;
-          
-          let statusBadgeClass = 'bg-brand-50 text-brand-700';
-          if (agent.status === 'Completed') statusBadgeClass = 'bg-emerald-50 text-emerald-700';
-          if (agent.status === 'Blocked' || agent.status === 'Risk') statusBadgeClass = 'bg-amber-50 text-amber-700';
-
           return `
-            <tr class="clickable-row border-b border-surface-200/60" data-id="${agent.id}">
-              <td class="py-4 px-6 font-bold text-surface-900">
-                ${agent.name || 'Unnamed Agent'}
+            <tr class="clickable-row hover:bg-slate-50 transition border-b border-slate-100" data-id="${agent.id}">
+              <td class="py-4 px-4 font-semibold text-slate-800">
+                <i class="fa-solid fa-user-circle text-slate-400 mr-2"></i>${agent.name || 'Unnamed Agent'}
               </td>
-              <td class="py-4 px-6 text-surface-800 font-semibold">${agent.email || 'N/A'}</td>
-              <td class="py-4 px-6">
-                <span class="status-badge ${statusBadgeClass}">
+              <td class="py-4 px-4 text-slate-500">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  agent.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
+                  agent.status === 'Blocked' ? 'bg-amber-100 text-amber-800' :
+                  'bg-blue-100 text-blue-800'
+                }">
                   ${agent.status || 'In Progress'}
                 </span>
               </td>
-              <td class="py-4 px-6">
+              <td class="py-4 px-4">
                 <div class="flex items-center gap-3">
-                  <div class="w-full bg-surface-200 rounded-full h-2 overflow-hidden">
-                    <div class="bg-brand-600 h-2 rounded-full transition-all duration-300" style="width: ${progressVal}%"></div>
+                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-slate-800 h-2 rounded-full" style="width: ${progressVal}%"></div>
                   </div>
-                  <span class="text-xs text-surface-800 font-mono font-bold">${progressVal}%</span>
+                  <span class="text-xs text-slate-500 font-medium">${progressVal}%</span>
                 </div>
               </td>
-              <td class="py-4 px-6 text-right">
-                <button class="text-brand-600 hover:text-brand-800 font-bold text-xs inline-flex items-center gap-1">
-                  View Checklist →
+              <td class="py-4 px-4 text-right">
+                <button class="text-slate-700 hover:text-slate-900 font-medium text-sm flex items-center justify-end gap-1 ml-auto">
+                  Open Checklist <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
               </td>
             </tr>
           `;
         }).join('');
 
-        // Attach click handler to rows for navigation
+        // Attach click listener to each agent row
         document.querySelectorAll('.clickable-row').forEach((row) => {
           row.addEventListener('click', () => {
             const agentId = row.getAttribute('data-id');
@@ -373,8 +328,8 @@
         console.error("Firestore Error:", error);
         tableBody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-12 text-center text-accent-rose font-bold">
-              Failed to load agent roster. Please check database configuration.
+            <td colspan="5" class="py-8 text-center text-red-500">
+              Error loading data. Make sure you are logged in and security rules permit access.
             </td>
           </tr>`;
       });
