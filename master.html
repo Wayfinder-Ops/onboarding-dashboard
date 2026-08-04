@@ -3,164 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Onboarding Dashboard - Skalvya</title>
+  <title>Master Onboarding Dashboard | Wayfinder</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            navy: {
+              800: '#1e293b',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    /* Styling for clickable table rows */
+    body { font-family: 'Inter', sans-serif; }
     .clickable-row {
       cursor: pointer;
-      transition: background-color 0.15s ease-in-out;
+      transition: all 0.2s ease-in-out;
     }
     .clickable-row:hover {
-      background-color: #f3f4f6 !important; /* Soft grey highlight on hover */
+      background-color: #f8fafc !important;
+      transform: translateY(-1px);
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header / Navigation -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <!-- Navigation / Header -->
+  <header class="bg-navy-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 text-white p-2 rounded-lg">
-          <i class="fa-solid fa-layer-group text-xl"></i>
+        <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-lg text-white shadow-sm">
+          W
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">Master Onboarding Dashboard</h1>
-          <p class="text-xs text-slate-500">Internal Team & Administrative View</p>
+          <h1 class="font-bold text-base sm:text-lg tracking-tight leading-tight">Master Onboarding Dashboard</h1>
+          <p id="view-mode-subtitle" class="text-xs text-slate-400">Wayfinder Real Estate Group</p>
         </div>
       </div>
-      
+
       <div class="flex items-center space-x-4">
-        <span id="user-display" class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-          <i class="fa-regular fa-user mr-1.5"></i> Loading user...
-        </span>
-        <button id="logout-btn" class="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition">
-          <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
+        <div id="user-display" class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs font-medium text-slate-300">
+          <i class="fa-regular fa-user text-brand-500"></i>
+          <span id="user-email-text">Loading...</span>
+        </div>
+        <button id="logout-btn" class="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Log Out</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
 
-    <!-- Top Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Agents</p>
-          <h3 id="stat-total-agents" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+    <!-- Overview Stats Banner -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Total Agents -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Agents</span>
+          <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+            <i class="fa-solid fa-users"></i>
+          </div>
         </div>
-        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-users"></i>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-total" class="text-2xl font-bold text-slate-800">0</span>
+          <span class="text-xs text-slate-500 font-medium">In Roster</span>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">In Progress</p>
-          <h3 id="stat-in-progress" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
+      <!-- Active Onboarding -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">In Progress</span>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+          </div>
         </div>
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-spinner"></i>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed</p>
-          <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
-        </div>
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-circle-check"></i>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-progress" class="text-2xl font-bold text-blue-600">0</span>
+          <span class="text-xs text-blue-600/80 font-medium bg-blue-50 px-2 py-0.5 rounded-full">Active</span>
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
-          <h3 id="stat-blocked" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+      <!-- Completed -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Completed</span>
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
         </div>
-        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-triangle-exclamation"></i>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-completed" class="text-2xl font-bold text-brand-600">0</span>
+          <span class="text-xs text-brand-600/80 font-medium bg-brand-50 px-2 py-0.5 rounded-full">100% Done</span>
         </div>
       </div>
+
+      <!-- Blocked / Risks -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Blocked / Risks</span>
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-blocked" class="text-2xl font-bold text-amber-600">0</span>
+          <span class="text-xs text-amber-600/80 font-medium bg-amber-50 px-2 py-0.5 rounded-full">Needs Attention</span>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Agent Roster Section -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Agent Roster Table Section -->
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+      
+      <!-- Table Header Bar -->
+      <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Agent Roster</h2>
-          <p class="text-sm text-slate-500">Click on any agent's row to open their full checklist and tasks.</p>
+          <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist.</p>
         </div>
-        <button id="open-add-modal-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-plus"></i> Add New Agent
+        <!-- Add New Agent button hidden by default until role check passes -->
+        <button id="open-add-modal" class="hidden inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
+          <i class="fa-solid fa-user-plus text-xs"></i>
+          <span>Add New Agent</span>
         </button>
       </div>
 
-      <!-- Table -->
+      <!-- Table Structure -->
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
-              <th class="py-3.5 px-4">Agent Name</th>
-              <th class="py-3.5 px-4">Email</th>
-              <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 w-48">Progress</th>
-              <th class="py-3.5 px-4 text-right">Action</th>
+            <tr class="bg-slate-50/80 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <th class="py-3.5 px-6">Agent Name</th>
+              <th class="py-3.5 px-6">Email Address</th>
+              <th class="py-3.5 px-6">Onboarding Status</th>
+              <th class="py-3.5 px-6 w-48">Overall Progress</th>
+              <th class="py-3.5 px-6 text-right">Action</th>
             </tr>
           </thead>
           <tbody id="agent-table-body" class="divide-y divide-slate-100 text-sm">
             <tr>
-              <td colspan="5" class="py-8 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
-                <p>Loading agent roster...</p>
+              <td colspan="5" class="py-12 text-center text-slate-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-600 mb-2"></i>
+                <p class="text-sm">Loading agent roster...</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
     </div>
+
   </main>
 
   <!-- Add Agent Modal -->
-  <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
-      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="font-bold text-slate-800">Add New Agent</h3>
-        <button id="close-add-modal-btn" class="text-slate-400 hover:text-slate-600">
+  <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all duration-200">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 transform transition-all">
+      <div class="px-6 py-4 bg-navy-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-base tracking-tight">Add New Agent</h3>
+        <button id="close-modal-btn" class="text-slate-400 hover:text-white transition">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
       <form id="add-agent-form" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Agent Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g., Jane Doe" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Agent Full Name</label>
+          <input type="text" id="new-agent-name" required placeholder="John Doe" class="w-full border border-slate-300 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g., jane@example.com" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Agent Email Address</label>
+          <input type="email" id="new-agent-email" required placeholder="john@wayfinder.com" class="w-full border border-slate-300 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
         </div>
-        <div class="pt-2 flex justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm">Save Agent</button>
+        <div class="pt-3 flex justify-end space-x-3 border-t border-slate-100">
+          <button type="button" id="cancel-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">Create Agent</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Firebase Modular SDKs -->
+  <!-- Firebase Modular SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -174,34 +230,64 @@
       measurementId: "G-F2NWFG505B"
     };
 
-    // Initialize
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     // Elements
-    const userDisplay = document.getElementById("user-display");
+    const userEmailText = document.getElementById("user-email-text");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
+    const viewModeSubtitle = document.getElementById("view-mode-subtitle");
     
-    // Modals
-    const addModal = document.getElementById("add-agent-modal");
-    const openAddModalBtn = document.getElementById("open-add-modal-btn");
-    const closeAddModalBtn = document.getElementById("close-add-modal-btn");
-    const cancelAddModalBtn = document.getElementById("cancel-add-modal-btn");
-    const addAgentForm = document.getElementById("add-agent-form");
-
     // Stats Elements
-    const statTotal = document.getElementById("stat-total-agents");
-    const statInProgress = document.getElementById("stat-in-progress");
+    const statTotal = document.getElementById("stat-total");
+    const statProgress = document.getElementById("stat-progress");
     const statCompleted = document.getElementById("stat-completed");
     const statBlocked = document.getElementById("stat-blocked");
 
-    // Auth Check
-    onAuthStateChanged(auth, (user) => {
+    // Modal Elements
+    const addModal = document.getElementById("add-agent-modal");
+    const openAddModalBtn = document.getElementById("open-add-modal");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+    const cancelModalBtn = document.getElementById("cancel-modal-btn");
+    const addAgentForm = document.getElementById("add-agent-form");
+
+    let currentUserRole = null;
+
+    // Auth & Role Check
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        userDisplay.innerHTML = `<i class="fa-regular fa-user mr-1.5"></i> ${user.email}`;
-        loadAgents();
+        userEmailText.textContent = user.email;
+
+        // Check Role in Firestore `users` collection
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            currentUserRole = userDocSnap.data().role;
+          }
+
+          // If role is Skalvya (Admin), show the "Add New Agent" button
+          if (currentUserRole === 'skalvya' || currentUserRole === 'admin') {
+            openAddModalBtn.classList.remove("hidden");
+            viewModeSubtitle.textContent = "Admin & Operations Control Dashboard";
+          } else if (currentUserRole === 'tyson') {
+            openAddModalBtn.classList.add("hidden");
+            viewModeSubtitle.textContent = "Executive View (Read-Only)";
+          } else {
+            // Default behavior if role isn't explicitly set: hide editing controls
+            openAddModalBtn.classList.add("hidden");
+          }
+
+        } catch (error) {
+          console.warn("Could not retrieve user role, defaulting to view-only:", error);
+          openAddModalBtn.classList.add("hidden");
+        }
+
+        fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
       }
@@ -214,15 +300,24 @@
       });
     });
 
-    // Modal Handlers
-    openAddModalBtn.addEventListener("click", () => addModal.classList.remove("hidden"), addModal.classList.add("flex"));
-    const closeModal = () => addModal.classList.add("hidden");
-    closeAddModalBtn.addEventListener("click", closeModal);
-    cancelAddModalBtn.addEventListener("click", closeModal);
+    // Modal Visibility Controls
+    const showModal = () => addModal.classList.remove("hidden"), addModal.classList.add("flex");
+    const hideModal = () => addModal.classList.add("hidden");
+    openAddModalBtn.addEventListener("click", showModal);
+    closeModalBtn.addEventListener("click", hideModal);
+    cancelModalBtn.addEventListener("click", hideModal);
 
     // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      
+      // Secondary check to ensure non-admins cannot submit
+      if (currentUserRole === 'tyson') {
+        alert("You have view-only access and cannot add agents.");
+        hideModal();
+        return;
+      }
+
       const name = document.getElementById("new-agent-name").value.trim();
       const email = document.getElementById("new-agent-email").value.trim();
 
@@ -237,100 +332,111 @@
           createdAt: serverTimestamp()
         });
         addAgentForm.reset();
-        closeModal();
+        hideModal();
       } catch (err) {
         console.error("Error adding agent:", err);
-        alert("Failed to add agent. Check database permissions.");
+        alert("Failed to add agent. Please check Firebase permissions.");
       }
     });
 
-    // Load Realtime Roster & Attach Click Navigators
-    function loadAgents() {
+    // Fetch and Render Agent Roster
+    function fetchAgentsRealtime() {
       onSnapshot(collection(db, "agents"), (snapshot) => {
-        let agents = [];
         let total = 0;
         let inProgress = 0;
         let completed = 0;
         let blocked = 0;
+        let rowsHtml = '';
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          agents.push({ id: doc.id, ...data });
-
-          total++;
-          if (data.status === "Completed" || data.progress === 100) completed++;
-          else if (data.status === "Blocked" || data.status === "Risk") blocked++;
-          else inProgress++;
-        });
-
-        // Update Stats
-        statTotal.textContent = total;
-        statInProgress.textContent = inProgress;
-        statCompleted.textContent = completed;
-        statBlocked.textContent = blocked;
-
-        // Render Table
-        if (agents.length === 0) {
+        if (snapshot.empty) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="5" class="py-8 text-center text-slate-400">
-                No agents found. Click "Add New Agent" above to create one.
+              <td colspan="5" class="py-12 text-center text-slate-400">
+                No agents registered yet.
               </td>
             </tr>`;
+          statTotal.textContent = "0";
+          statProgress.textContent = "0";
+          statCompleted.textContent = "0";
+          statBlocked.textContent = "0";
           return;
         }
 
-        tableBody.innerHTML = agents.map((agent) => {
-          const progressVal = agent.progress || 0;
-          return `
-            <tr class="clickable-row hover:bg-slate-50 transition border-b border-slate-100" data-id="${agent.id}">
-              <td class="py-4 px-4 font-semibold text-slate-800">
-                <i class="fa-solid fa-user-circle text-slate-400 mr-2"></i>${agent.name || 'Unnamed Agent'}
-              </td>
-              <td class="py-4 px-4 text-slate-500">${agent.email || 'N/A'}</td>
-              <td class="py-4 px-4">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  agent.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                  agent.status === 'Blocked' ? 'bg-amber-100 text-amber-800' :
-                  'bg-blue-100 text-blue-800'
-                }">
-                  ${agent.status || 'In Progress'}
-                </span>
-              </td>
-              <td class="py-4 px-4">
+        snapshot.forEach((doc) => {
+          const agent = doc.data();
+          const id = doc.id;
+          const progress = agent.progress || 0;
+          const status = agent.status || 'In Progress';
+
+          total++;
+          if (status === 'Completed' || progress === 100) completed++;
+          else if (status === 'Blocked' || status === 'Risk') blocked++;
+          else inProgress++;
+
+          // Build Status Badge
+          let statusBadge = '';
+          if (status === 'Completed' || progress === 100) {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>Completed</span>`;
+          } else if (status === 'Blocked' || status === 'Risk') {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Blocked</span>`;
+          } else {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>In Progress</span>`;
+          }
+
+          rowsHtml += `
+            <tr class="clickable-row border-b border-slate-100" data-id="${id}">
+              <td class="py-4 px-6 font-medium text-slate-800">
                 <div class="flex items-center gap-3">
-                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <div class="bg-indigo-600 h-2 rounded-full" style="width: ${progressVal}%"></div>
+                  <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center border border-slate-200">
+                    ${agent.name ? agent.name.charAt(0).toUpperCase() : 'A'}
                   </div>
-                  <span class="text-xs text-slate-500 font-medium">${progressVal}%</span>
+                  <span>${agent.name || 'Unnamed Agent'}</span>
                 </div>
               </td>
-              <td class="py-4 px-4 text-right">
-                <button class="text-indigo-600 hover:text-indigo-900 font-medium text-sm flex items-center justify-end gap-1 ml-auto">
-                  Open Checklist <i class="fa-solid fa-chevron-right text-xs"></i>
-                </button>
+              <td class="py-4 px-6 text-slate-500 text-xs font-mono">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-6">${statusBadge}</td>
+              <td class="py-4 px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/50">
+                    <div class="bg-brand-600 h-2 rounded-full transition-all duration-300" style="width: ${progress}%"></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-600 w-8 text-right">${progress}%</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 group-hover:text-brand-700">
+                  Open Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </span>
               </td>
             </tr>
           `;
-        }).join('');
+        });
 
-        // Attach click listener to each agent row
-        document.querySelectorAll('.clickable-row').forEach((row) => {
+        // Update Stats Counters
+        statTotal.textContent = total;
+        statProgress.textContent = inProgress;
+        statCompleted.textContent = completed;
+        statBlocked.textContent = blocked;
+
+        // Render Table Body
+        tableBody.innerHTML = rowsHtml;
+
+        // Attach Click Event to Rows
+        document.querySelectorAll('.clickable-row').forEach(row => {
           row.addEventListener('click', () => {
             const agentId = row.getAttribute('data-id');
             if (agentId) {
-              // Redirect directly to the checklist page with the Agent ID
               window.location.href = `agent.html?agentId=${agentId}`;
             }
           });
         });
 
       }, (error) => {
-        console.error("Firestore Error:", error);
+        console.error("Firestore error:", error);
         tableBody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-8 text-center text-red-500">
-              Error loading data. Make sure you are logged in and security rules permit access.
+            <td colspan="5" class="py-8 text-center text-red-500 text-xs">
+              Failed to load agent roster. Check database permissions.
             </td>
           </tr>`;
       });
