@@ -70,6 +70,9 @@
         <div id="user-display" class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs font-medium text-slate-300">
           <i class="fa-regular fa-user text-brand-500"></i>
           <span id="user-email-text">Loading...</span>
+          <span id="role-badge" class="hidden ml-1 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            View Only
+          </span>
         </div>
         <button id="logout-btn" class="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -150,8 +153,9 @@
       <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
           <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view and manage that agent's onboarding checklist.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist and progress.</p>
         </div>
+        <!-- Add Agent Button (Hidden automatically for Tyson) -->
         <button id="open-add-modal" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
           <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Add New Agent</span>
@@ -215,7 +219,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -236,6 +240,7 @@
 
     // Elements
     const userEmailText = document.getElementById("user-email-text");
+    const roleBadge = document.getElementById("role-badge");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
     
@@ -252,10 +257,30 @@
     const cancelModalBtn = document.getElementById("cancel-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    // Auth Guard
-    onAuthStateChanged(auth, (user) => {
+    let currentUserRole = null;
+
+    // Auth Guard & Role Check
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         userEmailText.textContent = user.email;
+
+        // Check User Role in Firestore
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            currentUserRole = userDoc.data().role;
+          }
+        } catch (err) {
+          console.warn("Could not retrieve user role document:", err);
+        }
+
+        // If logged in as Tyson, hide the Add Agent button and show "View Only" badge
+        if (currentUserRole === 'tyson') {
+          openAddModalBtn.classList.add("hidden");
+          roleBadge.classList.remove("hidden");
+        }
+
+        // Load Agents
         fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
@@ -279,6 +304,11 @@
     // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (currentUserRole === 'tyson') {
+        alert("Tyson account has read-only access.");
+        return;
+      }
+
       const name = document.getElementById("new-agent-name").value.trim();
       const email = document.getElementById("new-agent-email").value.trim();
 
@@ -296,7 +326,7 @@
         hideModal();
       } catch (err) {
         console.error("Error adding agent:", err);
-        alert("Failed to add agent. Please check Firebase permissions.");
+        alert("Failed to add agent. Check database permissions.");
       }
     });
 
@@ -313,7 +343,7 @@
           tableBody.innerHTML = `
             <tr>
               <td colspan="5" class="py-12 text-center text-slate-400">
-                No agents registered yet. Click "Add New Agent" above to get started.
+                No agents registered yet.
               </td>
             </tr>`;
           statTotal.textContent = "0";
@@ -323,9 +353,9 @@
           return;
         }
 
-        snapshot.forEach((doc) => {
-          const agent = doc.data();
-          const id = doc.id;
+        snapshot.forEach((docSnap) => {
+          const agent = docSnap.data();
+          const id = docSnap.id;
           const progress = agent.progress || 0;
           const status = agent.status || 'In Progress';
 
@@ -365,8 +395,8 @@
                 </div>
               </td>
               <td class="py-4 px-6 text-right">
-                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 group-hover:text-brand-700">
-                  Open Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700">
+                  View Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </span>
               </td>
             </tr>
