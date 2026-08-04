@@ -62,7 +62,7 @@
         </div>
         <div>
           <h1 class="font-bold text-base sm:text-lg tracking-tight leading-tight">Master Onboarding Dashboard</h1>
-          <p id="view-mode-subtitle" class="text-xs text-slate-400">Wayfinder Real Estate Group</p>
+          <p class="text-xs text-slate-400">Wayfinder Real Estate Group</p>
         </div>
       </div>
 
@@ -150,9 +150,9 @@
       <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
           <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view and manage that agent's onboarding checklist.</p>
         </div>
-        <!-- Add New Agent button hidden by default until role check passes -->
+        <!-- Add Agent Button (Hidden automatically for Tyson) -->
         <button id="open-add-modal" class="hidden inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
           <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Add New Agent</span>
@@ -216,7 +216,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -239,7 +239,6 @@
     const userEmailText = document.getElementById("user-email-text");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
-    const viewModeSubtitle = document.getElementById("view-mode-subtitle");
     
     // Stats Elements
     const statTotal = document.getElementById("stat-total");
@@ -254,39 +253,35 @@
     const cancelModalBtn = document.getElementById("cancel-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    let currentUserRole = null;
-
-    // Auth & Role Check
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userEmailText.textContent = user.email;
-
-        // Check Role in Firestore `users` collection
-        try {
-          const userDocRef = doc(db, "users", user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-
-          if (userDocSnap.exists()) {
-            currentUserRole = userDocSnap.data().role;
-          }
-
-          // If role is Skalvya (Admin), show the "Add New Agent" button
-          if (currentUserRole === 'skalvya' || currentUserRole === 'admin') {
-            openAddModalBtn.classList.remove("hidden");
-            viewModeSubtitle.textContent = "Admin & Operations Control Dashboard";
-          } else if (currentUserRole === 'tyson') {
-            openAddModalBtn.classList.add("hidden");
-            viewModeSubtitle.textContent = "Executive View (Read-Only)";
-          } else {
-            // Default behavior if role isn't explicitly set: hide editing controls
-            openAddModalBtn.classList.add("hidden");
-          }
-
-        } catch (error) {
-          console.warn("Could not retrieve user role, defaulting to view-only:", error);
-          openAddModalBtn.classList.add("hidden");
+    // Check User Role (Skalvya vs Tyson)
+    async function checkUserRole(user) {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+        
+        let role = "skalvya"; // Default fallback
+        if (userSnap.exists()) {
+          role = userSnap.data().role || "skalvya";
         }
 
+        // Hide "Add Agent" button if user is Tyson
+        if (role === "tyson") {
+          openAddModalBtn.classList.add("hidden");
+        } else {
+          openAddModalBtn.classList.remove("hidden");
+        }
+      } catch (e) {
+        console.warn("Could not fetch user role, defaulting to standard view:", e);
+        // Fallback: Show button if role fetch fails
+        openAddModalBtn.classList.remove("hidden");
+      }
+    }
+
+    // Auth Guard
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userEmailText.textContent = user.email;
+        checkUserRole(user);
         fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
@@ -310,14 +305,6 @@
     // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
-      // Secondary check to ensure non-admins cannot submit
-      if (currentUserRole === 'tyson') {
-        alert("You have view-only access and cannot add agents.");
-        hideModal();
-        return;
-      }
-
       const name = document.getElementById("new-agent-name").value.trim();
       const email = document.getElementById("new-agent-email").value.trim();
 
@@ -352,7 +339,7 @@
           tableBody.innerHTML = `
             <tr>
               <td colspan="5" class="py-12 text-center text-slate-400">
-                No agents registered yet.
+                No agents registered yet. Click "Add New Agent" above to get started.
               </td>
             </tr>`;
           statTotal.textContent = "0";
@@ -436,7 +423,7 @@
         tableBody.innerHTML = `
           <tr>
             <td colspan="5" class="py-8 text-center text-red-500 text-xs">
-              Failed to load agent roster. Check database permissions.
+              Failed to load agent roster. Check your database permissions.
             </td>
           </tr>`;
       });
