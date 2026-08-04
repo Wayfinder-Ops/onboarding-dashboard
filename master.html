@@ -55,6 +55,16 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 
 .content{flex:1;padding:34px 42px 70px;max-width:1220px;animation:fadeIn .35s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stat-grid .stat-card{opacity:0;animation:cardIn .45s cubic-bezier(.2,.8,.3,1) forwards}
+.stat-grid .stat-card:nth-child(1){animation-delay:.03s}
+.stat-grid .stat-card:nth-child(2){animation-delay:.09s}
+.stat-grid .stat-card:nth-child(3){animation-delay:.15s}
+.stat-grid .stat-card:nth-child(4){animation-delay:.21s}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.chart-grid .card{opacity:0;animation:cardIn .5s cubic-bezier(.2,.8,.3,1) forwards .18s}
+.chart-grid .card:last-child{animation-delay:.26s}
+@keyframes rowFlash{0%{background:#FBF3E2}100%{background:transparent}}
+.row-flash{animation:rowFlash 1.4s ease-out}
 .connection-banner{display:none;align-items:center;justify-content:center;gap:8px;background:#FCEFD8;color:#8A5A00;font-size:13px;font-weight:600;padding:10px;position:sticky;top:0;z-index:200}
 
 .page-head{margin-bottom:28px}
@@ -239,7 +249,7 @@ if (!CONFIGURED) {
   function formatDate(iso){ if(!iso) return "—"; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
   function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
 
-  let me=null, agents=[], tasksByAgent={}, taskUnsubs={}, ownerChart, phaseChart;
+  let me=null, agents=[], tasksByAgent={}, taskUnsubs={}, ownerChart, phaseChart, prevProgress={};
 
   auth.onAuthStateChanged(async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
@@ -263,7 +273,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
+          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 15 L20 15 L18 20 L6 20 Z" fill="#E9D6AC"/><line x1="12" y1="15" x2="12" y2="5" stroke="#E9D6AC" stroke-width="1.6"/><path d="M12 5 L12 13 L17.5 13 Z" fill="#C6A15B"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
           <div class="side-divider"></div>
           <div class="side-label">Overview</div>
           <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
@@ -406,6 +416,16 @@ if (!CONFIGURED) {
     drawOwnerChart(); drawPhaseChart();
     document.querySelectorAll("[data-open-agent]").forEach(row => {
       row.addEventListener("click", () => window.location.href = "agent.html?agentId=" + row.dataset.openAgent);
+    });
+
+    // Visually flash any row whose progress just changed — confirms live sync at a glance
+    agents.forEach(agent => {
+      const pct = Math.round(overallProgress(tasksByAgent[agent.id] || []) * 100);
+      if (prevProgress[agent.id] !== undefined && prevProgress[agent.id] !== pct) {
+        const row = document.querySelector(`tr[data-open-agent="${agent.id}"]`);
+        if (row) { row.classList.remove("row-flash"); void row.offsetWidth; row.classList.add("row-flash"); }
+      }
+      prevProgress[agent.id] = pct;
     });
   }
 
