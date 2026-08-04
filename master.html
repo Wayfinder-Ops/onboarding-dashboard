@@ -1,717 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Master Dashboard — Wayfinder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{
-  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
-  --gold:#C6A15B; --gold-light:#E9D6AC;
-  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
-  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
-  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
-  --radius:16px;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-.serif{font-family:'Fraunces',serif}
-a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer} input,select{font-family:inherit}
-::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#DCD9CF;border-radius:10px} ::-webkit-scrollbar-track{background:transparent}
-
-.setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.setup-card{max-width:520px;background:#fff;border-radius:18px;padding:36px;box-shadow:var(--shadow);border:1px solid var(--border)}
-.setup-card .icon{width:44px;height:44px;border-radius:12px;background:#FCF1DC;color:#8A5A00;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
-.setup-card h2{font-family:'Fraunces',serif;margin:0 0 10px;font-size:22px;color:var(--navy)}
-.setup-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 16px}
-.setup-card code{background:#F3F1EA;padding:2px 6px;border-radius:5px;font-size:12.5px}
-
-.shell{display:flex;min-height:100vh}
-.sidebar{
-  width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,#080f1f 100%);color:#fff;
-  padding:26px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
-}
-.brand{display:flex;align-items:center;gap:11px;margin-bottom:8px;padding:0 4px}
-.brand .mark{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(233,214,172,.35);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:13px}
-.brand .name{font-weight:800;font-size:14.5px;letter-spacing:1px}
-.brand .sub{font-size:10.5px;color:rgba(255,255,255,.42)}
-.side-divider{height:1px;background:rgba(255,255,255,.08);margin:20px 4px}
-.side-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.32);margin:4px 10px 10px;font-weight:700}
-.side-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:11px;color:rgba(255,255,255,.72);font-size:13.5px;font-weight:600;border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s}
-.side-link:hover{background:rgba(255,255,255,.07);color:#fff}
-.side-link.active{background:rgba(198,161,91,.16);color:var(--gold-light);font-weight:700}
-.side-spacer{flex:1}
-.side-user{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:rgba(255,255,255,.05);margin-bottom:8px}
-.side-user .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a8813f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
-.side-user .n{font-size:12.5px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.side-user .r{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:capitalize}
-.logout-btn{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.6);font-size:12.5px;font-weight:600;transition:background .15s,color .15s}
-.logout-btn:hover{background:rgba(255,255,255,.08);color:#fff}
-.side-add-btn{width:100%;padding:11px;border-radius:11px;border:none;margin-bottom:12px;background:linear-gradient(135deg,var(--gold),#a8813f);color:var(--navy);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,box-shadow .15s}
-.side-add-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(198,161,91,.3)}
-
-.content{flex:1;padding:34px 42px 70px;max-width:1220px;animation:fadeIn .35s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.connection-banner{display:none;align-items:center;justify-content:center;gap:8px;background:#FCEFD8;color:#8A5A00;font-size:13px;font-weight:600;padding:10px;position:sticky;top:0;z-index:200}
-
-.page-head{margin-bottom:28px}
-.page-head h1{font-family:'Fraunces',serif;margin:0 0 6px;font-size:29px;color:var(--navy);font-weight:600}
-.page-head .muted{margin:0;color:var(--muted);font-size:14.5px}
-.muted{color:var(--muted)} .small{font-size:12.5px}
-.tyson-note{display:flex;align-items:center;gap:9px;background:#EEF4FC;color:#2C5C93;border:1px solid #D7E5F6;border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;margin-bottom:22px}
-
-.card{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
-.card h3{margin:0 0 16px;font-size:15.5px;color:var(--navy)}
-.card-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.card-head-row h3{margin:0}
-
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px}
-.stat-card{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--navy-2);transition:transform .18s}
-.stat-card:hover{transform:translateY(-2px)}
-.stat-card.accent-green{border-left-color:var(--green)} .stat-card.accent-red{border-left-color:var(--red)}
-.stat-value{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--navy);line-height:1}
-.stat-label{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
-
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-
-.roster-table{width:100%;border-collapse:collapse;font-size:13.5px}
-.roster-table th{text-align:left;padding:10px 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:1.5px solid var(--border);font-weight:800}
-.roster-table td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
-.roster-table tbody tr{cursor:pointer;transition:background .12s}
-.roster-table tbody tr:hover{background:#FAF9F5}
-.roster-table tbody tr:last-child td{border-bottom:none}
-.cell-name{font-weight:700;color:var(--navy)}
-.cell-next{color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.progress-track{width:100px;height:7px;background:#EEEBE2;border-radius:6px;overflow:hidden;display:inline-block;vertical-align:middle}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--navy-2));border-radius:6px;transition:width .5s ease}
-.progress-pct{font-size:11.5px;color:var(--muted);margin-left:8px;font-weight:700}
-.phase-pill{display:inline-block;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700;background:#EFEAE0;color:var(--navy)}
-.risk-badge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700}
-.risk-green{background:#E4F6EC;color:var(--green)} .risk-yellow{background:#FCF1DC;color:var(--yellow)} .risk-red{background:#FBE7E7;color:var(--red)}
-.blocker-count{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:0 6px}
-
-.blocker-list{display:flex;flex-direction:column;gap:9px}
-.blocker-row{display:grid;grid-template-columns:150px 1fr 1.3fr;gap:14px;padding:11px 13px;background:#FDF6F6;border:1px solid #F5D9D9;border-radius:10px;font-size:13px}
-.blocker-agent{font-weight:700;color:var(--navy)} .blocker-task{color:var(--text)} .blocker-text{color:var(--red);font-weight:500}
-
-.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
-.error-panel{text-align:center;padding:50px 24px;max-width:460px;margin:0 auto}
-.error-panel .icon{width:44px;height:44px;border-radius:12px;background:#FDECEC;color:#B23C3C;display:flex;align-items:center;justify-content:center;font-size:19px;margin:0 auto 16px}
-.error-panel h3{font-family:'Fraunces',serif;color:var(--navy);margin:0 0 8px;font-size:18px}
-.error-panel .code{font-size:12px;color:#B23C3C;background:#FDECEC;border-radius:7px;padding:6px 10px;display:inline-block;margin:6px 0 14px;font-family:monospace}
-.error-panel .hint{font-size:13px;color:var(--muted);line-height:1.6}
-.boat-loader{width:76px;height:76px;margin:0 auto 16px}
-.wave-anim{animation:waveMove 3.2s linear infinite}
-.wave-anim2{animation:waveMove 4s linear infinite reverse}
-@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
-.loading-msg{text-align:center;color:var(--muted);font-size:13.5px;font-weight:500}
-
-.modal-overlay{position:fixed;inset:0;background:rgba(10,15,28,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(3px)}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:20px;padding:30px 28px;width:100%;max-width:430px;box-shadow:0 30px 60px rgba(0,0,0,.32);max-height:88vh;overflow-y:auto}
-.modal h2{font-family:'Fraunces',serif;margin:0 0 20px;font-size:20px;color:var(--navy);font-weight:600}
-.modal label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:7px;margin-top:15px}
-.modal label:first-of-type{margin-top:0}
-.modal input, .modal select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;background:#FBFAF7}
-.modal input:focus, .modal select:focus{outline:none;border-color:var(--gold);background:#fff}
-.modal-divider{border:none;border-top:1px dashed var(--border);margin:20px 0 4px}
-.modal-hint{font-size:11.5px;color:var(--muted);margin:5px 0 0}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
-.btn-primary{background:linear-gradient(135deg,var(--navy-2),var(--navy-light));color:#fff;border:none;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,box-shadow .15s}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,27,51,.24)}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-secondary{background:#fff;color:var(--navy);border:1.5px solid var(--border);padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:700}
-.btn-secondary:hover{border-color:var(--navy)}
-
-@media (max-width:880px){
-  .shell{flex-direction:column} .sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px}
-  .side-spacer,.side-divider,.side-label,.side-add-btn{display:none} .content{padding:20px}
-  .stat-grid,.chart-grid{grid-template-columns:1fr 1fr} .blocker-row{grid-template-columns:1fr}
-}
-</style>
-</head>
-<body>
-
-<div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
-<div id="app"><div class="setup-screen">
-  <div style="text-align:center">
-    <div class="boat-loader"><svg viewBox="0 0 120 120" width="100%" height="100%">
-      <circle cx="60" cy="60" r="58" fill="#0F1B33"/>
-      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
-        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/></g>
-      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
-        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/></g>
-      <g class="boat-anim">
-        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
-        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
-        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/></g>
-    </svg></div>
-    <p class="loading-msg">Loading dashboard...</p>
-  </div>
-</div></div>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
-<script>
-/* ============================================================
-   FIREBASE CONFIG
-   ============================================================ */
-const firebaseConfig = {
-  apiKey: "AIzaSyDRWQYxeV2Hkize1Py7O4D-h2Av14sqMj4",
-  authDomain: "wayfinder-onboarding.firebaseapp.com",
-  databaseURL: "https://wayfinder-onboarding-default-rtdb.firebaseio.com",
-  projectId: "wayfinder-onboarding",
-  storageBucket: "wayfinder-onboarding.firebasestorage.app",
-  messagingSenderId: "105454511155",
-  appId: "1:105454511155:web:1cdc4b1294c7557fb46f46",
-  measurementId: "G-F2NWFG505B"
-};
-const CONFIGURED = firebaseConfig.apiKey !== "REPLACE_ME" && firebaseConfig.apiKey.length > 10;
-const app = document.getElementById("app");
-
-if (!CONFIGURED) {
-  app.innerHTML = `<div class="setup-screen"><div class="setup-card">
-    <div class="icon">&#9881;</div><h2 class="serif">Dashboard not connected yet</h2>
-    <p>Add your Firebase config to the top of <code>master.html</code> — see README.md.</p>
-  </div></div>`;
-} else {
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  const PHASES = [
-    { id: 1, name: "Application & License Transfer", blurb: "Tied to the agent's personal identity and legal filings." },
-    { id: 2, name: "First Day / First Week", blurb: "Technical setup — largely in parallel, so agents go live fast." },
-    { id: 3, name: "Branding & Marketing Materials", blurb: "Fully owned by Skalvya, start to finish." },
-    { id: 4, name: "Post-Transfer Wrap-Up", blurb: "Final steps once the license transfer is confirmed." },
-  ];
-  function buildTaskInstances() {
-    const TASK_TEMPLATE = [
-      { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"] },
-      { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"] },
-      { id:"p1-3", phase:1, title:"Background check & fingerprinting (first-time agents)", owner:"Agent", subtasks:["Scheduled","Completed","Cleared"] },
-      { id:"p1-4", phase:1, title:"Inform current sponsoring agent of the move", owner:"Agent", subtasks:["Sponsor notified"] },
-      { id:"p2-1", phase:2, title:"Set up e-signature platform (Dotloop)", owner:"Skalvya", subtasks:["Account created","Templates loaded","Agent login confirmed"] },
-      { id:"p2-2", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"] },
-      { id:"p2-3", phase:2, title:"Set up Wayfinder Google Workspace", owner:"Skalvya", subtasks:["Email account created","Calendar set up","Signature installed","Agent login confirmed"] },
-      { id:"p2-4", phase:2, title:"Set up Slack access", owner:"Skalvya", subtasks:["Account created","Added to team channels","Agent login confirmed"] },
-      { id:"p2-5", phase:2, title:"Subscribe to the Real of Ohio events calendar", owner:"Skalvya", subtasks:["Subscription added"] },
-      { id:"p2-6", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"] },
-      { id:"p2-7", phase:2, title:"Join Ohio Facebook communities", owner:"Skalvya", subtasks:["Added to statewide group","Added to regional group","Added to leadership group (if applicable)"] },
-      { id:"p2-8", phase:2, title:"Submit Agent Introduction Form to Broker Nicole", owner:"Agent", subtasks:["Form submitted"] },
-      { id:"p2-9", phase:2, title:"Set up Follow Up Boss CRM account", owner:"Skalvya", subtasks:["Account created","Permissions configured","Contacts imported & cleaned","Required stages/tags set up","Smart Lists built","Agent login confirmed","Successful test record created"] },
-      { id:"p2-10", phase:2, title:"Build relationship with sponsor & Broker Nicole", owner:"Agent", subtasks:["Intro call completed"] },
-      { id:"p3-1", phase:3, title:"Branding refresh — logos, signature, socials, website", owner:"Skalvya", subtasks:["Logos downloaded","Email signature updated","Social banners updated","Website updated","Broker compliance approval received"] },
-      { id:"p3-2", phase:3, title:"Order business cards, signage, name tags", owner:"Skalvya", subtasks:["Designs created","Broker compliance approval","Order placed","Materials delivered"] },
-      { id:"p3-3", phase:3, title:"Create Google Drive archive folder", owner:"Skalvya", subtasks:["Folder created","Access granted","3 years of records migrated"] },
-      { id:"p3-4", phase:3, title:"Export & clean up CRM contacts from previous brokerage", owner:"Skalvya", subtasks:["CSV exported","Data cleaned & deduped","Ready for FUB import"] },
-      { id:"p4-1", phase:4, title:"Re-confirm Board/MLS, re-upload active listings", owner:"Shared", subtasks:["Board/MLS confirmed under new brokerage","Active listings identified","Listings re-uploaded","Broker sign-off received"] },
-      { id:"p4-2", phase:4, title:"Update signage, socials, website with new brokerage identity", owner:"Skalvya", subtasks:["Signage updated","Socials updated","Website updated"] },
-      { id:"p4-3", phase:4, title:"Publish brokerage announcement on personal social media", owner:"Skalvya", subtasks:["Copy drafted","Agent approval received","Published"] },
-      { id:"p4-4", phase:4, title:"Submit welcome post info for Real's brokerage channels", owner:"Skalvya", subtasks:["Bio drafted","Agent approval received","Submitted to Real"] },
-    ];
-    return TASK_TEMPLATE.map(t => ({
-      id: t.id, phase: t.phase, title: t.title, owner: t.owner,
-      dueDate: "", blocker: "", evidence: "", nextAction: "",
-      subtasks: t.subtasks.map((label, i) => ({ id: t.id + "-s" + i, label, done: false })),
-    }));
-  }
-
-  const OWNER_COLORS = { Agent: "#C6A15B", Skalvya: "#16274A", Shared: "#5E7C8C" };
-  const RISK_LABELS = { green: "On Track", yellow: "At Risk", red: "Blocked" };
-  function isTaskComplete(t){ return t.subtasks.length>0 && t.subtasks.every(s=>s.done); }
-  function taskProgress(t){ const total=t.subtasks.length||1; return t.subtasks.filter(s=>s.done).length/total; }
-  function overallProgress(tasks){ if(!tasks||tasks.length===0) return 0; return tasks.reduce((a,t)=>a+taskProgress(t),0)/tasks.length; }
-  function currentPhase(tasks){ for(const p of PHASES){ const pt=tasks.filter(t=>t.phase===p.id); if(pt.length && !pt.every(isTaskComplete)) return p; } return PHASES[PHASES.length-1]; }
-  function openBlockers(tasks){ return tasks.filter(t=>t.blocker && t.blocker.trim()!=="" && !isTaskComplete(t)); }
-  function nextAction(tasks){ const open=tasks.filter(t=>!isTaskComplete(t)); const withNext=open.find(t=>t.nextAction && t.nextAction.trim()!==""); return withNext?withNext.nextAction:(open[0]?open[0].title:"All tasks complete"); }
-  function formatDate(iso){ if(!iso) return "—"; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
-  function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
-
-  let me=null, agents=[], tasksByAgent={}, taskUnsubs={}, ownerChart, phaseChart;
-
-  auth.onAuthStateChanged(async (user) => {
-    if (!user) { window.location.href = "login.html"; return; }
-    try {
-      const snap = await db.collection("users").doc(user.uid).get();
-      if (!snap.exists) { alert("Your account isn't set up with a role yet. Ask Skalvya."); auth.signOut(); return; }
-      me = { uid: user.uid, ...snap.data() };
-      if (!["skalvya", "agent", "tyson"].includes(me.role)) {
-        app.innerHTML = `<div class="setup-screen"><div class="setup-card"><h2>Hold on</h2><p>Invalid role.</p></div></div>`;
-        return;
-      }
-      if (me.role === "agent") { window.location.href = "agent.html"; return; }
-      boot();
-    } catch (err) { console.error(err); alert("Couldn't load your account."); auth.signOut(); }
-  });
-
-  function boot() {
-    app.innerHTML = `
-      <div class="shell">
-        <aside class="sidebar">
-          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
-          <div class="side-divider"></div>
-          <div class="side-label">Overview</div>
-          <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
-          <div class="side-spacer"></div>
-          ${me.role === "skalvya" ? `<button class="side-add-btn" id="addAgentBtn">+ Add User</button>` : ""}
-          <div class="side-user">
-            <div class="avatar">${initials(me.name)}</div>
-            <div><div class="n">${me.name || "You"}</div><div class="r">${me.role || "—"}</div></div>
-          </div>
-          <button class="logout-btn" id="logoutBtn">Sign Out</button>
-        </aside>
-        <main class="content" id="main"><div class="empty-state">Loading dashboard...</div></main>
-      </div>
-
-      <div id="addAgentModal" class="modal-overlay">
-        <div class="modal">
-          <h2>Add New User</h2>
-          <form id="addAgentForm">
-            <label>Role</label>
-            <select id="userRoleInput">
-              <option value="agent">Agent (has checklist)</option>
-              <option value="tyson">Internal Team (read-only dashboard)</option>
-            </select>
-            <label>Full Name</label><input type="text" id="agentNameInput" required placeholder="Jane Smith" />
-            <div id="agentOnlyFields">
-              <label>Start Date</label><input type="date" id="agentStartInput" />
-              <label>Target Transfer Date</label><input type="date" id="agentTargetInput" />
-            </div>
-            <hr class="modal-divider" />
-            <label>Login Email (required to create account)</label><input type="email" id="agentEmailInput" required placeholder="jane@example.com" />
-            <label>Temporary Password</label><input type="text" id="agentPasswordInput" required placeholder="At least 6 characters" />
-            <div class="modal-actions">
-              <button type="button" id="cancelAddAgent" class="btn-secondary">Cancel</button>
-              <button type="submit" class="btn-primary" id="createAgentBtn">Create User</button>
-            </div>
-          </form>
-        </div>
-      </div>`;
-
-    document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut().then(()=>window.location.href="login.html"));
-    if (me.role === "skalvya") {
-      document.getElementById("addAgentBtn").addEventListener("click", () => document.getElementById("addAgentModal").classList.add("open"));
-      document.getElementById("cancelAddAgent").addEventListener("click", closeModal);
-      document.getElementById("addAgentForm").addEventListener("submit", submitAddAgent);
-      document.getElementById("userRoleInput").addEventListener("change", (e) => {
-        document.getElementById("agentOnlyFields").style.display = e.target.value === "agent" ? "block" : "none";
-      });
-    }
-    listenToAgents();
-  }
-
-  function closeModal() {
-    document.getElementById("addAgentModal").classList.remove("open");
-    document.getElementById("addAgentForm").reset();
-    document.getElementById("agentOnlyFields").style.display = "block";
-  }
-
-  function listenToAgents() {
-    db.collection("agents").orderBy("startDate", "desc").onSnapshot((snap) => {
-      agents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      agents.forEach(a => {
-        if (!taskUnsubs[a.id]) {
-          taskUnsubs[a.id] = db.collection("agents").doc(a.id).collection("tasks").onSnapshot((tsnap) => {
-            tasksByAgent[a.id] = tsnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            render();
-          }, handleErr);
-        }
-      });
-      render();
-    }, handleErr);
-  }
-  function handleErr(err){
-    console.error(err);
-    const banner = document.getElementById("connectionBanner");
-    banner.style.display = "flex";
-    banner.textContent = "Can't reach the database — " + (err.code || "unknown error");
-  }
-
-  async function submitAddAgent(e) {
-    e.preventDefault();
-    const btn = document.getElementById("createAgentBtn");
-    btn.disabled = true; btn.textContent = "Creating...";
-    const role = document.getElementById("userRoleInput").value;
-    const name = document.getElementById("agentNameInput").value.trim();
-    const email = document.getElementById("agentEmailInput").value.trim();
-    const password = document.getElementById("agentPasswordInput").value;
-
-    try {
-      let agentId = null;
-      if (role === "agent") {
-        const startDate = document.getElementById("agentStartInput").value;
-        const targetDate = document.getElementById("agentTargetInput").value;
-        const agentRef = await db.collection("agents").add({ name, startDate, targetDate, riskStatus: "green", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        agentId = agentRef.id;
-        const batch = db.batch();
-        buildTaskInstances().forEach(task => batch.set(agentRef.collection("tasks").doc(task.id), task));
-        await batch.commit();
-      }
-      
-      await createLogin(email, password, name, role, agentId);
-      closeModal();
-    } catch (err) {
-      console.error(err); alert("Something went wrong: " + err.message);
-    } finally {
-      btn.disabled = false; btn.textContent = "Create User";
-    }
-  }
-
-  async function createLogin(email, password, name, role, agentId) {
-    const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary-" + Date.now());
-    try {
-      const secondaryAuth = secondaryApp.auth();
-      const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-      const userData = { role, name, email };
-      if (agentId) userData.agentId = agentId;
-      await db.collection("users").doc(cred.user.uid).set(userData);
-      await secondaryAuth.signOut();
-    } finally {
-      await secondaryApp.delete();
-    }
-  }
-
-  function render() {
-    const main = document.getElementById("main");
-    const totalAgents = agents.length;
-    const overallPct = totalAgents === 0 ? 0 : agents.reduce((acc, a) => acc + overallProgress(tasksByAgent[a.id] || []), 0) / totalAgents;
-    const onTrack = agents.filter(a => a.riskStatus === "green").length;
-    const atRisk = agents.filter(a => a.riskStatus !== "green").length;
-
-    main.innerHTML = `
-      <div class="page-head"><h1 class="serif">Onboarding Overview</h1><p class="muted">Live status across every agent moving through Wayfinder onboarding.</p></div>
-      ${me.role === "tyson" ? `<div class="tyson-note">You're seeing this live — no need to ask Skalvya for a status update.</div>` : ""}
-
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-value">${totalAgents}</div><div class="stat-label">TOTAL AGENTS</div></div>
-        <div class="stat-card"><div class="stat-value">${Math.round(overallPct*100)}%</div><div class="stat-label">OVERALL COMPLETION</div></div>
-        <div class="stat-card accent-green"><div class="stat-value">${onTrack}</div><div class="stat-label">ON TRACK</div></div>
-        <div class="stat-card accent-red"><div class="stat-value">${atRisk}</div><div class="stat-label">AT RISK / BLOCKED</div></div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="card"><h3>Progress by Owner</h3><canvas id="ownerChart" height="220"></canvas></div>
-        <div class="card"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
-      </div>
-
-      <div class="card"><h3>Blockers Needing Attention</h3>${renderBlockerList()}</div>
-      <div class="card"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
-    `;
-
-    try { drawOwnerChart(); drawPhaseChart(); } catch(e) { console.error("Chart error", e); }
-    
-    document.querySelectorAll("[data-open-agent]").forEach(row => {
-      row.style.cursor = "pointer";
-      row.addEventListener("click", () => {
-        const id = row.getAttribute("data-open-agent");
-        window.location.href = "agent.html?agentId=" + id;
-      });
-    });
-  }
-
-  function renderBlockerList() {
-    const rows = [];
-    agents.forEach(agent => {
-      openBlockers(tasksByAgent[agent.id] || []).forEach(t => {
-        rows.push(`<div class="blocker-row"><span class="blocker-agent">${agent.name}</span><span class="blocker-task">${t.title}</span><span class="blocker-text">${t.blocker}</span></div>`);
-      });
-    });
-    if (rows.length === 0) return `<p class="muted">No open blockers right now — everything is moving.</p>`;
-    return `<div class="blocker-list">${rows.join("")}</div>`;
-  }
-
-  function renderRosterTable() {
-    if (agents.length === 0) return `<p class="muted">No agents added yet.</p>`;
-    const rows = agents.map(agent => {
-      const tasks = tasksByAgent[agent.id] || [];
-      const pct = Math.round(overallProgress(tasks)*100);
-      const phase = currentPhase(tasks);
-      const blockers = openBlockers(tasks).length;
-      const risk = agent.riskStatus || "green";
-      return `<tr data-open-agent="${agent.id}">
-        <td class="cell-name">${agent.name}</td>
-        <td>${formatDate(agent.startDate)}</td>
-        <td>${formatDate(agent.targetDate)}</td>
-        <td><span class="phase-pill">Phase ${phase.id}</span></td>
-        <td><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></td>
-        <td><span class="risk-badge risk-${risk}">${RISK_LABELS[risk]}</span></td>
-        <td>${blockers>0 ? `<span class="blocker-count">${blockers}</span>` : "—"}</td>
-        <td class="cell-next">${nextAction(tasks)}</td>
-      </tr>`;
-    }).join("");
-    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Blockers</th><th>Next Action</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-
-  function drawOwnerChart() {
-    const ctx = document.getElementById("ownerChart"); if (!ctx || !window.Chart) return;
-    const totals = { Agent:[0,0], Skalvya:[0,0], Shared:[0,0] };
-    Object.values(tasksByAgent).flat().forEach(t => { totals[t.owner][1]+=1; if(isTaskComplete(t)) totals[t.owner][0]+=1; });
-    if (ownerChart) ownerChart.destroy();
-    ownerChart = new Chart(ctx, { type:"doughnut",
-      data:{ labels:["Agent","Skalvya","Shared"], datasets:[{ data:[totals.Agent[0],totals.Skalvya[0],totals.Shared[0]], backgroundColor:[OWNER_COLORS.Agent,OWNER_COLORS.Skalvya,OWNER_COLORS.Shared], borderWidth:0 }] },
-      options:{ plugins:{ legend:{ position:"bottom", labels:{ font:{ family:"Inter" } } } }, cutout:"65%" } });
-  }
-  function drawPhaseChart() {
-    const ctx = document.getElementById("phaseChart"); if (!ctx || !window.Chart) return;
-    const totals = {}; PHASES.forEach(p => totals[p.id]=[0,0]);
-    Object.values(tasksByAgent).flat().forEach(t => { totals[t.phase][1]+=1; if(isTaskComplete(t)) totals[t.phase][0]+=1; });
-    const pct = PHASES.map(p => { const [d,tt]=totals[p.id]; return tt===0?0:Math.round((d/tt)*100); });
-    if (phaseChart) phaseChart.destroy();
-    phaseChart = new Chart(ctx, { type:"bar",
-      data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:pct, backgroundColor:"#16274A", borderRadius:6, maxBarThickness:46 }] },
-      options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, max:100, ticks:{ callback:v=>v+"%" } } } } });
-  }
-}
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Wayfinder Onboarding — Master Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Onboarding Dashboard | Wayfinder</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
           colors: {
             brand: {
-              50:  '#EEF2FF', 100: '#E0E7FF', 200: '#C7D2FE',
-              300: '#A5B4FC', 400: '#818CF8', 50:  '#6366F1',
-              600: '#4F46E5', 700: '#4338CA', 800: '#3730A3', 900: '#312E81',
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
             },
-            skalvya: {
-              bg: '#0F172A', card: '#1E293B', border: '#334155', text: '#F8FAFC', accent: '#38BDF8'
-            },
-            tyson: {
-              bg: '#0B132B', card: '#1C2541', border: '#3A506B', text: '#6FFFE9', accent: '#5BC0BE'
+            navy: {
+              800: '#1e293b',
+              900: '#0f172a',
             }
           }
         }
       }
     }
   </script>
+
   <style>
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.8);
-    }
-    .dark-glass-card {
-      background: rgba(30, 41, 59, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(51, 65, 85, 0.8);
-    }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-    
-    /* Smooth hover and cursor pointer for clickable table rows */
+    body { font-family: 'Inter', sans-serif; }
     .clickable-row {
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
     .clickable-row:hover {
-      background-color: #F8FAFC !important;
+      background-color: #f8fafc !important;
       transform: translateY(-1px);
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- TOP BAR / HEADER -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
+  <!-- Navigation / Header -->
+  <header class="bg-navy-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      
-      <!-- Logo & Title -->
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-inner">
+        <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-lg text-white shadow-sm">
           W
         </div>
         <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="font-bold text-base tracking-tight text-white">Wayfinder Onboarding</h1>
-            <span class="bg-indigo-500/20 text-indigo-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-indigo-500/30">MASTER</span>
-          </div>
-          <p class="text-xs text-slate-400">Internal Team & Executive Overview</p>
+          <h1 class="font-bold text-base sm:text-lg tracking-tight leading-tight">Master Onboarding Dashboard</h1>
+          <p class="text-xs text-slate-400">Wayfinder Real Estate Group</p>
         </div>
       </div>
 
-      <!-- User Profile & Actions -->
       <div class="flex items-center space-x-4">
-        <div id="user-display" class="hidden sm:flex items-center space-x-2 bg-slate-800 border border-slate-700/60 px-3 py-1.5 rounded-full text-xs text-slate-300">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div id="user-display" class="hidden sm:flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50 text-xs font-medium text-slate-300">
+          <i class="fa-regular fa-user text-brand-500"></i>
           <span id="user-email-text">Loading...</span>
         </div>
-
-        <button id="logout-btn" class="text-xs font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5">
-          <i class="fa-solid fa-right-from-bracket text-xs"></i>
-          <span>Logout</span>
+        <button id="logout-btn" class="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Log Out</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD CONTENT -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
 
-    <!-- KPI STATS OVERVIEW -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Overview Stats Banner -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
-      <!-- Card 1: Total Agents -->
-      <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <!-- Total Agents -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Agents</span>
-          <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <i class="fa-solid fa-users text-sm"></i>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Agents</span>
+          <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+            <i class="fa-solid fa-users"></i>
           </div>
         </div>
-        <div class="mt-3 flex items-baseline justify-between">
-          <span id="stat-total-agents" class="text-2xl font-extrabold text-slate-900">0</span>
-          <span class="text-xs text-slate-500">Active roster</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-total" class="text-2xl font-bold text-slate-800">0</span>
+          <span class="text-xs text-slate-500 font-medium">In Roster</span>
         </div>
       </div>
 
-      <!-- Card 2: In Progress -->
-      <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <!-- Active Onboarding -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">In Progress</span>
-          <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <i class="fa-solid fa-spinner text-sm"></i>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">In Progress</span>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i class="fa-solid fa-spinner fa-spin-pulse"></i>
           </div>
         </div>
-        <div class="mt-3 flex items-baseline justify-between">
-          <span id="stat-in-progress" class="text-2xl font-extrabold text-blue-600">0</span>
-          <span class="text-xs text-slate-500">Active onboarding</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-progress" class="text-2xl font-bold text-blue-600">0</span>
+          <span class="text-xs text-blue-600/80 font-medium bg-blue-50 px-2 py-0.5 rounded-full">Active</span>
         </div>
       </div>
 
-      <!-- Card 3: Completed -->
-      <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <!-- Completed -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completed</span>
-          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <i class="fa-solid fa-circle-check text-sm"></i>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Completed</span>
+          <div class="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center">
+            <i class="fa-solid fa-circle-check"></i>
           </div>
         </div>
-        <div class="mt-3 flex items-baseline justify-between">
-          <span id="stat-completed" class="text-2xl font-extrabold text-emerald-600">0</span>
-          <span class="text-xs text-slate-500">Fully onboarded</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-completed" class="text-2xl font-bold text-brand-600">0</span>
+          <span class="text-xs text-brand-600/80 font-medium bg-brand-50 px-2 py-0.5 rounded-full">100% Done</span>
         </div>
       </div>
 
-      <!-- Card 4: Blocked / Risks -->
-      <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <!-- Blocked / Risks -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm transition hover:shadow-md">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Risks / Blocked</span>
-          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Blocked / Risks</span>
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i class="fa-solid fa-triangle-exclamation"></i>
           </div>
         </div>
-        <div class="mt-3 flex items-baseline justify-between">
-          <span id="stat-blocked" class="text-2xl font-extrabold text-amber-600">0</span>
-          <span class="text-xs text-slate-500">Needs attention</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span id="stat-blocked" class="text-2xl font-bold text-amber-600">0</span>
+          <span class="text-xs text-amber-600/80 font-medium bg-amber-50 px-2 py-0.5 rounded-full">Needs Attention</span>
         </div>
       </div>
 
-    </section>
+    </div>
 
-    <!-- AGENT ROSTER TABLE SECTION -->
-    <section class="glass-card rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+    <!-- Agent Roster Table Section -->
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
       
       <!-- Table Header Bar -->
-      <div class="p-5 sm:p-6 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Agent Roster</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Click any row to open and manage that agent's onboarding checklist.</p>
+          <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view and manage that agent's onboarding checklist.</p>
         </div>
-
-        <button id="open-add-modal-btn" class="inline-flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all hover:shadow">
-          <i class="fa-solid fa-plus text-xs"></i>
+        <button id="open-add-modal" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
+          <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Add New Agent</span>
         </button>
       </div>
 
-      <!-- Table Content -->
-      <div class="overflow-x-auto custom-scrollbar">
+      <!-- Table Structure -->
+      <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <tr class="bg-slate-50/80 border-b border-slate-200/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <th class="py-3.5 px-6">Agent Name</th>
-              <th class="py-3.5 px-6">Email</th>
-              <th class="py-3.5 px-6">Status</th>
-              <th class="py-3.5 px-6 w-56">Progress</th>
+              <th class="py-3.5 px-6">Email Address</th>
+              <th class="py-3.5 px-6">Onboarding Status</th>
+              <th class="py-3.5 px-6 w-48">Overall Progress</th>
               <th class="py-3.5 px-6 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="agent-table-body" class="divide-y divide-slate-200/60 text-sm">
+          <tbody id="agent-table-body" class="divide-y divide-slate-100 text-sm">
             <tr>
               <td colspan="5" class="py-12 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-3 text-indigo-500"></i>
-                <p class="text-xs font-medium">Loading agents data...</p>
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-600 mb-2"></i>
+                <p class="text-sm">Loading agent roster...</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </section>
+
+    </div>
 
   </main>
 
-  <!-- ADD AGENT MODAL -->
+  <!-- Add Agent Modal -->
   <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all duration-200">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 transform transition-all">
-      
-      <!-- Modal Header -->
-      <div class="px-6 py-4 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
-        <h3 class="font-bold text-slate-900 text-sm">Add New Agent</h3>
-        <button id="close-add-modal-btn" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-200/50 transition-colors">
-          <i class="fa-solid fa-xmark text-sm"></i>
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 transform transition-all">
+      <div class="px-6 py-4 bg-navy-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-base tracking-tight">Add New Agent</h3>
+        <button id="close-modal-btn" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-
-      <!-- Modal Body Form -->
       <form id="add-agent-form" class="p-6 space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Agent Full Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g. Sarah Jenkins" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Agent Full Name</label>
+          <input type="text" id="new-agent-name" required placeholder="John Doe" class="w-full border border-slate-300 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
         </div>
-
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g. sarah@example.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Agent Email Address</label>
+          <input type="email" id="new-agent-email" required placeholder="john@wayfinder.com" class="w-full border border-slate-300 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
         </div>
-
-        <div class="pt-4 flex items-center justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all">Create Agent</button>
+        <div class="pt-3 flex justify-end space-x-3 border-t border-slate-100">
+          <button type="button" id="cancel-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">Create Agent</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- FIREBASE INTEGRATION -->
+  <!-- Firebase Modular SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your Web App Firebase Configuration
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDRWQYxeV2Hkize1Py7O4D-h2Av14sqMj4",
       authDomain: "wayfinder-onboarding.firebaseapp.com",
@@ -728,50 +234,49 @@ if (!CONFIGURED) {
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // UI Elements
+    // Elements
     const userEmailText = document.getElementById("user-email-text");
     const logoutBtn = document.getElementById("logout-btn");
     const tableBody = document.getElementById("agent-table-body");
     
-    // Modal Elements
-    const addModal = document.getElementById("add-agent-modal");
-    const openAddModalBtn = document.getElementById("open-add-modal-btn");
-    const closeAddModalBtn = document.getElementById("close-add-modal-btn");
-    const cancelAddModalBtn = document.getElementById("cancel-add-modal-btn");
-    const addAgentForm = document.getElementById("add-agent-form");
-
-    // Stat KPI Elements
-    const statTotal = document.getElementById("stat-total-agents");
-    const statInProgress = document.getElementById("stat-in-progress");
+    // Stats Elements
+    const statTotal = document.getElementById("stat-total");
+    const statProgress = document.getElementById("stat-progress");
     const statCompleted = document.getElementById("stat-completed");
     const statBlocked = document.getElementById("stat-blocked");
 
-    // Check Authentication
+    // Modal Elements
+    const addModal = document.getElementById("add-agent-modal");
+    const openAddModalBtn = document.getElementById("open-add-modal");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+    const cancelModalBtn = document.getElementById("cancel-modal-btn");
+    const addAgentForm = document.getElementById("add-agent-form");
+
+    // Auth Guard
     onAuthStateChanged(auth, (user) => {
       if (user) {
         userEmailText.textContent = user.email;
-        loadAgents();
+        fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
       }
     });
 
-    // Logout Action
+    // Logout
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "login.html";
       });
     });
 
-    // Modal Control Functions
-    const openModal = () => { addModal.classList.remove("hidden"); addModal.classList.add("flex"); };
-    const closeModal = () => { addModal.classList.add("hidden"); addModal.classList.remove("flex"); };
-    
-    openAddModalBtn.addEventListener("click", openModal);
-    closeAddModalBtn.addEventListener("click", closeModal);
-    cancelAddModalBtn.addEventListener("click", closeModal);
+    // Modal Visibility Controls
+    const showModal = () => addModal.classList.remove("hidden"), addModal.classList.add("flex");
+    const hideModal = () => addModal.classList.add("hidden");
+    openAddModalBtn.addEventListener("click", showModal);
+    closeModalBtn.addEventListener("click", hideModal);
+    cancelModalBtn.addEventListener("click", hideModal);
 
-    // Form Submission: Create Agent
+    // Add Agent Form Submit
     addAgentForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("new-agent-name").value.trim();
@@ -788,93 +293,97 @@ if (!CONFIGURED) {
           createdAt: serverTimestamp()
         });
         addAgentForm.reset();
-        closeModal();
+        hideModal();
       } catch (err) {
         console.error("Error adding agent:", err);
-        alert("Unable to add agent. Please check database permissions.");
+        alert("Failed to add agent. Please check Firebase permissions.");
       }
     });
 
-    // Realtime Load & Render Agents Roster
-    function loadAgents() {
+    // Fetch and Render Agent Roster
+    function fetchAgentsRealtime() {
       onSnapshot(collection(db, "agents"), (snapshot) => {
-        let agents = [];
         let total = 0;
         let inProgress = 0;
         let completed = 0;
         let blocked = 0;
+        let rowsHtml = '';
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          agents.push({ id: doc.id, ...data });
-
-          total++;
-          if (data.status === "Completed" || data.progress === 100) completed++;
-          else if (data.status === "Blocked" || data.status === "Risk") blocked++;
-          else inProgress++;
-        });
-
-        // Update Stats
-        statTotal.textContent = total;
-        statInProgress.textContent = inProgress;
-        statCompleted.textContent = completed;
-        statBlocked.textContent = blocked;
-
-        // Render Empty State
-        if (agents.length === 0) {
+        if (snapshot.empty) {
           tableBody.innerHTML = `
             <tr>
               <td colspan="5" class="py-12 text-center text-slate-400">
-                <i class="fa-regular fa-folder-open text-2xl mb-2 text-slate-300"></i>
-                <p class="text-xs font-medium">No agents added yet. Click "Add New Agent" above to get started.</p>
+                No agents registered yet. Click "Add New Agent" above to get started.
               </td>
             </tr>`;
+          statTotal.textContent = "0";
+          statProgress.textContent = "0";
+          statCompleted.textContent = "0";
+          statBlocked.textContent = "0";
           return;
         }
 
-        // Render Rows with Claude Design & Hover Effects
-        tableBody.innerHTML = agents.map((agent) => {
-          const progressVal = agent.progress || 0;
-          return `
-            <tr class="clickable-row border-b border-slate-200/60" data-id="${agent.id}">
-              <td class="py-4 px-6 font-semibold text-slate-800">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+        snapshot.forEach((doc) => {
+          const agent = doc.data();
+          const id = doc.id;
+          const progress = agent.progress || 0;
+          const status = agent.status || 'In Progress';
+
+          total++;
+          if (status === 'Completed' || progress === 100) completed++;
+          else if (status === 'Blocked' || status === 'Risk') blocked++;
+          else inProgress++;
+
+          // Build Status Badge
+          let statusBadge = '';
+          if (status === 'Completed' || progress === 100) {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>Completed</span>`;
+          } else if (status === 'Blocked' || status === 'Risk') {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Blocked</span>`;
+          } else {
+            statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>In Progress</span>`;
+          }
+
+          rowsHtml += `
+            <tr class="clickable-row border-b border-slate-100" data-id="${id}">
+              <td class="py-4 px-6 font-medium text-slate-800">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center border border-slate-200">
                     ${agent.name ? agent.name.charAt(0).toUpperCase() : 'A'}
                   </div>
                   <span>${agent.name || 'Unnamed Agent'}</span>
                 </div>
               </td>
-              <td class="py-4 px-6 text-slate-500 text-xs">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-6 text-slate-500 text-xs font-mono">${agent.email || 'N/A'}</td>
+              <td class="py-4 px-6">${statusBadge}</td>
               <td class="py-4 px-6">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                  agent.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                  agent.status === 'Blocked' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-                  'bg-blue-100 text-blue-800 border border-blue-200'
-                }">
-                  ${agent.status || 'In Progress'}
-                </span>
-              </td>
-              <td class="py-4 px-6">
-                <div class="flex items-center space-x-3">
-                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: ${progressVal}%"></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/50">
+                    <div class="bg-brand-600 h-2 rounded-full transition-all duration-300" style="width: ${progress}%"></div>
                   </div>
-                  <span class="text-xs text-slate-600 font-bold min-w-[30px] text-right">${progressVal}%</span>
+                  <span class="text-xs font-semibold text-slate-600 w-8 text-right">${progress}%</span>
                 </div>
               </td>
               <td class="py-4 px-6 text-right">
-                <button class="text-indigo-600 hover:text-indigo-900 text-xs font-bold inline-flex items-center space-x-1">
-                  <span>Open Checklist</span>
-                  <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                </button>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 group-hover:text-brand-700">
+                  Open Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </span>
               </td>
             </tr>
           `;
-        }).join('');
+        });
 
-        // Attach Click Listener to open the agent's checklist
-        document.querySelectorAll('.clickable-row').forEach((row) => {
+        // Update Stats Counters
+        statTotal.textContent = total;
+        statProgress.textContent = inProgress;
+        statCompleted.textContent = completed;
+        statBlocked.textContent = blocked;
+
+        // Render Table Body
+        tableBody.innerHTML = rowsHtml;
+
+        // Attach Click Event to Rows
+        document.querySelectorAll('.clickable-row').forEach(row => {
           row.addEventListener('click', () => {
             const agentId = row.getAttribute('data-id');
             if (agentId) {
@@ -884,11 +393,11 @@ if (!CONFIGURED) {
         });
 
       }, (error) => {
-        console.error("Firestore Error:", error);
+        console.error("Firestore error:", error);
         tableBody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-8 text-center text-red-500 text-xs font-medium">
-              Error fetching agents. Please check database configuration.
+            <td colspan="5" class="py-8 text-center text-red-500 text-xs">
+              Failed to load agent roster. Check your database permissions.
             </td>
           </tr>`;
       });
