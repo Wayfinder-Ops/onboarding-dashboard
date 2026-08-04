@@ -1,340 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Master Onboarding Dashboard - Skalvya</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    /* Styling for clickable table rows */
-    .clickable-row {
-      cursor: pointer;
-      transition: background-color 0.15s ease-in-out;
-    }
-    .clickable-row:hover {
-      background-color: #f3f4f6 !important; /* Soft grey highlight on hover */
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Master Dashboard — Wayfinder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
+  --gold:#C6A15B; --gold-light:#E9D6AC;
+  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
+  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
+  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.serif{font-family:'Fraunces',serif}
+a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer} input,select{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#DCD9CF;border-radius:10px} ::-webkit-scrollbar-track{background:transparent}
+
+.setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.setup-card{max-width:520px;background:#fff;border-radius:18px;padding:36px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.setup-card .icon{width:44px;height:44px;border-radius:12px;background:#FCF1DC;color:#8A5A00;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.setup-card h2{font-family:'Fraunces',serif;margin:0 0 10px;font-size:22px;color:var(--navy)}
+.setup-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 16px}
+.setup-card code{background:#F3F1EA;padding:2px 6px;border-radius:5px;font-size:12.5px}
+
+.shell{display:flex;min-height:100vh}
+.sidebar{
+  width:250px;flex-shrink:0;background:linear-gradient(180deg,var(--navy) 0%,#080f1f 100%);color:#fff;
+  padding:26px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:8px;padding:0 4px}
+.brand .mark{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(233,214,172,.35);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:13px}
+.brand .name{font-weight:800;font-size:14.5px;letter-spacing:1px}
+.brand .sub{font-size:10.5px;color:rgba(255,255,255,.42)}
+.side-divider{height:1px;background:rgba(255,255,255,.08);margin:20px 4px}
+.side-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.32);margin:4px 10px 10px;font-weight:700}
+.side-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:11px;color:rgba(255,255,255,.72);font-size:13.5px;font-weight:600;border:none;background:none;width:100%;text-align:left;transition:background .15s,color .15s}
+.side-link:hover{background:rgba(255,255,255,.07);color:#fff}
+.side-link.active{background:rgba(198,161,91,.16);color:var(--gold-light);font-weight:700}
+.side-spacer{flex:1}
+.side-user{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:rgba(255,255,255,.05);margin-bottom:8px}
+.side-user .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#a8813f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.side-user .n{font-size:12.5px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-user .r{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:capitalize}
+.logout-btn{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.6);font-size:12.5px;font-weight:600;transition:background .15s,color .15s}
+.logout-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.side-add-btn{width:100%;padding:11px;border-radius:11px;border:none;margin-bottom:12px;background:linear-gradient(135deg,var(--gold),#a8813f);color:var(--navy);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,box-shadow .15s}
+.side-add-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(198,161,91,.3)}
+
+.content{flex:1;padding:34px 42px 70px;max-width:1220px;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.connection-banner{display:none;align-items:center;justify-content:center;gap:8px;background:#FCEFD8;color:#8A5A00;font-size:13px;font-weight:600;padding:10px;position:sticky;top:0;z-index:200}
+
+.page-head{margin-bottom:28px}
+.page-head h1{font-family:'Fraunces',serif;margin:0 0 6px;font-size:29px;color:var(--navy);font-weight:600;display:inline-flex;align-items:center;gap:12px}
+.live-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green);background:#E4F6EC;padding:5px 11px;border-radius:999px;vertical-align:middle}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:livePulse 1.8s ease-in-out infinite}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(46,158,108,.5)}50%{box-shadow:0 0 0 5px rgba(46,158,108,0)}}
+.page-head .muted{margin:0;color:var(--muted);font-size:14.5px}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.tyson-note{display:flex;align-items:center;gap:9px;background:#EEF4FC;color:#2C5C93;border:1px solid #D7E5F6;border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;margin-bottom:22px}
+
+.card{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
+.card h3{margin:0 0 16px;font-size:15.5px;color:var(--navy)}
+.card-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-head-row h3{margin:0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--navy-2);transition:transform .18s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card.accent-green{border-left-color:var(--green)} .stat-card.accent-red{border-left-color:var(--red)}
+.stat-value{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--navy);line-height:1}
+.stat-label{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+
+.roster-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.roster-table th{text-align:left;padding:10px 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:1.5px solid var(--border);font-weight:800}
+.roster-table td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.roster-table tbody tr{cursor:pointer;transition:background .12s}
+.roster-table tbody tr:hover{background:#FAF9F5}
+.roster-table tbody tr:last-child td{border-bottom:none}
+.cell-name{font-weight:700;color:var(--navy)}
+.cell-next{color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.progress-track{width:100px;height:7px;background:#EEEBE2;border-radius:6px;overflow:hidden;display:inline-block;vertical-align:middle}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--navy-2));border-radius:6px;transition:width .5s ease}
+.progress-pct{font-size:11.5px;color:var(--muted);margin-left:8px;font-weight:700}
+.phase-pill{display:inline-block;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700;background:#EFEAE0;color:var(--navy)}
+.risk-badge{display:inline-block;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700}
+.risk-green{background:#E4F6EC;color:var(--green)} .risk-yellow{background:#FCF1DC;color:var(--yellow)} .risk-red{background:#FBE7E7;color:var(--red)}
+.blocker-count{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:0 6px}
+
+.blocker-list{display:flex;flex-direction:column;gap:9px}
+.blocker-row{display:grid;grid-template-columns:150px 1fr 1.3fr;gap:14px;padding:11px 13px;background:#FDF6F6;border:1px solid #F5D9D9;border-radius:10px;font-size:13px}
+.blocker-agent{font-weight:700;color:var(--navy)} .blocker-task{color:var(--text)} .blocker-text{color:var(--red);font-weight:500}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.error-panel{text-align:center;padding:50px 24px;max-width:460px;margin:0 auto}
+.error-panel .icon{width:44px;height:44px;border-radius:12px;background:#FDECEC;color:#B23C3C;display:flex;align-items:center;justify-content:center;font-size:19px;margin:0 auto 16px}
+.error-panel h3{font-family:'Fraunces',serif;color:var(--navy);margin:0 0 8px;font-size:18px}
+.error-panel .code{font-size:12px;color:#B23C3C;background:#FDECEC;border-radius:7px;padding:6px 10px;display:inline-block;margin:6px 0 14px;font-family:monospace}
+.error-panel .hint{font-size:13px;color:var(--muted);line-height:1.6}
+.boat-loader{width:76px;height:76px;margin:0 auto 16px}
+.wave-anim{animation:waveMove 3.2s linear infinite}
+.wave-anim2{animation:waveMove 4s linear infinite reverse}
+@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
+.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+.loading-msg{text-align:center;color:var(--muted);font-size:13.5px;font-weight:500}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(10,15,28,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(3px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:30px 28px;width:100%;max-width:430px;box-shadow:0 30px 60px rgba(0,0,0,.32);max-height:88vh;overflow-y:auto}
+.modal h2{font-family:'Fraunces',serif;margin:0 0 20px;font-size:20px;color:var(--navy);font-weight:600}
+.modal label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:7px;margin-top:15px}
+.modal label:first-of-type{margin-top:0}
+.modal input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:13.5px;background:#FBFAF7}
+.modal input:focus{outline:none;border-color:var(--gold);background:#fff}
+.modal-divider{border:none;border-top:1px dashed var(--border);margin:20px 0 4px}
+.modal-hint{font-size:11.5px;color:var(--muted);margin:5px 0 0}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.btn-primary{background:linear-gradient(135deg,var(--navy-2),var(--navy-light));color:#fff;border:none;padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,box-shadow .15s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,27,51,.24)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:#fff;color:var(--navy);border:1.5px solid var(--border);padding:11px 18px;border-radius:11px;font-size:13.5px;font-weight:700}
+.btn-secondary:hover{border-color:var(--navy)}
+
+@media (max-width:880px){
+  .shell{flex-direction:column} .sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px}
+  .side-spacer,.side-divider,.side-label,.side-add-btn{display:none} .content{padding:20px}
+  .stat-grid,.chart-grid{grid-template-columns:1fr 1fr} .blocker-row{grid-template-columns:1fr}
+}
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+<body>
 
-  <!-- Header / Navigation -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 text-white p-2 rounded-lg">
-          <i class="fa-solid fa-layer-group text-xl"></i>
-        </div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight">Master Onboarding Dashboard</h1>
-          <p class="text-xs text-slate-500">Internal Team & Administrative View</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center space-x-4">
-        <span id="user-display" class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-          <i class="fa-regular fa-user mr-1.5"></i> Loading user...
-        </span>
-        <button id="logout-btn" class="text-sm text-red-600 hover:text-red-800 font-medium px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-50 transition">
-          <i class="fa-solid fa-right-from-bracket mr-1"></i> Log Out
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-    <!-- Top Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Agents</p>
-          <h3 id="stat-total-agents" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-        </div>
-        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-users"></i>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">In Progress</p>
-          <h3 id="stat-in-progress" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
-        </div>
-        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-spinner"></i>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Completed</p>
-          <h3 id="stat-completed" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
-        </div>
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Blocked / Risks</p>
-          <h3 id="stat-blocked" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
-        </div>
-        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Agent Roster Section -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Agent Roster</h2>
-          <p class="text-sm text-slate-500">Click on any agent's row to open their full checklist and tasks.</p>
-        </div>
-        <button id="open-add-modal-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-plus"></i> Add New Agent
-        </button>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
-              <th class="py-3.5 px-4">Agent Name</th>
-              <th class="py-3.5 px-4">Email</th>
-              <th class="py-3.5 px-4">Status</th>
-              <th class="py-3.5 px-4 w-48">Progress</th>
-              <th class="py-3.5 px-4 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody id="agent-table-body" class="divide-y divide-slate-100 text-sm">
-            <tr>
-              <td colspan="5" class="py-8 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
-                <p>Loading agent roster...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-
-  <!-- Add Agent Modal -->
-  <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
-      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="font-bold text-slate-800">Add New Agent</h3>
-        <button id="close-add-modal-btn" class="text-slate-400 hover:text-slate-600">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-      <form id="add-agent-form" class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Agent Name</label>
-          <input type="text" id="new-agent-name" required placeholder="e.g., Jane Doe" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email Address</label>
-          <input type="email" id="new-agent-email" required placeholder="e.g., jane@example.com" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div class="pt-2 flex justify-end space-x-3">
-          <button type="button" id="cancel-add-modal-btn" class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm">Save Agent</button>
-        </div>
-      </form>
-    </div>
+<div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
+<div id="app"><div class="setup-screen">
+  <div style="text-align:center">
+    <div class="boat-loader"><svg viewBox="0 0 120 120" width="100%" height="100%">
+      <circle cx="60" cy="60" r="58" fill="#0F1B33"/>
+      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
+        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/></g>
+      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
+        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/></g>
+      <g class="boat-anim">
+        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
+        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
+        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/></g>
+    </svg></div>
+    <p class="loading-msg">Loading dashboard...</p>
   </div>
+</div></div>
 
-  <!-- Firebase Modular SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+/* ============================================================
+   FIREBASE CONFIG — replace the REPLACE_ME values below.
+   This exact block also appears in login.html and agent.html —
+   update it in all three files the same way.
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDRWQYxeV2Hkize1Py7O4D-h2Av14sqMj4",
+  authDomain: "wayfinder-onboarding.firebaseapp.com",
+  projectId: "wayfinder-onboarding",
+  storageBucket: "wayfinder-onboarding.firebasestorage.app",
+  messagingSenderId: "105454511155",
+  appId: "1:105454511155:web:1cdc4b1294c7557fb46f46",
+};
+const CONFIGURED = firebaseConfig.apiKey !== "REPLACE_ME" && firebaseConfig.apiKey.length > 10;
+const app = document.getElementById("app");
 
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDRWQYxeV2Hkize1Py7O4D-h2Av14sqMj4",
-      authDomain: "wayfinder-onboarding.firebaseapp.com",
-      databaseURL: "https://wayfinder-onboarding-default-rtdb.firebaseio.com",
-      projectId: "wayfinder-onboarding",
-      storageBucket: "wayfinder-onboarding.firebasestorage.app",
-      messagingSenderId: "105454511155",
-      appId: "1:105454511155:web:1cdc4b1294c7557fb46f46",
-      measurementId: "G-F2NWFG505B"
-    };
+if (!CONFIGURED) {
+  app.innerHTML = `<div class="setup-screen"><div class="setup-card">
+    <div class="icon">&#9881;</div><h2 class="serif">Dashboard not connected yet</h2>
+    <p>Add your Firebase config to the top of <code>login.html</code>, <code>agent.html</code>, and <code>master.html</code> — see README.md, Step 4.</p>
+  </div></div>`;
+} else {
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    // Initialize
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const PHASES = [
+    { id: 1, name: "Application & License Transfer", blurb: "Tied to the agent's personal identity and legal filings." },
+    { id: 2, name: "First Day / First Week", blurb: "Technical setup — largely in parallel, so agents go live fast." },
+    { id: 3, name: "Branding & Marketing Materials", blurb: "Fully owned by Skalvya, start to finish." },
+    { id: 4, name: "Post-Transfer Wrap-Up", blurb: "Final steps once the license transfer is confirmed." },
+  ];
+  function buildTaskInstances() {
+    const TASK_TEMPLATE = [
+      { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"] },
+      { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"] },
+      { id:"p1-3", phase:1, title:"Background check & fingerprinting (first-time agents)", owner:"Agent", subtasks:["Scheduled","Completed","Cleared"] },
+      { id:"p1-4", phase:1, title:"Inform current sponsoring agent of the move", owner:"Agent", subtasks:["Sponsor notified"] },
+      { id:"p2-1", phase:2, title:"Contact local Board & MLS to notify/transfer affiliation (30-day window)", owner:"Agent", subtasks:["Board notified","MLS affiliation updated","Confirmation received"] },
+      { id:"p2-2", phase:2, title:"Set up e-signature platform (Dotloop)", owner:"Skalvya", subtasks:["Account created","Templates loaded","Agent login confirmed"] },
+      { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"] },
+      { id:"p2-4", phase:2, title:"Set up Wayfinder Google Workspace", owner:"Skalvya", subtasks:["Email account created","Calendar set up","Signature installed","Agent login confirmed"] },
+      { id:"p2-5", phase:2, title:"Set up Slack access", owner:"Skalvya", subtasks:["Account created","Added to team channels","Agent login confirmed"] },
+      { id:"p2-6", phase:2, title:"Subscribe to the Real of Ohio events calendar", owner:"Skalvya", subtasks:["Subscription added"] },
+      { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"] },
+      { id:"p2-8", phase:2, title:"Join Ohio Facebook communities", owner:"Skalvya", subtasks:["Added to statewide group","Added to regional group","Added to leadership group (if applicable)"] },
+      { id:"p2-9", phase:2, title:"Submit Agent Introduction Form to Broker Nicole", owner:"Agent", subtasks:["Form submitted"] },
+      { id:"p2-10", phase:2, title:"Set up Follow Up Boss CRM account", owner:"Skalvya", subtasks:["Account created","Permissions configured","Contacts imported & cleaned","Required stages/tags set up","Smart Lists built","Agent login confirmed","Successful test record created"] },
+      { id:"p2-11", phase:2, title:"Build relationship with sponsor & Broker Nicole", owner:"Agent", subtasks:["Intro call completed"] },
+      { id:"p3-1", phase:3, title:"Branding refresh — logos, signature, socials, website", owner:"Skalvya", subtasks:["Logos downloaded","Email signature updated","Social banners updated","Website updated","Broker compliance approval received"] },
+      { id:"p3-2", phase:3, title:"Order business cards, signage, name tags", owner:"Skalvya", subtasks:["Designs created","Broker compliance approval","Order placed","Materials delivered"] },
+      { id:"p3-3", phase:3, title:"Create Google Drive archive folder", owner:"Skalvya", subtasks:["Folder created","Access granted","3 years of records migrated"] },
+      { id:"p3-4", phase:3, title:"Export & clean up CRM contacts from previous brokerage", owner:"Skalvya", subtasks:["CSV exported","Data cleaned & deduped","Ready for FUB import"] },
+      { id:"p4-1", phase:4, title:"Re-confirm Board/MLS, re-upload active listings", owner:"Shared", subtasks:["Board/MLS confirmed under new brokerage","Active listings identified","Listings re-uploaded","Broker sign-off received"] },
+      { id:"p4-2", phase:4, title:"Update signage, socials, website with new brokerage identity", owner:"Skalvya", subtasks:["Signage updated","Socials updated","Website updated"] },
+      { id:"p4-3", phase:4, title:"Publish brokerage announcement on personal social media", owner:"Skalvya", subtasks:["Copy drafted","Agent approval received","Published"] },
+      { id:"p4-4", phase:4, title:"Submit welcome post info for Real's brokerage channels", owner:"Skalvya", subtasks:["Bio drafted","Agent approval received","Submitted to Real"] },
+    ];
+    return TASK_TEMPLATE.map(t => ({
+      id: t.id, phase: t.phase, title: t.title, owner: t.owner,
+      dueDate: "", blocker: "", evidence: "", nextAction: "",
+      subtasks: t.subtasks.map((label, i) => ({ id: t.id + "-s" + i, label, done: false })),
+    }));
+  }
 
-    // Elements
-    const userDisplay = document.getElementById("user-display");
-    const logoutBtn = document.getElementById("logout-btn");
-    const tableBody = document.getElementById("agent-table-body");
-    
-    // Modals
-    const addModal = document.getElementById("add-agent-modal");
-    const openAddModalBtn = document.getElementById("open-add-modal-btn");
-    const closeAddModalBtn = document.getElementById("close-add-modal-btn");
-    const cancelAddModalBtn = document.getElementById("cancel-add-modal-btn");
-    const addAgentForm = document.getElementById("add-agent-form");
+  const OWNER_COLORS = { Agent: "#C6A15B", Skalvya: "#16274A", Shared: "#5E7C8C" };
+  const RISK_LABELS = { green: "On Track", yellow: "At Risk", red: "Blocked" };
+  function isTaskComplete(t){ return t.subtasks.length>0 && t.subtasks.every(s=>s.done); }
+  function taskProgress(t){ const total=t.subtasks.length||1; return t.subtasks.filter(s=>s.done).length/total; }
+  function overallProgress(tasks){ if(!tasks||tasks.length===0) return 0; return tasks.reduce((a,t)=>a+taskProgress(t),0)/tasks.length; }
+  function currentPhase(tasks){ for(const p of PHASES){ const pt=tasks.filter(t=>t.phase===p.id); if(pt.length && !pt.every(isTaskComplete)) return p; } return PHASES[PHASES.length-1]; }
+  function openBlockers(tasks){ return tasks.filter(t=>t.blocker && t.blocker.trim()!=="" && !isTaskComplete(t)); }
+  function nextAction(tasks){ const open=tasks.filter(t=>!isTaskComplete(t)); const withNext=open.find(t=>t.nextAction && t.nextAction.trim()!==""); return withNext?withNext.nextAction:(open[0]?open[0].title:"All tasks complete"); }
+  function formatDate(iso){ if(!iso) return "—"; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+  function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
 
-    // Stats Elements
-    const statTotal = document.getElementById("stat-total-agents");
-    const statInProgress = document.getElementById("stat-in-progress");
-    const statCompleted = document.getElementById("stat-completed");
-    const statBlocked = document.getElementById("stat-blocked");
+  let me=null, agents=[], tasksByAgent={}, taskUnsubs={}, ownerChart, phaseChart;
 
-    // Auth Check
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        userDisplay.innerHTML = `<i class="fa-regular fa-user mr-1.5"></i> ${user.email}`;
-        loadAgents();
-      } else {
-        window.location.href = "login.html";
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    try {
+      const snap = await db.collection("users").doc(user.uid).get();
+      if (!snap.exists) { alert("Your account isn't set up with a role yet. Ask Skalvya."); auth.signOut(); return; }
+      me = { uid: user.uid, ...snap.data() };
+      if (!["skalvya", "agent", "tyson"].includes(me.role)) {
+        app.innerHTML = `<div class="setup-screen"><div class="setup-card">
+          <div class="icon">&#9888;</div><h2 class="serif">Hold on</h2>
+          <p>Your account's <code>role</code> field is missing or doesn't exactly match "skalvya", "agent", or "tyson". Check the <code>users/${user.uid}</code> document in the Firestore console — field names and values are case-sensitive.</p>
+        </div></div>`;
+        return;
       }
-    });
+      if (me.role === "agent") { window.location.href = "agent.html"; return; }
+      boot();
+    } catch (err) { console.error(err); alert("Couldn't load your account."); auth.signOut(); }
+  });
 
-    // Logout
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
-    });
+  function boot() {
+    app.innerHTML = `
+      <div class="shell">
+        <aside class="sidebar">
+          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
+          <div class="side-divider"></div>
+          <div class="side-label">Overview</div>
+          <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
+          <div class="side-spacer"></div>
+          ${me.role === "skalvya" ? `<button class="side-add-btn" id="addAgentBtn">+ Add Agent</button>` : ""}
+          <div class="side-user">
+            <div class="avatar">${initials(me.name)}</div>
+            <div><div class="n">${me.name || "You"}</div><div class="r">${me.role || "—"}</div></div>
+          </div>
+          <button class="logout-btn" id="logoutBtn">Sign Out</button>
+        </aside>
+        <main class="content" id="main"><div class="empty-state">Loading dashboard...</div></main>
+      </div>
 
-    // Modal Handlers
-    openAddModalBtn.addEventListener("click", () => addModal.classList.remove("hidden"), addModal.classList.add("flex"));
-    const closeModal = () => addModal.classList.add("hidden");
-    closeAddModalBtn.addEventListener("click", closeModal);
-    cancelAddModalBtn.addEventListener("click", closeModal);
+      <div id="addAgentModal" class="modal-overlay">
+        <div class="modal">
+          <h2>Add New Agent</h2>
+          <form id="addAgentForm">
+            <label>Agent Name</label><input type="text" id="agentNameInput" required placeholder="Jane Smith" />
+            <label>Start Date</label><input type="date" id="agentStartInput" required />
+            <label>Target Transfer Date</label><input type="date" id="agentTargetInput" required />
+            <hr class="modal-divider" />
+            <label>Login Email (optional — creates their account now)</label><input type="email" id="agentEmailInput" placeholder="jane@example.com" />
+            <label>Temporary Password</label><input type="text" id="agentPasswordInput" placeholder="At least 6 characters" />
+            <p class="modal-hint">Leave blank to just create the agent record — set up their login later if you prefer.</p>
+            <div class="modal-actions">
+              <button type="button" id="cancelAddAgent" class="btn-secondary">Cancel</button>
+              <button type="submit" class="btn-primary" id="createAgentBtn">Create Agent</button>
+            </div>
+          </form>
+        </div>
+      </div>`;
 
-    // Add Agent Form Submit
-    addAgentForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("new-agent-name").value.trim();
-      const email = document.getElementById("new-agent-email").value.trim();
-
-      if (!name || !email) return;
-
-      try {
-        await addDoc(collection(db, "agents"), {
-          name: name,
-          email: email,
-          status: "In Progress",
-          progress: 0,
-          createdAt: serverTimestamp()
-        });
-        addAgentForm.reset();
-        closeModal();
-      } catch (err) {
-        console.error("Error adding agent:", err);
-        alert("Failed to add agent. Check database permissions.");
-      }
-    });
-
-    // Load Realtime Roster & Attach Click Navigators
-    function loadAgents() {
-      onSnapshot(collection(db, "agents"), (snapshot) => {
-        let agents = [];
-        let total = 0;
-        let inProgress = 0;
-        let completed = 0;
-        let blocked = 0;
-
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          agents.push({ id: doc.id, ...data });
-
-          total++;
-          if (data.status === "Completed" || data.progress === 100) completed++;
-          else if (data.status === "Blocked" || data.status === "Risk") blocked++;
-          else inProgress++;
-        });
-
-        // Update Stats
-        statTotal.textContent = total;
-        statInProgress.textContent = inProgress;
-        statCompleted.textContent = completed;
-        statBlocked.textContent = blocked;
-
-        // Render Table
-        if (agents.length === 0) {
-          tableBody.innerHTML = `
-            <tr>
-              <td colspan="5" class="py-8 text-center text-slate-400">
-                No agents found. Click "Add New Agent" above to create one.
-              </td>
-            </tr>`;
-          return;
-        }
-
-        tableBody.innerHTML = agents.map((agent) => {
-          const progressVal = agent.progress || 0;
-          return `
-            <tr class="clickable-row hover:bg-slate-50 transition border-b border-slate-100" data-id="${agent.id}">
-              <td class="py-4 px-4 font-semibold text-slate-800">
-                <i class="fa-solid fa-user-circle text-slate-400 mr-2"></i>${agent.name || 'Unnamed Agent'}
-              </td>
-              <td class="py-4 px-4 text-slate-500">${agent.email || 'N/A'}</td>
-              <td class="py-4 px-4">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  agent.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                  agent.status === 'Blocked' ? 'bg-amber-100 text-amber-800' :
-                  'bg-blue-100 text-blue-800'
-                }">
-                  ${agent.status || 'In Progress'}
-                </span>
-              </td>
-              <td class="py-4 px-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                    <div class="bg-indigo-600 h-2 rounded-full" style="width: ${progressVal}%"></div>
-                  </div>
-                  <span class="text-xs text-slate-500 font-medium">${progressVal}%</span>
-                </div>
-              </td>
-              <td class="py-4 px-4 text-right">
-                <button class="text-indigo-600 hover:text-indigo-900 font-medium text-sm flex items-center justify-end gap-1 ml-auto">
-                  Open Checklist <i class="fa-solid fa-chevron-right text-xs"></i>
-                </button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-
-        // Attach click listener to each agent row
-        document.querySelectorAll('.clickable-row').forEach((row) => {
-          row.addEventListener('click', () => {
-            const agentId = row.getAttribute('data-id');
-            if (agentId) {
-              // Redirect directly to the checklist page with the Agent ID
-              window.location.href = `agent.html?agentId=${agentId}`;
-            }
-          });
-        });
-
-      }, (error) => {
-        console.error("Firestore Error:", error);
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="5" class="py-8 text-center text-red-500">
-              Error loading data. Make sure you are logged in and security rules permit access.
-            </td>
-          </tr>`;
-      });
+    document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut().then(()=>window.location.href="login.html"));
+    if (me.role === "skalvya") {
+      document.getElementById("addAgentBtn").addEventListener("click", () => document.getElementById("addAgentModal").classList.add("open"));
+      document.getElementById("cancelAddAgent").addEventListener("click", closeModal);
+      document.getElementById("addAgentForm").addEventListener("submit", submitAddAgent);
     }
-  </script>
+    listenToAgents();
+  }
+
+  function closeModal() {
+    document.getElementById("addAgentModal").classList.remove("open");
+    document.getElementById("addAgentForm").reset();
+  }
+
+  function listenToAgents() {
+    db.collection("agents").orderBy("startDate", "desc").onSnapshot((snap) => {
+      agents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      agents.forEach(a => {
+        if (!taskUnsubs[a.id]) {
+          taskUnsubs[a.id] = db.collection("agents").doc(a.id).collection("tasks").onSnapshot((tsnap) => {
+            tasksByAgent[a.id] = tsnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            render();
+          }, handleErr);
+        }
+      });
+      render();
+    }, handleErr);
+  }
+  function handleErr(err){
+    console.error(err);
+    const banner = document.getElementById("connectionBanner");
+    banner.style.display = "flex";
+    banner.textContent = "Can't reach the database — " + (err.code || "unknown error");
+    const main = document.getElementById("main");
+    if (!main) return;
+    main.innerHTML = `<div class="error-panel">
+      <div class="icon">&#9888;</div>
+      <h3>Couldn't load the dashboard</h3>
+      <div class="code">${err.code || "unknown"}</div>
+      <p class="hint">${err.message || String(err)}</p>
+      <p class="hint" style="margin-top:14px;">Most common cause: Firestore security rules aren't published yet, or your account's <code>role</code> field doesn't exactly match "skalvya" or "tyson" (check for capitalization or extra spaces in the Firestore console).</p>
+    </div>`;
+  }
+
+  async function submitAddAgent(e) {
+    e.preventDefault();
+    const btn = document.getElementById("createAgentBtn");
+    btn.disabled = true; btn.textContent = "Creating...";
+    const name = document.getElementById("agentNameInput").value.trim();
+    const startDate = document.getElementById("agentStartInput").value;
+    const targetDate = document.getElementById("agentTargetInput").value;
+    const email = document.getElementById("agentEmailInput").value.trim();
+    const password = document.getElementById("agentPasswordInput").value;
+    try {
+      const agentRef = await db.collection("agents").add({ name, startDate, targetDate, riskStatus: "green", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      const batch = db.batch();
+      buildTaskInstances().forEach(task => batch.set(agentRef.collection("tasks").doc(task.id), task));
+      await batch.commit();
+      if (email && password) await createAgentLogin(email, password, name, agentRef.id);
+      closeModal();
+    } catch (err) {
+      console.error(err); alert("Something went wrong creating this agent.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Create Agent";
+    }
+  }
+
+  async function createAgentLogin(email, password, name, agentId) {
+    const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary-" + Date.now());
+    try {
+      const secondaryAuth = secondaryApp.auth();
+      const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+      await db.collection("users").doc(cred.user.uid).set({ role: "agent", agentId, name, email });
+      await secondaryAuth.signOut();
+    } finally {
+      await secondaryApp.delete();
+    }
+  }
+
+  function render() {
+    const main = document.getElementById("main");
+    const totalAgents = agents.length;
+    const overallPct = totalAgents === 0 ? 0 : agents.reduce((acc, a) => acc + overallProgress(tasksByAgent[a.id] || []), 0) / totalAgents;
+    const onTrack = agents.filter(a => a.riskStatus === "green").length;
+    const atRisk = agents.filter(a => a.riskStatus !== "green").length;
+
+    main.innerHTML = `
+      <div class="page-head"><h1 class="serif">Onboarding Overview <span class="live-badge"><span class="live-dot"></span>Live</span></h1><p class="muted">Every checkmark from Skalvya and every agent syncs here instantly.</p></div>
+      ${me.role === "tyson" ? `<div class="tyson-note">You're seeing this live — no need to ask Skalvya for a status update.</div>` : ""}
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-value">${totalAgents}</div><div class="stat-label">TOTAL AGENTS</div></div>
+        <div class="stat-card"><div class="stat-value">${Math.round(overallPct*100)}%</div><div class="stat-label">OVERALL COMPLETION</div></div>
+        <div class="stat-card accent-green"><div class="stat-value">${onTrack}</div><div class="stat-label">ON TRACK</div></div>
+        <div class="stat-card accent-red"><div class="stat-value">${atRisk}</div><div class="stat-label">AT RISK / BLOCKED</div></div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card"><h3>Progress by Owner</h3><canvas id="ownerChart" height="220"></canvas></div>
+        <div class="card"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
+      </div>
+
+      <div class="card"><h3>Blockers Needing Attention</h3>${renderBlockerList()}</div>
+      <div class="card"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
+    `;
+
+    drawOwnerChart(); drawPhaseChart();
+    document.querySelectorAll("[data-open-agent]").forEach(row => {
+      row.addEventListener("click", () => window.location.href = "agent.html?agentId=" + row.dataset.openAgent);
+    });
+  }
+
+  function renderBlockerList() {
+    const rows = [];
+    agents.forEach(agent => {
+      openBlockers(tasksByAgent[agent.id] || []).forEach(t => {
+        rows.push(`<div class="blocker-row"><span class="blocker-agent">${agent.name}</span><span class="blocker-task">${t.title}</span><span class="blocker-text">${t.blocker}</span></div>`);
+      });
+    });
+    if (rows.length === 0) return `<p class="muted">No open blockers right now — everything is moving.</p>`;
+    return `<div class="blocker-list">${rows.join("")}</div>`;
+  }
+
+  function renderRosterTable() {
+    if (agents.length === 0) return `<p class="muted">No agents added yet.${me.role==="skalvya" ? ' Use "+ Add Agent" to start tracking someone.' : ""}</p>`;
+    const rows = agents.map(agent => {
+      const tasks = tasksByAgent[agent.id] || [];
+      const pct = Math.round(overallProgress(tasks)*100);
+      const phase = currentPhase(tasks);
+      const blockers = openBlockers(tasks).length;
+      const risk = agent.riskStatus || "green";
+      return `<tr data-open-agent="${agent.id}">
+        <td class="cell-name">${agent.name}</td>
+        <td>${formatDate(agent.startDate)}</td>
+        <td>${formatDate(agent.targetDate)}</td>
+        <td><span class="phase-pill">Phase ${phase.id}</span></td>
+        <td><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></td>
+        <td><span class="risk-badge risk-${risk}">${RISK_LABELS[risk]}</span></td>
+        <td>${blockers>0 ? `<span class="blocker-count">${blockers}</span>` : "—"}</td>
+        <td class="cell-next">${nextAction(tasks)}</td>
+      </tr>`;
+    }).join("");
+    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Blockers</th><th>Next Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function drawOwnerChart() {
+    const ctx = document.getElementById("ownerChart"); if (!ctx) return;
+    const totals = { Agent:[0,0], Skalvya:[0,0], Shared:[0,0] };
+    Object.values(tasksByAgent).flat().forEach(t => { totals[t.owner][1]+=1; if(isTaskComplete(t)) totals[t.owner][0]+=1; });
+    if (ownerChart) ownerChart.destroy();
+    ownerChart = new Chart(ctx, { type:"doughnut",
+      data:{ labels:["Agent","Skalvya","Shared"], datasets:[{ data:[totals.Agent[0],totals.Skalvya[0],totals.Shared[0]], backgroundColor:[OWNER_COLORS.Agent,OWNER_COLORS.Skalvya,OWNER_COLORS.Shared], borderWidth:0 }] },
+      options:{ plugins:{ legend:{ position:"bottom", labels:{ font:{ family:"Inter" } } } }, cutout:"65%" } });
+  }
+  function drawPhaseChart() {
+    const ctx = document.getElementById("phaseChart"); if (!ctx) return;
+    const totals = {}; PHASES.forEach(p => totals[p.id]=[0,0]);
+    Object.values(tasksByAgent).flat().forEach(t => { totals[t.phase][1]+=1; if(isTaskComplete(t)) totals[t.phase][0]+=1; });
+    const pct = PHASES.map(p => { const [d,tt]=totals[p.id]; return tt===0?0:Math.round((d/tt)*100); });
+    if (phaseChart) phaseChart.destroy();
+    phaseChart = new Chart(ctx, { type:"bar",
+      data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:pct, backgroundColor:"#16274A", borderRadius:6, maxBarThickness:46 }] },
+      options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, max:100, ticks:{ callback:v=>v+"%" } } } } });
+  }
+}
+</script>
 </body>
 </html>
