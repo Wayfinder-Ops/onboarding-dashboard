@@ -150,9 +150,9 @@
       <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
         <div>
           <h2 class="text-lg font-bold text-slate-800 tracking-tight">Agent Roster</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view that agent's onboarding checklist and individual progress.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Click any row below to view and manage that agent's onboarding checklist.</p>
         </div>
-        <button id="open-add-modal" class="hidden inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
+        <button id="open-add-modal" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-all duration-200 hover:shadow">
           <i class="fa-solid fa-user-plus text-xs"></i>
           <span>Add New Agent</span>
         </button>
@@ -185,7 +185,7 @@
 
   </main>
 
-  <!-- Add Agent Modal (Admin/Skalvya only) -->
+  <!-- Add Agent Modal -->
   <div id="add-agent-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-all duration-200">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 transform transition-all">
       <div class="px-6 py-4 bg-navy-900 text-white flex justify-between items-center">
@@ -215,7 +215,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -252,33 +252,10 @@
     const cancelModalBtn = document.getElementById("cancel-modal-btn");
     const addAgentForm = document.getElementById("add-agent-form");
 
-    // Auth Guard & Role Verification
-    onAuthStateChanged(auth, async (user) => {
+    // Auth Guard
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         userEmailText.textContent = user.email;
-        
-        // Fetch user document to check role
-        try {
-          const userDocRef = doc(db, "users", user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          
-          let role = "skalvya"; // Default fallback
-          if (userDocSnap.exists()) {
-            role = userDocSnap.data().role || "skalvya";
-          }
-
-          // Show "Add New Agent" button ONLY for Skalvya, hide for Tyson
-          if (role === "skalvya") {
-            openAddModalBtn.classList.remove("hidden");
-          } else {
-            openAddModalBtn.classList.add("hidden");
-          }
-
-        } catch (err) {
-          console.warn("Could not retrieve user role document:", err);
-        }
-
-        // Fetch agents roster for both Tyson and Skalvya
         fetchAgentsRealtime();
       } else {
         window.location.href = "login.html";
@@ -295,35 +272,33 @@
     // Modal Visibility Controls
     const showModal = () => addModal.classList.remove("hidden"), addModal.classList.add("flex");
     const hideModal = () => addModal.classList.add("hidden");
-    if (openAddModalBtn) openAddModalBtn.addEventListener("click", showModal);
-    if (closeModalBtn) closeModalBtn.addEventListener("click", hideModal);
-    if (cancelModalBtn) cancelModalBtn.addEventListener("click", hideModal);
+    openAddModalBtn.addEventListener("click", showModal);
+    closeModalBtn.addEventListener("click", hideModal);
+    cancelModalBtn.addEventListener("click", hideModal);
 
     // Add Agent Form Submit
-    if (addAgentForm) {
-      addAgentForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const name = document.getElementById("new-agent-name").value.trim();
-        const email = document.getElementById("new-agent-email").value.trim();
+    addAgentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("new-agent-name").value.trim();
+      const email = document.getElementById("new-agent-email").value.trim();
 
-        if (!name || !email) return;
+      if (!name || !email) return;
 
-        try {
-          await addDoc(collection(db, "agents"), {
-            name: name,
-            email: email,
-            status: "In Progress",
-            progress: 0,
-            createdAt: serverTimestamp()
-          });
-          addAgentForm.reset();
-          hideModal();
-        } catch (err) {
-          console.error("Error adding agent:", err);
-          alert("Failed to add agent. Please check database permissions.");
-        }
-      });
-    }
+      try {
+        await addDoc(collection(db, "agents"), {
+          name: name,
+          email: email,
+          status: "In Progress",
+          progress: 0,
+          createdAt: serverTimestamp()
+        });
+        addAgentForm.reset();
+        hideModal();
+      } catch (err) {
+        console.error("Error adding agent:", err);
+        alert("Failed to add agent. Please check Firebase permissions.");
+      }
+    });
 
     // Fetch and Render Agent Roster
     function fetchAgentsRealtime() {
@@ -338,7 +313,7 @@
           tableBody.innerHTML = `
             <tr>
               <td colspan="5" class="py-12 text-center text-slate-400">
-                No agents registered yet.
+                No agents registered yet. Click "Add New Agent" above to get started.
               </td>
             </tr>`;
           statTotal.textContent = "0";
@@ -348,9 +323,9 @@
           return;
         }
 
-        snapshot.forEach((docSnap) => {
-          const agent = docSnap.data();
-          const id = docSnap.id;
+        snapshot.forEach((doc) => {
+          const agent = doc.data();
+          const id = doc.id;
           const progress = agent.progress || 0;
           const status = agent.status || 'In Progress';
 
@@ -390,8 +365,8 @@
                 </div>
               </td>
               <td class="py-4 px-6 text-right">
-                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700">
-                  View Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 group-hover:text-brand-700">
+                  Open Checklist <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </span>
               </td>
             </tr>
@@ -422,7 +397,7 @@
         tableBody.innerHTML = `
           <tr>
             <td colspan="5" class="py-8 text-center text-red-500 text-xs">
-              Failed to load agent roster. Ensure your Firestore security rules permit access.
+              Failed to load agent roster. Check your database permissions.
             </td>
           </tr>`;
       });
