@@ -86,6 +86,7 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .stat-card:hover{transform:translateY(-2px)}
 .stat-card.accent-green{border-left-color:var(--green)} .stat-card.accent-red{border-left-color:var(--red)}
 .stat-value{font-family:'Fraunces',serif;font-size:30px;font-weight:600;color:var(--navy);line-height:1}
+.stat-value{transition:opacity .2s ease}
 .stat-label{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
 
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -335,6 +336,22 @@ if (!CONFIGURED) {
       render();
     }, handleErr);
   }
+  function animateCounts() {
+    document.querySelectorAll("[data-count]").forEach(el => {
+      const target = parseInt(el.dataset.count, 10) || 0;
+      const suffix = el.dataset.suffix || "";
+      const duration = 700;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
   function handleErr(err){
     console.error(err);
     const banner = document.getElementById("connectionBanner");
@@ -398,10 +415,10 @@ if (!CONFIGURED) {
       ${me.role === "tyson" ? `<div class="tyson-note">You're seeing this live — no need to ask Skalvya for a status update.</div>` : ""}
 
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-value">${totalAgents}</div><div class="stat-label">TOTAL AGENTS</div></div>
-        <div class="stat-card"><div class="stat-value">${Math.round(overallPct*100)}%</div><div class="stat-label">OVERALL COMPLETION</div></div>
-        <div class="stat-card accent-green"><div class="stat-value">${onTrack}</div><div class="stat-label">ON TRACK</div></div>
-        <div class="stat-card accent-red"><div class="stat-value">${atRisk}</div><div class="stat-label">AT RISK / BLOCKED</div></div>
+        <div class="stat-card"><div class="stat-value" data-count="${totalAgents}">0</div><div class="stat-label">TOTAL AGENTS</div></div>
+        <div class="stat-card"><div class="stat-value" data-count="${Math.round(overallPct*100)}" data-suffix="%">0</div><div class="stat-label">OVERALL COMPLETION</div></div>
+        <div class="stat-card accent-green"><div class="stat-value" data-count="${onTrack}">0</div><div class="stat-label">ON TRACK</div></div>
+        <div class="stat-card accent-red"><div class="stat-value" data-count="${atRisk}">0</div><div class="stat-label">AT RISK / BLOCKED</div></div>
       </div>
 
       <div class="chart-grid">
@@ -414,8 +431,13 @@ if (!CONFIGURED) {
     `;
 
     drawOwnerChart(); drawPhaseChart();
+    animateCounts();
     document.querySelectorAll("[data-open-agent]").forEach(row => {
-      row.addEventListener("click", () => window.location.href = "agent.html?agentId=" + row.dataset.openAgent);
+      row.addEventListener("click", () => {
+        document.body.style.transition = "opacity .18s ease";
+        document.body.style.opacity = "0.4";
+        setTimeout(() => { window.location.href = "agent.html?agentId=" + row.dataset.openAgent; }, 150);
+      });
     });
 
     // Visually flash any row whose progress just changed — confirms live sync at a glance
