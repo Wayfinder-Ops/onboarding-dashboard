@@ -186,6 +186,26 @@ const firebaseConfig = {
   appId: "1:105454511155:web:1cdc4b1294c7557fb46f46",
 };
 const CONFIGURED = firebaseConfig.apiKey !== "REPLACE_ME" && firebaseConfig.apiKey.length > 10;
+
+// Global safety net: surface any unexpected JS error visibly instead of failing silently.
+window.addEventListener("error", (e) => showFatalError(e.error || e.message));
+window.addEventListener("unhandledrejection", (e) => showFatalError(e.reason));
+function showFatalError(err) {
+  console.error(err);
+  let bar = document.getElementById("__fatalErrorBar");
+  if (bar) return; // only show the first one, avoid spam
+  bar = document.createElement("div");
+  bar.id = "__fatalErrorBar";
+  bar.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#B23C3C;color:#fff;font-size:12.5px;font-weight:600;padding:10px 16px;z-index:9999;font-family:sans-serif;display:flex;justify-content:space-between;align-items:center;gap:12px;";
+  const msg = (err && err.message) ? err.message : String(err);
+  bar.innerHTML = "<span>Something broke on this page: " + msg.replace(/</g,"&lt;") + "</span>";
+  const btn = document.createElement("button");
+  btn.textContent = "Dismiss";
+  btn.style.cssText = "background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:700;flex-shrink:0;";
+  btn.onclick = () => bar.remove();
+  bar.appendChild(btn);
+  document.body.appendChild(bar);
+}
 const app = document.getElementById("app");
 
 if (!CONFIGURED) {
