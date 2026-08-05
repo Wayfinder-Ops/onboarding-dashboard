@@ -255,15 +255,9 @@ if (!CONFIGURED) {
   async function routeByRole(uid) {
     try {
       const snap = await db.collection("users").doc(uid).get();
-      if (!snap.exists) {
-        const errorBox = document.getElementById("loginError");
-        errorBox.textContent = "Your account doesn't have a role assigned yet. Ask Skalvya to finish setting it up.";
-        errorBox.classList.add("show");
-        auth.signOut();
-        return;
-      }
-      const data = snap.data();
-      const dest = data.role === "agent" ? "agent.html" : "master.html";
+      const data = snap.exists ? snap.data() : {};
+      const role = ["skalvya", "agent", "tyson"].includes(data.role) ? data.role : "unknown";
+      const dest = role === "agent" ? "agent.html" : "master.html";
       document.getElementById("welcomeText").textContent = "Welcome back, " + (data.name ? data.name.split(" ")[0] : "there");
       document.getElementById("welcomeOverlay").classList.add("show");
       setTimeout(() => { window.location.href = dest; }, 950);
