@@ -157,9 +157,21 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
   .side-spacer,.side-divider,.side-label{display:none} .content{padding:20px}
   .task-fields{grid-template-columns:1fr 1fr}
 }
+
+.ambient-wave{position:fixed;bottom:0;left:0;width:100%;height:110px;pointer-events:none;z-index:-1;opacity:.05;overflow:hidden}
+.ambient-wave svg{width:200%;height:100%}
+.ambient-wave .a1{animation:waveMove 22s linear infinite}
+.ambient-wave .a2{animation:waveMove 30s linear infinite reverse}
 </style>
 </head>
 <body>
+<div class="ambient-wave">
+  <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+    <path class="a1" d="M0 28 Q10 22 20 28 T40 28 T60 28 T80 28 T100 28 T120 28 T140 28 T160 28 T180 28 T200 28 T220 28 T240 28" fill="none" stroke="#CBA05C" stroke-width="1"/>
+    <path class="a2" d="M0 34 Q10 30 20 34 T40 34 T60 34 T80 34 T100 34 T120 34 T140 34 T160 34 T180 34 T200 34 T220 34 T240 34" fill="none" stroke="#0A1120" stroke-width="1"/>
+  </svg>
+</div>
+
 
 <div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
 <div id="app"><div class="setup-screen">
@@ -287,6 +299,7 @@ if (!CONFIGURED) {
 
   /* ---------------- Auth guard ---------------- */
   let me=null, viewedAgentId=null, liveTasks=[], liveAgent=null;
+  let expandedTasks = new Set();
   let prevPhaseComplete={}, prevOverallComplete=null;
 
   function showToast(emoji, text) {
