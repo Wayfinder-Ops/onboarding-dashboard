@@ -8,11 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
-  --gold:#C6A15B; --gold-light:#E9D6AC;
-  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
-  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
-  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+  --navy:#0A1120; --navy-2:#101C34; --navy-light:#1D305A;
+  --navy-deep:#060A14;
+  --gold:#CBA05C; --gold-light:#EAD9AE; --gold-deep:#8E6B34; --gold-glow:rgba(203,160,92,.35);
+  --bg:#FAF7F1; --card:#FFFFFF; --text:#221B10; --muted:#8A7C63; --border:#EDE5D3;
+  --green:#3E9E72; --yellow:#C08A2E; --red:#C24F4F;
+  --shadow:0 1px 2px rgba(10,17,32,.06),0 22px 46px rgba(10,17,32,.11);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -90,7 +91,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 /* Welcome transition */
 .welcome-overlay{
-  position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 40%,#16274A 0%,#0a1428 100%);
+  position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 40%,#101C34 0%,#0a1428 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;
   opacity:0;pointer-events:none;transition:opacity .4s ease;
 }
@@ -104,8 +105,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+.boat-anim{transform-origin:58px 80px;animation:boatRock 2.6s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
+.sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
+.sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
+@keyframes sparkleTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 
 /* Setup-not-connected screen */
 .setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
@@ -128,18 +133,30 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <div id="welcomeOverlay" class="welcome-overlay">
   <div class="boat-wrap">
-    <svg viewBox="0 0 120 120" width="100%" height="100%">
-      <circle cx="60" cy="60" r="58" fill="none" stroke="#C6A15B" stroke-width="1" opacity=".5"/>
-      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
-        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/>
+<svg viewBox="0 0 120 120" width="100%" height="100%">
+      <circle cx="60" cy="60" r="58" fill="none" stroke="#CBA05C" stroke-width="1" opacity=".55"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#CBA05C" stroke-width=".6" opacity=".3"/>
+      <g stroke="#CBA05C" stroke-width="1" opacity=".5">
+        <line x1="110" y1="60" x2="118" y2="60"/><line x1="103.3" y1="85" x2="110.3" y2="89"/>
+        <line x1="85" y1="103.3" x2="89" y2="110.3"/><line x1="60" y1="110" x2="60" y2="118"/>
+        <line x1="35" y1="103.3" x2="31" y2="110.3"/><line x1="16.7" y1="85" x2="9.7" y2="89"/>
+        <line x1="10" y1="60" x2="2" y2="60"/><line x1="16.7" y1="35" x2="9.7" y2="31"/>
+        <line x1="35" y1="16.7" x2="31" y2="9.7"/><line x1="60" y1="10" x2="60" y2="2"/>
+        <line x1="85" y1="16.7" x2="89" y2="9.7"/><line x1="103.3" y1="35" x2="110.3" y2="31"/>
       </g>
-      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
-        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/>
-      </g>
+      <path class="sparkle-star" d="M85 26 L87.5 33 L94 35 L87.5 37 L85 44 L82.5 37 L76 35 L82.5 33 Z" fill="#EAD9AE"/>
+      <path class="sparkle-dot" d="M40 44 L41 47 L44 48 L41 49 L40 52 L39 49 L36 48 L39 47 Z" fill="#EAD9AE" opacity=".55"/>
+      <path class="sparkle-dot2" d="M74 50 L74.7 52 L77 52.7 L74.7 53.4 L74 55.5 L73.3 53.4 L71 52.7 L73.3 52 Z" fill="#EAD9AE" opacity=".4"/>
+      <g class="wave-anim" fill="none" stroke="#CBA05C" stroke-width="1.6" opacity=".5">
+        <path d="M-20 90 Q-10 85 0 90 T20 90 T40 90 T60 90 T80 90 T100 90 T120 90 T140 90"/></g>
+      <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
+        <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
       <g class="boat-anim">
-        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
-        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
-        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/>
+        <path d="M40 78 L80 78 L73 90 L47 90 Z" fill="#EAD9AE"/>
+        <line x1="58" y1="78" x2="58" y2="34" stroke="#EAD9AE" stroke-width="1.8"/>
+        <path d="M58 34 L58 76 L78 68 Z" fill="#CBA05C" opacity=".92"/>
+        <ellipse cx="58" cy="70" rx="3.4" ry="6.5" fill="#0A1120"/>
+        <circle cx="58" cy="61.5" r="3" fill="#0A1120"/>
       </g>
     </svg>
   </div>
@@ -213,7 +230,7 @@ if (!CONFIGURED) {
       <div class="panel-left">
         <div class="top">
           <div class="brandmark">
-            <div class="box">WF</div>
+            <div class="box"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="none" stroke="#CBA05C" stroke-width=".8" opacity=".7"/><path d="M8 15.5 L16 15.5 L14.5 18 L9.5 18 Z" fill="#EAD9AE"/><line x1="11.6" y1="15.5" x2="11.6" y2="6.5" stroke="#EAD9AE" stroke-width=".9"/><path d="M11.6 6.5 L11.6 15 L15.6 13 Z" fill="#CBA05C"/></svg></div>
             <div class="word">WAYFINDER</div>
           </div>
           <h1>The operating system<br/>behind every agent's<br/><em>first 90 days.</em></h1>
