@@ -8,11 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
-  --gold:#C6A15B; --gold-light:#E9D6AC;
-  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
-  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
-  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+  --navy:#0A1120; --navy-2:#101C34; --navy-light:#1D305A;
+  --navy-deep:#060A14;
+  --gold:#CBA05C; --gold-light:#EAD9AE; --gold-deep:#8E6B34; --gold-glow:rgba(203,160,92,.35);
+  --bg:#FAF7F1; --card:#FFFFFF; --text:#221B10; --muted:#8A7C63; --border:#EDE5D3;
+  --green:#3E9E72; --yellow:#C08A2E; --red:#C24F4F;
+  --shadow:0 1px 2px rgba(10,17,32,.06),0 22px 46px rgba(10,17,32,.11);
   --radius:16px;
 }
 *{box-sizing:border-box}
@@ -92,6 +93,58 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 
+/* Fleet hero + pipeline */
+.fleet-grid{display:grid;grid-template-columns:1.1fr 1.4fr;gap:22px;margin-bottom:22px}
+.fleet-hero{display:flex;align-items:center;gap:24px}
+.fleet-ring-wrap{flex-shrink:0}
+.fleet-ring{--pct:0;width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--pct)*1%),#EFE9DA 0);display:flex;align-items:center;justify-content:center;position:relative;transition:background 1.2s cubic-bezier(.2,.8,.3,1)}
+.fleet-ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:#fff;box-shadow:inset 0 2px 6px rgba(10,17,32,.06)}
+.fleet-ring span{position:relative;font-family:'Fraunces',serif;font-weight:600;font-size:27px;color:var(--navy)}
+.fleet-ring span small{font-size:14px;font-weight:500}
+.fleet-legend{display:flex;flex-direction:column;gap:8px}
+.fleet-legend-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text)}
+.fleet-legend-item .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+.pipeline-list{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.pipeline-row{display:grid;grid-template-columns:70px 1fr 26px;align-items:center;gap:12px}
+.pipeline-label{font-size:12px;font-weight:700;color:var(--navy)}
+.pipeline-track{height:10px;background:#EFE9DA;border-radius:6px;overflow:hidden}
+.pipeline-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.3,1)}
+.pipeline-count{font-size:13px;font-weight:800;color:var(--navy);text-align:right}
+
+.accent-amber{border-left-color:var(--yellow)}
+
+/* Agent card grid */
+.agent-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.agent-card{
+  background:#FCFAF5;border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;
+  transition:transform .18s,box-shadow .18s,border-color .18s;text-align:center;
+  opacity:0;animation:cardIn .5s cubic-bezier(.2,.8,.3,1) forwards;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.agent-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(10,17,32,.1);border-color:var(--gold-light)}
+.agent-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.agent-card-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.risk-dot{width:9px;height:9px;border-radius:50%;margin-top:4px}
+.risk-dot-green{background:var(--green)} .risk-dot-yellow{background:var(--yellow)} .risk-dot-red{background:var(--red)}
+.agent-card-ring{--pct:0;width:66px;height:66px;margin:6px auto 10px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--pct)*1%),#EFE9DA 0);display:flex;align-items:center;justify-content:center;position:relative;transition:background .8s ease}
+.agent-card-ring::before{content:"";position:absolute;inset:6px;border-radius:50%;background:#FCFAF5}
+.agent-card-ring span{position:relative;font-weight:800;font-size:13px;color:var(--navy)}
+.agent-card-name{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent-card-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.days-chip{font-size:10px;font-weight:700;color:var(--muted);background:#F0EBDD;padding:3px 8px;border-radius:999px}
+.overdue-text{color:var(--red);font-weight:700}
+
+/* Activity feed */
+.activity-list{display:flex;flex-direction:column;gap:2px;max-height:340px;overflow-y:auto}
+.activity-row{display:flex;gap:11px;padding:10px 4px;border-bottom:1px solid var(--border)}
+.activity-row:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.dot-skalvya{background:var(--navy-2)} .dot-agent{background:var(--gold)}
+.activity-text{font-size:12.8px;color:var(--text);line-height:1.4}
+.activity-text em{font-style:normal;color:var(--muted)}
+.activity-time{font-size:11px;color:var(--muted);margin-top:2px}
+
 .roster-table{width:100%;border-collapse:collapse;font-size:13.5px}
 .roster-table th{text-align:left;padding:10px 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:1.5px solid var(--border);font-weight:800}
 .roster-table td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
@@ -122,8 +175,12 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+.boat-anim{transform-origin:58px 80px;animation:boatRock 2.6s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
+.sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
+.sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
+@keyframes sparkleTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 .loading-msg{text-align:center;color:var(--muted);font-size:13.5px;font-weight:500}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(10,15,28,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(3px)}
@@ -146,7 +203,8 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 @media (max-width:880px){
   .shell{flex-direction:column} .sidebar{width:100%;height:auto;position:relative;flex-direction:row;align-items:center;padding:14px 16px}
   .side-spacer,.side-divider,.side-label,.side-add-btn{display:none} .content{padding:20px}
-  .stat-grid,.chart-grid{grid-template-columns:1fr 1fr} .blocker-row{grid-template-columns:1fr}
+  .stat-grid,.chart-grid,.fleet-grid{grid-template-columns:1fr} .blocker-row{grid-template-columns:1fr}
+  .agent-card-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 }
 </style>
 </head>
@@ -156,15 +214,30 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 <div id="app"><div class="setup-screen">
   <div style="text-align:center">
     <div class="boat-loader"><svg viewBox="0 0 120 120" width="100%" height="100%">
-      <circle cx="60" cy="60" r="58" fill="#0F1B33"/>
-      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
-        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/></g>
-      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
-        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/></g>
+      <circle cx="60" cy="60" r="58" fill="none" stroke="#CBA05C" stroke-width="1" opacity=".55"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#CBA05C" stroke-width=".6" opacity=".3"/>
+      <g stroke="#CBA05C" stroke-width="1" opacity=".5">
+        <line x1="110" y1="60" x2="118" y2="60"/><line x1="103.3" y1="85" x2="110.3" y2="89"/>
+        <line x1="85" y1="103.3" x2="89" y2="110.3"/><line x1="60" y1="110" x2="60" y2="118"/>
+        <line x1="35" y1="103.3" x2="31" y2="110.3"/><line x1="16.7" y1="85" x2="9.7" y2="89"/>
+        <line x1="10" y1="60" x2="2" y2="60"/><line x1="16.7" y1="35" x2="9.7" y2="31"/>
+        <line x1="35" y1="16.7" x2="31" y2="9.7"/><line x1="60" y1="10" x2="60" y2="2"/>
+        <line x1="85" y1="16.7" x2="89" y2="9.7"/><line x1="103.3" y1="35" x2="110.3" y2="31"/>
+      </g>
+      <path class="sparkle-star" d="M85 26 L87.5 33 L94 35 L87.5 37 L85 44 L82.5 37 L76 35 L82.5 33 Z" fill="#EAD9AE"/>
+      <path class="sparkle-dot" d="M40 44 L41 47 L44 48 L41 49 L40 52 L39 49 L36 48 L39 47 Z" fill="#EAD9AE" opacity=".55"/>
+      <path class="sparkle-dot2" d="M74 50 L74.7 52 L77 52.7 L74.7 53.4 L74 55.5 L73.3 53.4 L71 52.7 L73.3 52 Z" fill="#EAD9AE" opacity=".4"/>
+      <g class="wave-anim" fill="none" stroke="#CBA05C" stroke-width="1.6" opacity=".5">
+        <path d="M-20 90 Q-10 85 0 90 T20 90 T40 90 T60 90 T80 90 T100 90 T120 90 T140 90"/></g>
+      <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
+        <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
       <g class="boat-anim">
-        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
-        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
-        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/></g>
+        <path d="M40 78 L80 78 L73 90 L47 90 Z" fill="#EAD9AE"/>
+        <line x1="58" y1="78" x2="58" y2="34" stroke="#EAD9AE" stroke-width="1.8"/>
+        <path d="M58 34 L58 76 L78 68 Z" fill="#CBA05C" opacity=".92"/>
+        <ellipse cx="58" cy="70" rx="3.4" ry="6.5" fill="#0A1120"/>
+        <circle cx="58" cy="61.5" r="3" fill="#0A1120"/>
+      </g>
     </svg></div>
     <p class="loading-msg">Loading dashboard...</p>
   </div>
@@ -260,13 +333,47 @@ if (!CONFIGURED) {
     }));
   }
 
-  const OWNER_COLORS = { Agent: "#C6A15B", Skalvya: "#16274A", Shared: "#5E7C8C" };
+  const OWNER_COLORS = { Agent: "#CBA05C", Skalvya: "#101C34", Shared: "#5E7C8C" };
   const RISK_LABELS = { green: "On Track", yellow: "At Risk", red: "Blocked" };
   function isTaskComplete(t){ return t.subtasks.length>0 && t.subtasks.every(s=>s.done); }
   function taskProgress(t){ const total=t.subtasks.length||1; return t.subtasks.filter(s=>s.done).length/total; }
   function overallProgress(tasks){ if(!tasks||tasks.length===0) return 0; return tasks.reduce((a,t)=>a+taskProgress(t),0)/tasks.length; }
   function currentPhase(tasks){ for(const p of PHASES){ const pt=tasks.filter(t=>t.phase===p.id); if(pt.length && !pt.every(isTaskComplete)) return p; } return PHASES[PHASES.length-1]; }
   function openBlockers(tasks){ return tasks.filter(t=>t.blocker && t.blocker.trim()!=="" && !isTaskComplete(t)); }
+  function daysUntil(iso){
+    if (!iso) return null;
+    const target = new Date(iso+"T00:00:00");
+    const diff = Math.ceil((target - new Date()) / (1000*60*60*24));
+    return diff;
+  }
+  function phasePipelineCounts(){
+    const counts = {}; PHASES.forEach(p => counts[p.id] = 0);
+    agents.forEach(a => { const p = currentPhase(tasksByAgent[a.id] || []); counts[p.id] = (counts[p.id]||0) + 1; });
+    return counts;
+  }
+  function relativeTime(iso){
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs/60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + "m ago";
+    const hrs = Math.floor(mins/60);
+    if (hrs < 24) return hrs + "h ago";
+    return Math.floor(hrs/24) + "d ago";
+  }
+  function recentActivity(limit){
+    const items = [];
+    Object.entries(tasksByAgent).forEach(([agentId, tasks]) => {
+      const agent = agents.find(a => a.id === agentId);
+      if (!agent) return;
+      tasks.forEach(t => {
+        if (t.lastEditedBy && t.lastEditedBy.at) {
+          items.push({ agentName: agent.name, taskTitle: t.title, by: t.lastEditedBy.name, role: t.lastEditedBy.role, at: t.lastEditedBy.at });
+        }
+      });
+    });
+    items.sort((a,b) => new Date(b.at) - new Date(a.at));
+    return items.slice(0, limit);
+  }
   function nextAction(tasks){ const open=tasks.filter(t=>!isTaskComplete(t)); const withNext=open.find(t=>t.nextAction && t.nextAction.trim()!==""); return withNext?withNext.nextAction:(open[0]?open[0].title:"All tasks complete"); }
   function formatDate(iso){ if(!iso) return "—"; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
   function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
@@ -290,7 +397,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 15 L20 15 L18 20 L6 20 Z" fill="#E9D6AC"/><line x1="12" y1="15" x2="12" y2="5" stroke="#E9D6AC" stroke-width="1.6"/><path d="M12 5 L12 13 L17.5 13 Z" fill="#C6A15B"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
+          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 15 L20 15 L18 20 L6 20 Z" fill="#EAD9AE"/><line x1="12" y1="15" x2="12" y2="5" stroke="#EAD9AE" stroke-width="1.6"/><path d="M12 5 L12 13 L17.5 13 Z" fill="#CBA05C"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
           <div class="side-divider"></div>
           <div class="side-label">Overview</div>
           <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
@@ -424,18 +531,53 @@ if (!CONFIGURED) {
     const totalAgents = agents.length;
     const overallPct = totalAgents === 0 ? 0 : agents.reduce((acc, a) => acc + overallProgress(tasksByAgent[a.id] || []), 0) / totalAgents;
     const onTrack = agents.filter(a => a.riskStatus === "green").length;
-    const atRisk = agents.filter(a => a.riskStatus !== "green").length;
+    const atRisk = agents.filter(a => a.riskStatus === "yellow").length;
+    const blocked = agents.filter(a => a.riskStatus === "red").length;
+    const pipeline = phasePipelineCounts();
+    const activity = recentActivity(8);
 
     main.innerHTML = `
       <div class="page-head"><h1 class="serif">Onboarding Overview <span class="live-badge"><span class="live-dot"></span>Live</span></h1><p class="muted">Every checkmark from Skalvya and every agent syncs here instantly.</p></div>
       ${me.role === "tyson" && !me.roleUnknown ? `<div class="tyson-note">You're seeing this live — no need to ask Skalvya for a status update.</div>` : ""}
       ${me.roleUnknown ? `<div class="warn-note">Your account's role isn't set correctly in Firestore, so you're seeing a safe read-only view. Fix the <code>role</code> field on your <code>users</code> document to get full access.</div>` : ""}
 
+      <div class="fleet-grid">
+        <div class="card fleet-hero">
+          <div class="fleet-ring-wrap">
+            <div class="fleet-ring" style="--pct:${Math.round(overallPct*100)}"><span>${Math.round(overallPct*100)}<small>%</small></span></div>
+          </div>
+          <div class="fleet-hero-info">
+            <h3 style="margin-bottom:2px">Fleet Progress</h3>
+            <p class="muted small" style="margin-bottom:16px">Average completion across every agent in the pipeline.</p>
+            <div class="fleet-legend">
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--green)"></span>${onTrack} on track</div>
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--yellow)"></span>${atRisk} at risk</div>
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--red)"></span>${blocked} blocked</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Pipeline by Phase</h3>
+          <div class="pipeline-list">
+            ${PHASES.map(p => {
+              const count = pipeline[p.id] || 0;
+              const pct = totalAgents === 0 ? 0 : Math.round((count/totalAgents)*100);
+              return `<div class="pipeline-row">
+                <span class="pipeline-label">Phase ${p.id}</span>
+                <div class="pipeline-track"><div class="pipeline-fill" style="width:${pct}%"></div></div>
+                <span class="pipeline-count">${count}</span>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-value" data-count="${totalAgents}">0</div><div class="stat-label">TOTAL AGENTS</div></div>
-        <div class="stat-card"><div class="stat-value" data-count="${Math.round(overallPct*100)}" data-suffix="%">0</div><div class="stat-label">OVERALL COMPLETION</div></div>
         <div class="stat-card accent-green"><div class="stat-value" data-count="${onTrack}">0</div><div class="stat-label">ON TRACK</div></div>
-        <div class="stat-card accent-red"><div class="stat-value" data-count="${atRisk}">0</div><div class="stat-label">AT RISK / BLOCKED</div></div>
+        <div class="stat-card accent-amber"><div class="stat-value" data-count="${atRisk}">0</div><div class="stat-label">AT RISK</div></div>
+        <div class="stat-card accent-red"><div class="stat-value" data-count="${blocked}">0</div><div class="stat-label">BLOCKED</div></div>
       </div>
 
       <div class="chart-grid">
@@ -443,16 +585,23 @@ if (!CONFIGURED) {
         <div class="card"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
       </div>
 
-      <div class="card"><h3>Blockers Needing Attention</h3>${renderBlockerList()}</div>
-      <div class="card"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
+      <div class="card">
+        <div class="card-head-row"><h3>Fleet at a Glance</h3></div>
+        ${renderAgentCards()}
+      </div>
+
+      <div class="chart-grid">
+        <div class="card"><h3>Recent Activity</h3>${renderActivityFeed(activity)}</div>
+        <div class="card"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
+      </div>
     `;
 
     // Wire navigation FIRST — this must never be skipped, even if charts below fail to render.
-    document.querySelectorAll("[data-open-agent]").forEach(row => {
-      row.addEventListener("click", () => {
+    document.querySelectorAll("[data-open-agent]").forEach(el => {
+      el.addEventListener("click", () => {
         document.body.style.transition = "opacity .18s ease";
         document.body.style.opacity = "0.4";
-        setTimeout(() => { window.location.href = "agent.html?agentId=" + row.dataset.openAgent; }, 150);
+        setTimeout(() => { window.location.href = "agent.html?agentId=" + el.dataset.openAgent; }, 150);
       });
     });
 
@@ -464,23 +613,46 @@ if (!CONFIGURED) {
     agents.forEach(agent => {
       const pct = Math.round(overallProgress(tasksByAgent[agent.id] || []) * 100);
       if (prevProgress[agent.id] !== undefined && prevProgress[agent.id] !== pct) {
-        const row = document.querySelector(`tr[data-open-agent="${agent.id}"]`);
-        if (row) { row.classList.remove("row-flash"); void row.offsetWidth; row.classList.add("row-flash"); }
+        document.querySelectorAll(`[data-open-agent="${agent.id}"]`).forEach(el => {
+          el.classList.remove("row-flash"); void el.offsetWidth; el.classList.add("row-flash");
+        });
       }
       prevProgress[agent.id] = pct;
     });
   }
 
-  function renderBlockerList() {
-    const rows = [];
-    agents.forEach(agent => {
-      openBlockers(tasksByAgent[agent.id] || []).forEach(t => {
-        rows.push(`<div class="blocker-row"><span class="blocker-agent">${agent.name}</span><span class="blocker-task">${t.title}</span><span class="blocker-text">${t.blocker}</span></div>`);
-      });
-    });
-    if (rows.length === 0) return `<p class="muted">No open blockers right now — everything is moving.</p>`;
-    return `<div class="blocker-list">${rows.join("")}</div>`;
+  function renderAgentCards(){
+    if (agents.length === 0) return `<p class="muted">No agents added yet.${me.role==="skalvya" ? ' Use "+ Add Agent" to start tracking someone.' : ""}</p>`;
+    return `<div class="agent-card-grid">${agents.map((agent, i) => {
+      const tasks = tasksByAgent[agent.id] || [];
+      const pct = Math.round(overallProgress(tasks)*100);
+      const phase = currentPhase(tasks);
+      const risk = agent.riskStatus || "green";
+      const days = daysUntil(agent.targetDate);
+      return `<div class="agent-card" data-open-agent="${agent.id}" style="animation-delay:${i*45}ms">
+        <div class="agent-card-top">
+          <div class="agent-card-avatar">${initials(agent.name)}</div>
+          <span class="risk-dot risk-dot-${risk}"></span>
+        </div>
+        <div class="agent-card-ring" style="--pct:${pct}"><span>${pct}%</span></div>
+        <div class="agent-card-name">${agent.name}</div>
+        <div class="agent-card-meta"><span class="phase-pill">Phase ${phase.id}</span>${days !== null ? `<span class="days-chip">${days >= 0 ? days + "d left" : "overdue"}</span>` : ""}</div>
+      </div>`;
+    }).join("")}</div>`;
   }
+
+  function renderActivityFeed(items){
+    if (items.length === 0) return `<p class="muted">No activity yet — updates will show up here the moment anyone checks something off.</p>`;
+    return `<div class="activity-list">${items.map(it => `
+      <div class="activity-row">
+        <div class="activity-dot ${it.role === "skalvya" ? "dot-skalvya" : "dot-agent"}"></div>
+        <div class="activity-body">
+          <div class="activity-text"><strong>${escapeHtmlLite(it.by || it.role)}</strong> updated <em>${escapeHtmlLite(it.taskTitle)}</em> for ${escapeHtmlLite(it.agentName)}</div>
+          <div class="activity-time">${relativeTime(it.at)}</div>
+        </div>
+      </div>`).join("")}</div>`;
+  }
+  function escapeHtmlLite(s){ return (s||"").replace(/</g,"&lt;"); }
 
   function renderRosterTable() {
     if (agents.length === 0) return `<p class="muted">No agents added yet.${me.role==="skalvya" ? ' Use "+ Add Agent" to start tracking someone.' : ""}</p>`;
@@ -488,8 +660,8 @@ if (!CONFIGURED) {
       const tasks = tasksByAgent[agent.id] || [];
       const pct = Math.round(overallProgress(tasks)*100);
       const phase = currentPhase(tasks);
-      const blockers = openBlockers(tasks).length;
       const risk = agent.riskStatus || "green";
+      const days = daysUntil(agent.targetDate);
       return `<tr data-open-agent="${agent.id}">
         <td class="cell-name">${agent.name}</td>
         <td>${formatDate(agent.startDate)}</td>
@@ -497,11 +669,11 @@ if (!CONFIGURED) {
         <td><span class="phase-pill">Phase ${phase.id}</span></td>
         <td><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></td>
         <td><span class="risk-badge risk-${risk}">${RISK_LABELS[risk]}</span></td>
-        <td>${blockers>0 ? `<span class="blocker-count">${blockers}</span>` : "—"}</td>
+        <td>${days === null ? "—" : (days >= 0 ? days + "d" : `<span class="overdue-text">${Math.abs(days)}d over</span>`)}</td>
         <td class="cell-next">${nextAction(tasks)}</td>
       </tr>`;
     }).join("");
-    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Blockers</th><th>Next Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Days Left</th><th>Next Action</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   function drawOwnerChart() {
@@ -522,7 +694,7 @@ if (!CONFIGURED) {
     const pct = PHASES.map(p => { const [d,tt]=totals[p.id]; return tt===0?0:Math.round((d/tt)*100); });
     if (phaseChart) phaseChart.destroy();
     phaseChart = new Chart(ctx, { type:"bar",
-      data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:pct, backgroundColor:"#16274A", borderRadius:6, maxBarThickness:46 }] },
+      data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:pct, backgroundColor:"#101C34", borderRadius:6, maxBarThickness:46 }] },
       options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, max:100, ticks:{ callback:v=>v+"%" } } } } });
   }
 }
