@@ -8,11 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0F1B33; --navy-2:#16274A; --navy-light:#243B68;
-  --gold:#C6A15B; --gold-light:#E9D6AC;
-  --bg:#F7F6F2; --card:#FFFFFF; --text:#1B2130; --muted:#767D8C; --border:#E9E7E0;
-  --green:#2E9E6C; --yellow:#C7891E; --red:#D14B4B;
-  --shadow:0 1px 2px rgba(15,27,51,.06),0 20px 44px rgba(15,27,51,.10);
+  --navy:#0A1120; --navy-2:#101C34; --navy-light:#1D305A;
+  --navy-deep:#060A14;
+  --gold:#CBA05C; --gold-light:#EAD9AE; --gold-deep:#8E6B34; --gold-glow:rgba(203,160,92,.35);
+  --bg:#FAF7F1; --card:#FFFFFF; --text:#221B10; --muted:#8A7C63; --border:#EDE5D3;
+  --green:#3E9E72; --yellow:#C08A2E; --red:#C24F4F;
+  --shadow:0 1px 2px rgba(10,17,32,.06),0 22px 46px rgba(10,17,32,.11);
   --radius:16px;
 }
 *{box-sizing:border-box}
@@ -61,6 +62,8 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .warn-note{display:flex;align-items:center;gap:9px;background:#FCF1DC;color:#8A5A00;border:1px solid #F4DBA6;border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;margin-bottom:20px}
 
 .card{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
+.reveal-up{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.8,.3,1),transform .55s cubic-bezier(.2,.8,.3,1)}
+.reveal-up.revealed{opacity:1;transform:none}
 
 .agent-header{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap}
 .agent-header h1{font-family:'Fraunces',serif;margin:0 0 10px;font-size:27px;color:var(--navy);font-weight:600;display:inline-flex;align-items:center;gap:12px}
@@ -109,13 +112,17 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .task-body{max-height:0;overflow:hidden;transition:max-height .28s ease;background:#FBFAF7}
 .task-body.open{max-height:640px}
 .subtask-list{padding:6px 16px 10px 41px;display:flex;flex-direction:column;gap:7px}
-.subtask-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);cursor:pointer}
-.subtask-item input{width:16px;height:16px;accent-color:var(--navy-2);cursor:pointer}
-.subtask-item input:disabled{cursor:not-allowed;opacity:.5}
-.task-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;padding:6px 16px 18px 41px}
-.task-fields label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--muted)}
-.task-fields input{padding:8px 10px;border:1.3px solid var(--border);border-radius:8px;font-size:12.5px;background:#fff}
-.task-fields input:disabled{background:#F3F2ED;color:var(--muted)}
+.subtask-item{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--text);cursor:pointer;padding:5px 4px;border-radius:8px;transition:background .15s;position:relative}
+.subtask-item:hover{background:#F5F0E4}
+.subtask-item input{position:absolute;opacity:0;width:20px;height:20px;cursor:pointer;margin:0}
+.subtask-item input:disabled{cursor:not-allowed}
+.check-box{width:20px;height:20px;border-radius:6px;border:1.6px solid var(--border);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .18s,border-color .18s;position:relative}
+.check-box svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .25s ease .05s}
+.subtask-item input:checked ~ .check-box{background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-color:var(--gold-deep)}
+.subtask-item input:checked ~ .check-box svg{stroke-dashoffset:0}
+.subtask-item input:disabled ~ .check-box{opacity:.45}
+.subtask-label{transition:color .15s}
+.subtask-item input:checked ~ .subtask-label{color:var(--muted);text-decoration:line-through;text-decoration-color:#D9CDB0}
 .readonly-note{font-size:11px;color:var(--muted);font-style:italic;padding:0 16px 14px 41px;margin:0}
 .empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
 .error-panel{text-align:center;padding:50px 24px;max-width:460px;margin:0 auto}
@@ -128,8 +135,12 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:60px 62px;animation:boatRock 2.4s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
+.boat-anim{transform-origin:58px 80px;animation:boatRock 2.6s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
+.sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
+.sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
+@keyframes sparkleTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 .loading-msg{text-align:center;color:var(--muted);font-size:13.5px;font-weight:500}
 
 /* Toasts */
@@ -154,15 +165,30 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 <div id="app"><div class="setup-screen">
   <div style="text-align:center">
     <div class="boat-loader"><svg viewBox="0 0 120 120" width="100%" height="100%">
-      <circle cx="60" cy="60" r="58" fill="#0F1B33"/>
-      <g class="wave-anim" fill="none" stroke="#C6A15B" stroke-width="2" opacity=".55">
-        <path d="M-20 74 Q-10 68 0 74 T20 74 T40 74 T60 74 T80 74 T100 74 T120 74 T140 74"/></g>
-      <g class="wave-anim2" fill="none" stroke="#E9D6AC" stroke-width="1.4" opacity=".3">
-        <path d="M-20 82 Q-10 77 0 82 T20 82 T40 82 T60 82 T80 82 T100 82 T120 82 T140 82"/></g>
+      <circle cx="60" cy="60" r="58" fill="none" stroke="#CBA05C" stroke-width="1" opacity=".55"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#CBA05C" stroke-width=".6" opacity=".3"/>
+      <g stroke="#CBA05C" stroke-width="1" opacity=".5">
+        <line x1="110" y1="60" x2="118" y2="60"/><line x1="103.3" y1="85" x2="110.3" y2="89"/>
+        <line x1="85" y1="103.3" x2="89" y2="110.3"/><line x1="60" y1="110" x2="60" y2="118"/>
+        <line x1="35" y1="103.3" x2="31" y2="110.3"/><line x1="16.7" y1="85" x2="9.7" y2="89"/>
+        <line x1="10" y1="60" x2="2" y2="60"/><line x1="16.7" y1="35" x2="9.7" y2="31"/>
+        <line x1="35" y1="16.7" x2="31" y2="9.7"/><line x1="60" y1="10" x2="60" y2="2"/>
+        <line x1="85" y1="16.7" x2="89" y2="9.7"/><line x1="103.3" y1="35" x2="110.3" y2="31"/>
+      </g>
+      <path class="sparkle-star" d="M85 26 L87.5 33 L94 35 L87.5 37 L85 44 L82.5 37 L76 35 L82.5 33 Z" fill="#EAD9AE"/>
+      <path class="sparkle-dot" d="M40 44 L41 47 L44 48 L41 49 L40 52 L39 49 L36 48 L39 47 Z" fill="#EAD9AE" opacity=".55"/>
+      <path class="sparkle-dot2" d="M74 50 L74.7 52 L77 52.7 L74.7 53.4 L74 55.5 L73.3 53.4 L71 52.7 L73.3 52 Z" fill="#EAD9AE" opacity=".4"/>
+      <g class="wave-anim" fill="none" stroke="#CBA05C" stroke-width="1.6" opacity=".5">
+        <path d="M-20 90 Q-10 85 0 90 T20 90 T40 90 T60 90 T80 90 T100 90 T120 90 T140 90"/></g>
+      <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
+        <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
       <g class="boat-anim">
-        <path d="M44 68 L76 68 L70 79 L50 79 Z" fill="#E9D6AC"/>
-        <line x1="60" y1="68" x2="60" y2="46" stroke="#E9D6AC" stroke-width="2"/>
-        <path d="M60 46 L60 65 L75 65 Z" fill="#C6A15B"/></g>
+        <path d="M40 78 L80 78 L73 90 L47 90 Z" fill="#EAD9AE"/>
+        <line x1="58" y1="78" x2="58" y2="34" stroke="#EAD9AE" stroke-width="1.8"/>
+        <path d="M58 34 L58 76 L78 68 Z" fill="#CBA05C" opacity=".92"/>
+        <ellipse cx="58" cy="70" rx="3.4" ry="6.5" fill="#0A1120"/>
+        <circle cx="58" cy="61.5" r="3" fill="#0A1120"/>
+      </g>
     </svg></div>
     <p class="loading-msg">Loading your checklist...</p>
   </div>
@@ -272,7 +298,7 @@ if (!CONFIGURED) {
     setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 400); }, 4000);
   }
   function fireConfetti() {
-    const colors = ["#C6A15B", "#16274A", "#E9D6AC", "#5E7C8C", "#2E9E6C"];
+    const colors = ["#CBA05C", "#101C34", "#EAD9AE", "#5E7C8C", "#2E9E6C"];
     for (let i = 0; i < 40; i++) {
       const p = document.createElement("div");
       p.className = "confetti-piece";
@@ -328,7 +354,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark">WF</div><div><div class="name">WAYFINDER</div><div class="sub">${me.role === "agent" ? "My Onboarding" : (me.role === "skalvya" ? "Skalvya · Editing Agent" : "Internal · Read-Only View")}</div></div></div>
+          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="11" fill="none" stroke="#CBA05C" stroke-width=".8" opacity=".6"/><path d="M8 15.5 L16 15.5 L14.5 18 L9.5 18 Z" fill="#EAD9AE"/><line x1="11.6" y1="15.5" x2="11.6" y2="6.5" stroke="#EAD9AE" stroke-width=".9"/><path d="M11.6 6.5 L11.6 15 L15.6 13 Z" fill="#CBA05C"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">${me.role === "agent" ? "My Onboarding" : (me.role === "skalvya" ? "Skalvya · Editing Agent" : "Internal · Read-Only View")}</div></div></div>
           <div class="side-divider"></div>
           ${me.role !== "agent" ? `<div class="side-label">Navigate</div><button class="side-link" id="toMasterBtn">&larr; Master Dashboard</button>` : ""}
           <div class="side-spacer"></div>
@@ -412,12 +438,22 @@ if (!CONFIGURED) {
     if (me.role !== "agent") document.getElementById("backBtn").addEventListener("click", () => window.location.href="master.html");
     if (me.role === "skalvya") document.getElementById("riskSelect").addEventListener("change", (e) => db.collection("agents").doc(viewedAgentId).update({riskStatus:e.target.value}));
     wireTaskInteractions();
+    setupScrollReveal();
+  }
+
+  function setupScrollReveal() {
+    const els = document.querySelectorAll(".reveal-up:not(.revealed)");
+    if (!("IntersectionObserver" in window)) { els.forEach(el => el.classList.add("revealed")); return; }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("revealed"); obs.unobserve(entry.target); } });
+    }, { threshold: 0.08 });
+    els.forEach(el => obs.observe(el));
   }
 
   function renderPhaseSection(phase, tasks) {
     const doneCount = tasks.filter(isTaskComplete).length;
     const pct = tasks.length===0 ? 0 : Math.round((doneCount/tasks.length)*100);
-    return `<div class="card">
+    return `<div class="card reveal-up">
       <div class="phase-section-head">
         <div><h3>Phase ${phase.id} — ${phase.name}</h3><p class="small">${phase.blurb}</p></div>
         <div class="phase-section-progress"><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
@@ -426,32 +462,30 @@ if (!CONFIGURED) {
     </div>`;
   }
 
+  const openTaskIds = new Set();
+
   function renderTaskRow(task) {
     const complete = isTaskComplete(task);
     const subPct = Math.round(taskProgress(task)*100);
     const editable = canEditTask(task);
+    const isOpen = openTaskIds.has(task.id);
     return `<div class="task-row ${complete?"task-complete":""}">
-      <button class="task-toggle" data-toggle-task="${task.id}">
+      <button class="task-toggle ${isOpen?"open":""}" data-toggle-task="${task.id}">
         <span class="chevron">&rsaquo;</span>
         <span class="task-status-dot ${complete?"dot-complete":""}"></span>
         <span class="task-title">${task.title}</span>
         <span class="owner-chip owner-${task.owner}">${task.owner}</span>
         <span class="task-subpct">${subPct}%</span>
       </button>
-      <div class="task-body" data-task-body="${task.id}">
+      <div class="task-body ${isOpen?"open":""}" data-task-body="${task.id}">
         <div class="subtask-list">
           ${task.subtasks.map(s => `<label class="subtask-item">
             <input type="checkbox" data-subtask="${task.id}|${s.id}" ${s.done?"checked":""} ${editable?"":"disabled"} />
-            <span>${s.label}</span></label>`).join("")}
+            <span class="check-box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4"/></svg></span>
+            <span class="subtask-label">${s.label}</span></label>`).join("")}
         </div>
         ${!editable && me.role==="agent" ? `<p class="readonly-note">This one's handled by Skalvya — you'll see it update automatically.</p>` : ""}
         ${task.lastEditedBy && task.lastEditedBy.name ? `<p class="attribution">Last updated by ${escapeAttr(task.lastEditedBy.name)}${task.lastEditedBy.at ? " · " + formatDate(task.lastEditedBy.at.slice(0,10)) : ""}</p>` : ""}
-        <div class="task-fields">
-          <label>Due Date<input type="date" data-field="dueDate" data-task="${task.id}" value="${task.dueDate||""}" ${editable?"":"disabled"} /></label>
-          <label>Blocker<input type="text" data-field="blocker" data-task="${task.id}" value="${escapeAttr(task.blocker)}" placeholder="None" ${editable?"":"disabled"} /></label>
-          <label>Completion Evidence<input type="text" data-field="evidence" data-task="${task.id}" value="${escapeAttr(task.evidence)}" placeholder="Link or note" ${editable?"":"disabled"} /></label>
-          <label>Next Action<input type="text" data-field="nextAction" data-task="${task.id}" value="${escapeAttr(task.nextAction)}" placeholder="What happens next" ${editable?"":"disabled"} /></label>
-        </div>
       </div>
     </div>`;
   }
@@ -460,6 +494,7 @@ if (!CONFIGURED) {
     document.querySelectorAll("[data-toggle-task]").forEach(btn => {
       btn.addEventListener("click", () => {
         const id = btn.dataset.toggleTask;
+        if (openTaskIds.has(id)) openTaskIds.delete(id); else openTaskIds.add(id);
         document.querySelector(`[data-task-body="${id}"]`).classList.toggle("open");
         btn.classList.toggle("open");
       });
@@ -473,15 +508,6 @@ if (!CONFIGURED) {
         sub.done = e.target.checked;
         db.collection("agents").doc(viewedAgentId).collection("tasks").doc(taskId).update({
           subtasks: task.subtasks,
-          lastEditedBy: { name: me.name || me.role, role: me.role, at: new Date().toISOString() },
-        });
-      });
-    });
-    document.querySelectorAll("[data-field]").forEach(input => {
-      if (input.disabled) return;
-      input.addEventListener("change", (e) => {
-        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(e.target.dataset.task).update({
-          [e.target.dataset.field]: e.target.value,
           lastEditedBy: { name: me.name || me.role, role: me.role, at: new Date().toISOString() },
         });
       });
