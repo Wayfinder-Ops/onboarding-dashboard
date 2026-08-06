@@ -62,7 +62,6 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .stat-grid .stat-card:nth-child(3){animation-delay:.15s}
 .stat-grid .stat-card:nth-child(4){animation-delay:.21s}
 @keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
-.chart-grid .card{opacity:0;animation:cardIn .5s cubic-bezier(.2,.8,.3,1) forwards .18s}
 .chart-grid .card:last-child{animation-delay:.26s}
 @keyframes rowFlash{0%{background:#FBF3E2}100%{background:transparent}}
 .row-flash{animation:rowFlash 1.4s ease-out}
@@ -79,6 +78,8 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .warn-note{display:flex;align-items:center;gap:9px;background:#FCF1DC;color:#8A5A00;border:1px solid #F4DBA6;border-radius:11px;padding:11px 15px;font-size:13px;font-weight:600;margin-bottom:22px}
 
 .card{background:var(--card);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px;border:1px solid var(--border)}
+.reveal-up{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.8,.3,1),transform .55s cubic-bezier(.2,.8,.3,1)}
+.reveal-up.revealed{opacity:1;transform:none}
 .card h3{margin:0 0 16px;font-size:15.5px;color:var(--navy)}
 .card-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .card-head-row h3{margin:0}
@@ -206,9 +207,21 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
   .stat-grid,.chart-grid,.fleet-grid{grid-template-columns:1fr} .blocker-row{grid-template-columns:1fr}
   .agent-card-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 }
+
+.ambient-wave{position:fixed;bottom:0;left:0;width:100%;height:110px;pointer-events:none;z-index:-1;opacity:.05;overflow:hidden}
+.ambient-wave svg{width:200%;height:100%}
+.ambient-wave .a1{animation:waveMove 22s linear infinite}
+.ambient-wave .a2{animation:waveMove 30s linear infinite reverse}
 </style>
 </head>
 <body>
+<div class="ambient-wave">
+  <svg viewBox="0 0 240 40" preserveAspectRatio="none">
+    <path class="a1" d="M0 28 Q10 22 20 28 T40 28 T60 28 T80 28 T100 28 T120 28 T140 28 T160 28 T180 28 T200 28 T220 28 T240 28" fill="none" stroke="#CBA05C" stroke-width="1"/>
+    <path class="a2" d="M0 34 Q10 30 20 34 T40 34 T60 34 T80 34 T100 34 T120 34 T140 34 T160 34 T180 34 T200 34 T220 34 T240 34" fill="none" stroke="#0A1120" stroke-width="1"/>
+  </svg>
+</div>
+
 
 <div id="connectionBanner" class="connection-banner">Can't reach the database — check your connection.</div>
 <div id="app"><div class="setup-screen">
@@ -397,7 +410,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 15 L20 15 L18 20 L6 20 Z" fill="#EAD9AE"/><line x1="12" y1="15" x2="12" y2="5" stroke="#EAD9AE" stroke-width="1.6"/><path d="M12 5 L12 13 L17.5 13 Z" fill="#CBA05C"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
+          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="11" fill="none" stroke="#CBA05C" stroke-width=".8" opacity=".6"/><path d="M8 15.5 L16 15.5 L14.5 18 L9.5 18 Z" fill="#EAD9AE"/><line x1="11.6" y1="15.5" x2="11.6" y2="6.5" stroke="#EAD9AE" stroke-width=".9"/><path d="M11.6 6.5 L11.6 15 L15.6 13 Z" fill="#CBA05C"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">Internal Team Dashboard</div></div></div>
           <div class="side-divider"></div>
           <div class="side-label">Overview</div>
           <button class="side-link active"><span>&#9679;</span>&nbsp; All Agents</button>
@@ -542,7 +555,7 @@ if (!CONFIGURED) {
       ${me.roleUnknown ? `<div class="warn-note">Your account's role isn't set correctly in Firestore, so you're seeing a safe read-only view. Fix the <code>role</code> field on your <code>users</code> document to get full access.</div>` : ""}
 
       <div class="fleet-grid">
-        <div class="card fleet-hero">
+        <div class="card fleet-hero reveal-up">
           <div class="fleet-ring-wrap">
             <div class="fleet-ring" style="--pct:${Math.round(overallPct*100)}"><span>${Math.round(overallPct*100)}<small>%</small></span></div>
           </div>
@@ -557,7 +570,7 @@ if (!CONFIGURED) {
           </div>
         </div>
 
-        <div class="card">
+        <div class="card reveal-up">
           <h3>Pipeline by Phase</h3>
           <div class="pipeline-list">
             ${PHASES.map(p => {
@@ -581,18 +594,18 @@ if (!CONFIGURED) {
       </div>
 
       <div class="chart-grid">
-        <div class="card"><h3>Progress by Owner</h3><canvas id="ownerChart" height="220"></canvas></div>
-        <div class="card"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
+        <div class="card reveal-up"><h3>Progress by Owner</h3><canvas id="ownerChart" height="220"></canvas></div>
+        <div class="card reveal-up"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
       </div>
 
-      <div class="card">
+      <div class="card reveal-up">
         <div class="card-head-row"><h3>Fleet at a Glance</h3></div>
         ${renderAgentCards()}
       </div>
 
       <div class="chart-grid">
-        <div class="card"><h3>Recent Activity</h3>${renderActivityFeed(activity)}</div>
-        <div class="card"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
+        <div class="card reveal-up"><h3>Recent Activity</h3>${renderActivityFeed(activity)}</div>
+        <div class="card reveal-up"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
       </div>
     `;
 
@@ -619,6 +632,16 @@ if (!CONFIGURED) {
       }
       prevProgress[agent.id] = pct;
     });
+    setupScrollReveal();
+  }
+
+  function setupScrollReveal() {
+    const els = document.querySelectorAll(".reveal-up:not(.revealed)");
+    if (!("IntersectionObserver" in window)) { els.forEach(el => el.classList.add("revealed")); return; }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("revealed"); obs.unobserve(entry.target); } });
+    }, { threshold: 0.08 });
+    els.forEach(el => obs.observe(el));
   }
 
   function renderAgentCards(){
@@ -673,7 +696,7 @@ if (!CONFIGURED) {
         <td class="cell-next">${nextAction(tasks)}</td>
       </tr>`;
     }).join("");
-    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Days Left</th><th>Next Action</th></tr></thead><tbody>${rows}</tbody></table>`;
+    return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Days Left</th><th>Current Task</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   function drawOwnerChart() {
