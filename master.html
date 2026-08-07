@@ -36,7 +36,8 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
   padding:26px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
 }
 .brand{display:flex;align-items:center;gap:11px;margin-bottom:8px;padding:0 4px}
-.brand .mark{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(233,214,172,.35);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:13px}
+.brand .mark{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(233,214,172,.35);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:13px;animation:markSway 4.2s ease-in-out infinite;transform-origin:50% 65%}
+@keyframes markSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 .brand .name{font-weight:800;font-size:14.5px;letter-spacing:1px}
 .brand .sub{font-size:10.5px;color:rgba(255,255,255,.42)}
 .side-divider{height:1px;background:rgba(255,255,255,.08);margin:20px 4px}
@@ -315,17 +316,17 @@ if (!CONFIGURED) {
   ];
   function buildTaskInstances() {
     const TASK_TEMPLATE = [
-      { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"] },
-      { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"] },
+      { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"], helpLabel:"How to Join Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/6687120151831-How-to-Join-Real" },
+      { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"], helpLabel:"How to Transfer My Ohio License to Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/4408471803031-How-do-I-transfer-my-Ohio-license-to-Real" },
       { id:"p1-3", phase:1, title:"Background check & fingerprinting (first-time agents)", owner:"Agent", subtasks:["Scheduled","Completed","Cleared"] },
       { id:"p1-4", phase:1, title:"Inform current sponsoring agent of the move", owner:"Agent", subtasks:["Sponsor notified"] },
       { id:"p2-1", phase:2, title:"Contact local Board & MLS to notify/transfer affiliation (30-day window)", owner:"Agent", subtasks:["Board notified","MLS affiliation updated","Confirmation received"] },
       { id:"p2-2", phase:2, title:"Set up e-signature platform (Dotloop)", owner:"Skalvya", subtasks:["Account created","Templates loaded","Agent login confirmed"] },
-      { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"] },
+      { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"], helpLabel:"How Do I Access My Onboarding Checklist (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/17432032985495-How-do-I-access-my-Onboarding-Checklist" },
       { id:"p2-4", phase:2, title:"Set up Wayfinder Google Workspace", owner:"Skalvya", subtasks:["Email account created","Calendar set up","Signature installed","Agent login confirmed"] },
       { id:"p2-5", phase:2, title:"Set up Slack access", owner:"Skalvya", subtasks:["Account created","Added to team channels","Agent login confirmed"] },
       { id:"p2-6", phase:2, title:"Subscribe to the Real of Ohio events calendar", owner:"Skalvya", subtasks:["Subscription added"] },
-      { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"] },
+      { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"], helpLabel:"How Do I Log Into Workvivo (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/5978116197399-How-do-I-log-into-Workvivo" },
       { id:"p2-8", phase:2, title:"Join Ohio Facebook communities", owner:"Skalvya", subtasks:["Added to statewide group","Added to regional group","Added to leadership group (if applicable)"] },
       { id:"p2-9", phase:2, title:"Submit Agent Introduction Form to Broker Nicole", owner:"Agent", subtasks:["Form submitted"] },
       { id:"p2-10", phase:2, title:"Set up Follow Up Boss CRM account", owner:"Skalvya", subtasks:["Account created","Permissions configured","Contacts imported & cleaned","Required stages/tags set up","Smart Lists built","Agent login confirmed","Successful test record created"] },
