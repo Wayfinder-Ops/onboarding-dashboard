@@ -117,6 +117,15 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .subtask-item input{position:absolute;opacity:0;width:20px;height:20px;cursor:pointer;margin:0}
 .subtask-item input:disabled{cursor:not-allowed}
 .check-box{width:20px;height:20px;border-radius:6px;border:1.6px solid var(--border);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .18s,border-color .18s;position:relative}
+.help-link{
+  display:inline-flex;align-items:center;gap:7px;margin:2px 16px 12px 41px;padding:8px 13px;
+  background:linear-gradient(135deg,#FBF3E3,#F7ECD4);border:1px solid var(--gold-light);border-radius:9px;
+  color:var(--gold-deep);font-size:12px;font-weight:700;text-decoration:none;transition:transform .15s,box-shadow .15s;
+}
+.help-link:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(203,160,92,.28)}
+.help-link .ext-icon{opacity:.6;margin-left:1px}
+.brand .mark{animation:markSway 4.2s ease-in-out infinite;transform-origin:50% 65%}
+@keyframes markSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 .check-box svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .25s ease .05s}
 .subtask-item input:checked ~ .check-box{background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-color:var(--gold-deep)}
 .subtask-item input:checked ~ .check-box svg{stroke-dashoffset:0}
@@ -264,17 +273,17 @@ if (!CONFIGURED) {
     { id: 4, name: "Post-Transfer Wrap-Up", blurb: "Final steps once the license transfer is confirmed." },
   ];
   const TASK_TEMPLATE = [
-    { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"] },
-    { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"] },
+    { id:"p1-1", phase:1, title:"Complete Join Real application, sign ICA, pay $285 join fee", owner:"Agent", subtasks:["Application submitted","ICA signed","$285 fee paid","Sponsor named on addendum"], helpLabel:"How to Join Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/6687120151831-How-to-Join-Real" },
+    { id:"p1-2", phase:1, title:"Create OHID account & complete license transfer / exam application", owner:"Agent", subtasks:["OHID account created","License claimed on LPI portal","Transfer/exam application submitted","Confirmation received"], helpLabel:"How to Transfer My Ohio License to Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/4408471803031-How-do-I-transfer-my-Ohio-license-to-Real" },
     { id:"p1-3", phase:1, title:"Background check & fingerprinting (first-time agents)", owner:"Agent", subtasks:["Scheduled","Completed","Cleared"] },
     { id:"p1-4", phase:1, title:"Inform current sponsoring agent of the move", owner:"Agent", subtasks:["Sponsor notified"] },
     { id:"p2-1", phase:2, title:"Contact local Board & MLS to notify/transfer affiliation (30-day window)", owner:"Agent", subtasks:["Board notified","MLS affiliation updated","Confirmation received"] },
     { id:"p2-2", phase:2, title:"Set up e-signature platform (Dotloop)", owner:"Skalvya", subtasks:["Account created","Templates loaded","Agent login confirmed"] },
-    { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"] },
+    { id:"p2-3", phase:2, title:"reZEN onboarding checklist & profile setup", owner:"Shared", subtasks:["Login confirmed","Profile fields completed","Banking/entity info submitted","reZEN checklist 100% complete"], helpLabel:"How Do I Access My Onboarding Checklist (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/17432032985495-How-do-I-access-my-Onboarding-Checklist" },
     { id:"p2-4", phase:2, title:"Set up Wayfinder Google Workspace", owner:"Skalvya", subtasks:["Email account created","Calendar set up","Signature installed","Agent login confirmed"] },
     { id:"p2-5", phase:2, title:"Set up Slack access", owner:"Skalvya", subtasks:["Account created","Added to team channels","Agent login confirmed"] },
     { id:"p2-6", phase:2, title:"Subscribe to the Real of Ohio events calendar", owner:"Skalvya", subtasks:["Subscription added"] },
-    { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"] },
+    { id:"p2-7", phase:2, title:"Join WorkVivo & the Ohio State Space; post an introduction", owner:"Shared", subtasks:["Account created","Admin access granted to Skalvya","Intro post published"], helpLabel:"How Do I Log Into Workvivo (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/5978116197399-How-do-I-log-into-Workvivo" },
     { id:"p2-8", phase:2, title:"Join Ohio Facebook communities", owner:"Skalvya", subtasks:["Added to statewide group","Added to regional group","Added to leadership group (if applicable)"] },
     { id:"p2-9", phase:2, title:"Submit Agent Introduction Form to Broker Nicole", owner:"Agent", subtasks:["Form submitted"] },
     { id:"p2-10", phase:2, title:"Set up Follow Up Boss CRM account", owner:"Skalvya", subtasks:["Account created","Permissions configured","Contacts imported & cleaned","Required stages/tags set up","Smart Lists built","Agent login confirmed","Successful test record created"] },
@@ -497,6 +506,11 @@ if (!CONFIGURED) {
             <span class="check-box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4"/></svg></span>
             <span class="subtask-label">${s.label}</span></label>`).join("")}
         </div>
+        ${task.helpUrl ? `<a class="help-link" href="${task.helpUrl}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 20 20" width="13" height="13"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.6 7.8c0-1.3 1-2.2 2.4-2.2s2.3.8 2.3 1.9c0 1.5-2.1 1.5-2.1 3.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13.6" r=".9" fill="currentColor"/></svg>
+          ${escapeAttr(task.helpLabel || "Step-by-step help article")}
+          <svg class="ext-icon" viewBox="0 0 20 20" width="11" height="11"><path d="M7 13 L13 7 M9 7 H13 V11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>` : ""}
         ${!editable && me.role==="agent" ? `<p class="readonly-note">This one's handled by Skalvya — you'll see it update automatically.</p>` : ""}
         ${task.lastEditedBy && task.lastEditedBy.name ? `<p class="attribution">Last updated by ${escapeAttr(task.lastEditedBy.name)}${task.lastEditedBy.at ? " · " + formatDate(task.lastEditedBy.at.slice(0,10)) : ""}</p>` : ""}
       </div>
