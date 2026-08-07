@@ -38,8 +38,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .brandmark .box{
   width:42px;height:42px;border-radius:11px;border:1.5px solid rgba(233,214,172,.4);
   display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-weight:700;font-size:14px;letter-spacing:.5px;
-  background:rgba(255,255,255,.04);
+  background:rgba(255,255,255,.04);animation:markSway 4.2s ease-in-out infinite;transform-origin:50% 65%;
 }
+@keyframes markSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 .brandmark .word{font-weight:800;font-size:15px;letter-spacing:2px;color:#fff}
 .panel-left h1{
   font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.18;margin:0 0 20px;
