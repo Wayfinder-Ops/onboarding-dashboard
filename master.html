@@ -94,6 +94,13 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .stat-label{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
 
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.chart-card{position:relative;overflow:hidden}
+.chart-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--navy-2))}
+.chart-card-head h3{margin-bottom:2px}
+.chart-canvas-wrap{position:relative;margin-top:8px}
+.chart-center-label{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.chart-center-label .n{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--navy)}
+.chart-center-label .l{font-size:10px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-top:2px}
 
 /* Fleet hero + pipeline */
 .fleet-grid{display:grid;grid-template-columns:1.1fr 1.4fr;gap:22px;margin-bottom:22px}
@@ -605,8 +612,14 @@ if (!CONFIGURED) {
       </div>
 
       <div class="chart-grid">
-        <div class="card reveal-up"><h3>Progress by Owner</h3><canvas id="ownerChart" height="220"></canvas></div>
-        <div class="card reveal-up"><h3>Progress by Phase</h3><canvas id="phaseChart" height="220"></canvas></div>
+        <div class="card reveal-up chart-card">
+          <div class="chart-card-head"><h3>Progress by Owner</h3><p class="muted small">Who's completed what, across every agent</p></div>
+          <div class="chart-canvas-wrap"><canvas id="ownerChart" height="240"></canvas><div class="chart-center-label" id="ownerCenterLabel"><div class="n">0%</div><div class="l">Complete</div></div></div>
+        </div>
+        <div class="card reveal-up chart-card">
+          <div class="chart-card-head"><h3>Progress by Phase</h3><p class="muted small">Completion rate at each stage of onboarding</p></div>
+          <div class="chart-canvas-wrap"><canvas id="phaseChart" height="240"></canvas></div>
+        </div>
       </div>
 
       <div class="card reveal-up">
@@ -716,6 +729,11 @@ if (!CONFIGURED) {
     const totals = { Agent:[0,0], Skalvya:[0,0], Shared:[0,0] };
     Object.values(tasksByAgent).flat().forEach(t => { totals[t.owner][1]+=1; if(isTaskComplete(t)) totals[t.owner][0]+=1; });
     const dataVals = [totals.Agent[0],totals.Skalvya[0],totals.Shared[0]];
+    const totalDone = dataVals.reduce((a,b)=>a+b,0);
+    const totalAll = totals.Agent[1]+totals.Skalvya[1]+totals.Shared[1];
+    const centerPct = totalAll === 0 ? 0 : Math.round((totalDone/totalAll)*100);
+    const centerLabel = document.getElementById("ownerCenterLabel");
+    if (centerLabel) centerLabel.querySelector(".n").textContent = centerPct + "%";
     if (ownerChart && ownerChart.canvas === ctx) {
       ownerChart.data.datasets[0].data = dataVals;
       ownerChart.update();
