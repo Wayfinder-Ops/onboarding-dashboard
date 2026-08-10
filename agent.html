@@ -414,13 +414,24 @@ if (!CONFIGURED) {
     app.innerHTML = `<div class="setup-screen"><div class="setup-card"><h2 class="serif">Hold on</h2><p>${msg}</p></div></div>`;
   }
 
+  const TEMPLATE_BY_ID = {};
+  TASK_TEMPLATE.forEach(t => { TEMPLATE_BY_ID[t.id] = t; });
+
   function listenToAgent(agentId) {
     db.collection("agents").doc(agentId).onSnapshot((doc) => {
       if (!doc.exists) { document.getElementById("main").innerHTML = `<div class="empty-state">This agent record no longer exists.</div>`; return; }
       liveAgent = { id: doc.id, ...doc.data() }; render();
     }, showConnErr);
     db.collection("agents").doc(agentId).collection("tasks").onSnapshot((snap) => {
-      liveTasks = snap.docs.map(d => ({ id: d.id, ...d.data() })); render();
+      // Merge in the latest static template (help links, title wording) on top of
+      // whatever was saved when this agent was created — so existing agents added
+      // before a template update automatically pick up new help links, no migration needed.
+      liveTasks = snap.docs.map(d => {
+        const saved = d.data();
+        const tpl = TEMPLATE_BY_ID[d.id] || {};
+        return { id: d.id, ...saved, title: tpl.title || saved.title, helpUrl: tpl.helpUrl, helpLabel: tpl.helpLabel };
+      });
+      render();
     }, showConnErr);
   }
   function showConnErr(err){
