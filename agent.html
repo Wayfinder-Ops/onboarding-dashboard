@@ -71,6 +71,14 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.8s ease-in-out infinite}
 @keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(46,158,108,.5)}50%{box-shadow:0 0 0 5px rgba(46,158,108,0)}}
 .agent-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.mini-tracker{display:flex;gap:10px;margin-top:16px;max-width:340px}
+.mini-seg{flex:1;display:flex;flex-direction:column;gap:5px}
+.mini-seg-track{height:5px;background:#EEEBE2;border-radius:4px;overflow:hidden}
+.mini-seg-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--navy-2));border-radius:4px;transition:width .6s cubic-bezier(.3,.8,.4,1)}
+.mini-seg-label{font-size:10px;font-weight:700;color:var(--muted);text-align:center}
+.mini-seg-current{color:var(--navy);text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
+.help-note{display:flex;align-items:flex-start;gap:10px;background:#FBF7EE;border:1px solid var(--gold-light);border-radius:12px;padding:13px 16px;font-size:13px;color:var(--text);margin-bottom:20px;line-height:1.55}
+.help-note-icon{font-size:16px;flex-shrink:0;margin-top:1px}
 .agent-meta strong{color:var(--text);font-weight:600}
 .agent-header-side{display:flex;align-items:center;gap:18px}
 .ring{--pct:0;width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--pct)*1%),#EEEBE2 0);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;transition:background 1s ease}
@@ -144,8 +152,12 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:58px 80px;animation:boatRock 2.6s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.boat-anim{transform-origin:58px 84px;animation:boatRock 2.8s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2px)}}
+.oar-stroke{transform-origin:58px 78px;animation:rowStroke 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowStroke{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(10deg)}}
+.rower-body{animation:rowLean 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowLean{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
 .sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
 .sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
 .sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
@@ -204,11 +216,17 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
       <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
         <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
       <g class="boat-anim">
-        <path d="M40 78 L80 78 L73 90 L47 90 Z" fill="#EAD9AE"/>
-        <line x1="58" y1="78" x2="58" y2="34" stroke="#EAD9AE" stroke-width="1.8"/>
-        <path d="M58 34 L58 76 L78 68 Z" fill="#CBA05C" opacity=".92"/>
-        <ellipse cx="58" cy="70" rx="3.4" ry="6.5" fill="#0A1120"/>
-        <circle cx="58" cy="61.5" r="3" fill="#0A1120"/>
+        <path d="M36 88 L80 88 L72 98 L44 98 Z" fill="#EAD9AE"/>
+        <g class="rower-body">
+          <path d="M58 84 Q54 77 56 70" stroke="#0A1120" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <circle cx="56.5" cy="65.5" r="4.4" fill="#0A1120"/>
+          <g class="oar-stroke">
+            <line x1="57" y1="78" x2="32" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="57" y1="78" x2="82" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
+            <ellipse cx="29" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(-25 29 65)"/>
+            <ellipse cx="85" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(25 85 65)"/>
+          </g>
+        </g>
       </g>
     </svg></div>
     <p class="loading-msg">Loading your checklist...</p>
@@ -292,9 +310,9 @@ if (!CONFIGURED) {
     { id:"p3-2", phase:3, title:"Order business cards, signage, name tags", owner:"Skalvya", subtasks:["Designs created","Broker compliance approval","Order placed","Materials delivered"] },
     { id:"p3-3", phase:3, title:"Create Google Drive archive folder", owner:"Skalvya", subtasks:["Folder created","Access granted","3 years of records migrated"] },
     { id:"p3-4", phase:3, title:"Export & clean up CRM contacts from previous brokerage", owner:"Skalvya", subtasks:["CSV exported","Data cleaned & deduped","Ready for FUB import"] },
-    { id:"p4-1", phase:4, title:"Re-confirm Board/MLS, re-upload active listings", owner:"Shared", subtasks:["Board/MLS confirmed under new brokerage","Active listings identified","Listings re-uploaded","Broker sign-off received"] },
+    { id:"p4-1", phase:4, title:"Re-confirm Board/MLS, re-upload active listings", owner:"Shared", subtasks:["Board/MLS confirmed under new brokerage","Active listings identified","Listings re-uploaded","Broker sign-off received"], helpLabel:"How Do I Move My Deals and Listings to Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/20389003139863-How-do-I-move-my-deals-and-listings-to-Real" },
     { id:"p4-2", phase:4, title:"Update signage, socials, website with new brokerage identity", owner:"Skalvya", subtasks:["Signage updated","Socials updated","Website updated"] },
-    { id:"p4-3", phase:4, title:"Publish brokerage announcement on personal social media", owner:"Skalvya", subtasks:["Copy drafted","Agent approval received","Published"] },
+    { id:"p4-3", phase:4, title:"Publish brokerage announcement on personal social media", owner:"Skalvya", subtasks:["Copy drafted","Agent approval received","Published"], helpLabel:"Announce Your Move to Real (REAL Support)", helpUrl:"https://support.therealbrokerage.com/hc/en-us/articles/5978344735383-Announce-Your-Move-To-Real" },
     { id:"p4-4", phase:4, title:"Submit welcome post info for Real's brokerage channels", owner:"Skalvya", subtasks:["Bio drafted","Agent approval received","Submitted to Real"] },
   ];
 
@@ -376,7 +394,7 @@ if (!CONFIGURED) {
     app.innerHTML = `
       <div class="shell">
         <aside class="sidebar">
-          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="11" fill="none" stroke="#CBA05C" stroke-width=".8" opacity=".6"/><path d="M8 15.5 L16 15.5 L14.5 18 L9.5 18 Z" fill="#EAD9AE"/><line x1="11.6" y1="15.5" x2="11.6" y2="6.5" stroke="#EAD9AE" stroke-width=".9"/><path d="M11.6 6.5 L11.6 15 L15.6 13 Z" fill="#CBA05C"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">${me.role === "agent" ? "My Onboarding" : (me.role === "skalvya" ? "Skalvya · Editing Agent" : "Internal · Read-Only View")}</div></div></div>
+          <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" width="21" height="21"><circle cx="12" cy="12" r="11" fill="none" stroke="#CBA05C" stroke-width=".8" opacity=".6"/><path d="M6 8 L15 16" stroke="#EAD9AE" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="5" cy="7" rx="1.7" ry="1" fill="#EAD9AE" transform="rotate(45 5 7)"/><path d="M18 8 L9 16" stroke="#CBA05C" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="19" cy="7" rx="1.7" ry="1" fill="#CBA05C" transform="rotate(-45 19 7)"/><path d="M8.5 17 L15.5 17 L14 19.5 L10 19.5 Z" fill="#EAD9AE" opacity=".9"/></svg></div><div><div class="name">WAYFINDER</div><div class="sub">${me.role === "agent" ? "My Onboarding" : (me.role === "skalvya" ? "Skalvya · Editing Agent" : "Internal · Read-Only View")}</div></div></div>
           <div class="side-divider"></div>
           ${me.role !== "agent" ? `<div class="side-label">Navigate</div><button class="side-link" id="toMasterBtn">&larr; Master Dashboard</button>` : ""}
           <div class="side-spacer"></div>
@@ -444,6 +462,18 @@ if (!CONFIGURED) {
             <span><strong>Start:</strong> ${formatDate(liveAgent.startDate)}</span>
             <span><strong>Target Transfer:</strong> ${formatDate(liveAgent.targetDate)}</span>
           </div>
+          <div class="mini-tracker">
+            ${PHASES.map(p => {
+              const pt = liveTasks.filter(t => t.phase === p.id);
+              const donePt = pt.filter(isTaskComplete).length;
+              const segPct = pt.length === 0 ? 0 : Math.round((donePt/pt.length)*100);
+              const isCurrent = phase.id === p.id;
+              return `<div class="mini-seg" title="Phase ${p.id}: ${segPct}% complete">
+                <div class="mini-seg-track"><div class="mini-seg-fill" style="width:${segPct}%"></div></div>
+                <span class="mini-seg-label ${isCurrent ? "mini-seg-current" : ""}">P${p.id}</span>
+              </div>`;
+            }).join("")}
+          </div>
         </div>
         <div class="agent-header-side">
           <div class="ring" style="--pct:${pct}"><span>${pct}%</span></div>
@@ -454,6 +484,12 @@ if (!CONFIGURED) {
           </select>
         </div>
       </div>
+
+      <div class="help-note">
+        <span class="help-note-icon">&#128161;</span>
+        <span>Some tasks below have a <strong>step-by-step help article</strong> from REAL — look for the gold link under the task. Stuck on something without one? Just reach out to the Skalvya admin team, we're happy to help.</span>
+      </div>
+
       ${PHASES.map(p => renderPhaseSection(p, liveTasks.filter(t=>t.phase===p.id))).join("")}
     `;
 
