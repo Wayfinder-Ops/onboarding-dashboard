@@ -106,8 +106,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:58px 80px;animation:boatRock 2.6s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(-2px)}}
+.boat-anim{transform-origin:58px 84px;animation:boatRock 2.8s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2px)}}
+.oar-stroke{transform-origin:58px 78px;animation:rowStroke 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowStroke{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(10deg)}}
+.rower-body{animation:rowLean 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowLean{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
 .sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
 .sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
 .sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
@@ -165,11 +169,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
       <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
         <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
       <g class="boat-anim">
-        <path d="M40 78 L80 78 L73 90 L47 90 Z" fill="#EAD9AE"/>
-        <line x1="58" y1="78" x2="58" y2="34" stroke="#EAD9AE" stroke-width="1.8"/>
-        <path d="M58 34 L58 76 L78 68 Z" fill="#CBA05C" opacity=".92"/>
-        <ellipse cx="58" cy="70" rx="3.4" ry="6.5" fill="#0A1120"/>
-        <circle cx="58" cy="61.5" r="3" fill="#0A1120"/>
+        <path d="M36 88 L80 88 L72 98 L44 98 Z" fill="#EAD9AE"/>
+        <g class="rower-body">
+          <path d="M58 84 Q54 77 56 70" stroke="#0A1120" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <circle cx="56.5" cy="65.5" r="4.4" fill="#0A1120"/>
+          <g class="oar-stroke">
+            <line x1="57" y1="78" x2="32" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="57" y1="78" x2="82" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
+            <ellipse cx="29" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(-25 29 65)"/>
+            <ellipse cx="85" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(25 85 65)"/>
+          </g>
+        </g>
       </g>
     </svg>
   </div>
