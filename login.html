@@ -130,6 +130,75 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .ambient-wave svg{width:200%;height:100%}
 .ambient-wave .a1{animation:waveMove 22s linear infinite}
 .ambient-wave .a2{animation:waveMove 30s linear infinite reverse}
+/* ============================================================
+   INTRO SPLASH — boat rows across the sea, then WAYFINDER reveals
+   ============================================================ */
+.intro-splash{
+  position:fixed;inset:0;z-index:1000;overflow:hidden;background:#060B18;
+  animation:introDismiss .6s ease forwards;animation-delay:4.6s;
+}
+.intro-splash.skip{animation:introDismiss .45s ease forwards !important;animation-delay:0s !important;}
+@keyframes introDismiss{to{opacity:0;visibility:hidden;pointer-events:none}}
+
+.skip-intro{
+  position:absolute;top:22px;right:26px;z-index:20;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.75);font-size:12.5px;font-weight:600;
+  padding:8px 14px;border-radius:999px;backdrop-filter:blur(4px);transition:background .15s,color .15s;
+}
+.skip-intro:hover{background:rgba(255,255,255,.16);color:#fff}
+
+.intro-sky{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#1c2e56 0%,#0e1830 45%,#060B18 100%)}
+.intro-moon{
+  position:absolute;top:12%;left:50%;transform:translateX(-50%);width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#F5E9CC,#C6A15B 70%);box-shadow:0 0 90px 30px rgba(198,161,91,.28);
+  opacity:0;animation:moonFade 2.4s ease forwards;animation-delay:.3s;
+}
+@keyframes moonFade{to{opacity:.85}}
+
+.intro-sea{position:absolute;left:0;right:0;bottom:0;height:46%;overflow:hidden}
+.intro-sea svg{position:absolute;bottom:0;width:220%;height:100%}
+.intro-wave-far{animation:introWaveScroll 9s linear infinite}
+.intro-wave-mid{animation:introWaveScroll 6s linear infinite reverse}
+.intro-wave-near{animation:introWaveScroll 4s linear infinite}
+@keyframes introWaveScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.intro-boat-travel{
+  position:absolute;bottom:20%;left:0;width:170px;height:130px;
+  animation:boatTravel 4s cubic-bezier(.4,.05,.3,1) forwards;animation-delay:.4s;
+  opacity:0;
+}
+@keyframes boatTravel{
+  0%{opacity:0;transform:translateX(-40vw) scale(.8)}
+  8%{opacity:1}
+  75%{transform:translateX(calc(50vw - 155px)) scale(1.15)}
+  100%{transform:translateX(calc(50vw - 155px)) scale(1.15)}
+}
+.intro-boat-svg{width:100%;height:100%}
+.intro-boat-bob{transform-origin:80px 100px;animation:boatRock 2.6s ease-in-out infinite}
+.intro-rower{animation:rowLean 1.4s cubic-bezier(.45,.05,.55,.95) infinite}
+.intro-oars{transform-origin:79px 80px;animation:rowStroke 1.4s cubic-bezier(.45,.05,.55,.95) infinite}
+
+.intro-wordmark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);text-align:center;opacity:0;
+  animation:wordReveal 1.1s cubic-bezier(.2,.8,.3,1) forwards;animation-delay:3.15s;
+}
+@keyframes wordReveal{0%{opacity:0;transform:translate(-50%,-40%) scale(.88)}100%{opacity:1;transform:translate(-50%,-46%) scale(1)}}
+.intro-word{
+  font-family:'Fraunces',serif;font-weight:600;font-size:52px;letter-spacing:6px;color:#fff;
+  text-shadow:0 0 40px rgba(198,161,91,.5);
+}
+.intro-tag{font-size:14px;color:rgba(233,214,172,.75);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+
+@media (max-width:700px){
+  .intro-word{font-size:34px;letter-spacing:3px}
+  .intro-boat-travel{bottom:24%;width:130px;height:100px}
+  @keyframes boatTravel{
+    0%{opacity:0;transform:translateX(-60vw) scale(.7)}
+    8%{opacity:1}
+    75%{transform:translateX(calc(50vw - 120px)) scale(1)}
+    100%{transform:translateX(calc(50vw - 120px)) scale(1)}
+  }
+}
 </style>
 </head>
 <body>
@@ -140,6 +209,41 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </svg>
 </div>
 
+<div id="introSplash" class="intro-splash">
+  <button id="skipIntro" class="skip-intro">Skip &rarr;</button>
+  <div class="intro-sky"></div>
+  <div class="intro-moon"></div>
+  <div class="intro-sea">
+    <svg class="intro-wave-far" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 30 Q25 15 50 30 T100 30 T150 30 T200 30 T250 30 T300 30 T350 30 T400 30 T450 30 T500 30 T550 30 T600 30 T650 30 T700 30 T750 30 T800 30 V60 H0 Z" fill="#16274A" opacity=".55"/></svg>
+    <svg class="intro-wave-mid" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 34 Q25 20 50 34 T100 34 T150 34 T200 34 T250 34 T300 34 T350 34 T400 34 T450 34 T500 34 T550 34 T600 34 T650 34 T700 34 T750 34 T800 34 V60 H0 Z" fill="#1B2C52" opacity=".75"/></svg>
+    <svg class="intro-wave-near" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 38 Q25 26 50 38 T100 38 T150 38 T200 38 T250 38 T300 38 T350 38 T400 38 T450 38 T500 38 T550 38 T600 38 T650 38 T700 38 T750 38 T800 38 V60 H0 Z" fill="#0B1428"/></svg>
+  </div>
+
+  <div class="intro-boat-travel">
+    <svg class="intro-boat-svg" viewBox="0 0 160 120">
+      <ellipse cx="80" cy="98" rx="34" ry="4" fill="#000" opacity=".18"/>
+      <g class="intro-boat-bob">
+        <path d="M44 92 L116 92 L102 108 L58 108 Z" fill="#E9D6AC"/>
+        <path d="M44 92 L116 92 L113 96 L47 96 Z" fill="#C6A15B"/>
+        <g class="intro-rower">
+          <path d="M80 88 Q73 76 77 62" stroke="#0A1120" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <circle cx="78" cy="55" r="7" fill="#0A1120"/>
+          <g class="intro-oars">
+            <line x1="79" y1="80" x2="34" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
+            <line x1="79" y1="80" x2="124" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
+            <ellipse cx="29" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(-22 29 58)"/>
+            <ellipse cx="129" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(22 129 58)"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="intro-wordmark">
+    <div class="intro-word">WAYFINDER</div>
+    <div class="intro-tag">Onboarding, charted.</div>
+  </div>
+</div>
 
 <div id="app">
   <div class="setup-screen"><div class="setup-card">
@@ -191,6 +295,11 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+const introEl = document.getElementById("introSplash");
+const skipBtn = document.getElementById("skipIntro");
+if (skipBtn) skipBtn.addEventListener("click", () => introEl.classList.add("skip"));
+setTimeout(() => { if (introEl) introEl.style.display = "none"; }, 5300);
+
 /* ============================================================
    FIREBASE CONFIG — replace the REPLACE_ME values below.
    This exact block also appears at the top of agent.html and
