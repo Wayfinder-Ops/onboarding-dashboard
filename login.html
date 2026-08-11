@@ -90,32 +90,65 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .login-footer{margin-top:26px;text-align:center;font-size:12.5px;color:var(--muted)}
 .login-footer a{color:var(--navy);font-weight:600}
 
-/* Welcome transition */
+/* Welcome cinematic sequence — post-login, personalized. Mirrors the intro splash's
+   proven wave/boat technique for visual consistency and reliability. */
 .welcome-overlay{
-  position:fixed;inset:0;background:radial-gradient(120% 120% at 50% 40%,#101C34 0%,#0a1428 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;
-  opacity:0;pointer-events:none;transition:opacity .4s ease;
+  position:fixed;inset:0;z-index:999;overflow:hidden;background:#060B18;
+  opacity:0;pointer-events:none;transition:opacity .5s ease;
 }
 .welcome-overlay.show{opacity:1;pointer-events:all}
-.welcome-overlay .boat-wrap{width:110px;height:110px;margin-bottom:22px;opacity:0;transform:scale(.85);transition:opacity .5s ease .1s,transform .5s cubic-bezier(.2,.8,.3,1) .1s}
-.welcome-overlay.show .boat-wrap{opacity:1;transform:scale(1)}
-.welcome-overlay h2{font-family:'Fraunces',serif;color:#fff;font-size:24px;font-weight:600;margin:0 0 6px;opacity:0;transform:translateY(8px);transition:opacity .5s ease .25s,transform .5s ease .25s}
-.welcome-overlay.show h2{opacity:1;transform:none}
-.welcome-overlay p{color:rgba(255,255,255,.5);font-size:13.5px;margin:0;opacity:0;transition:opacity .5s ease .35s}
-.welcome-overlay.show p{opacity:1}
+.welcome-sky{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#1c2e56 0%,#0e1830 45%,#060B18 100%)}
+.welcome-glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,161,91,.22) 0%,transparent 70%);opacity:0;animation:moonFade 1.6s ease forwards .1s}
+@keyframes moonFade{to{opacity:1}}
+
+.welcome-sea{position:absolute;left:0;right:0;bottom:0;height:44%;overflow:hidden}
+.welcome-sea svg{position:absolute;bottom:0;width:220%;height:100%}
+.wave-far{animation:introWaveScroll 9s linear infinite}
+.wave-mid{animation:introWaveScroll 6s linear infinite reverse}
+.wave-near{animation:introWaveScroll 4s linear infinite}
+@keyframes introWaveScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.welcome-boat-travel{
+  position:absolute;bottom:20%;left:0;width:150px;height:120px;
+  animation:welcomeBoatTravel 2.5s cubic-bezier(.4,.05,.3,1) forwards .3s;opacity:0;
+}
+@keyframes welcomeBoatTravel{
+  0%{opacity:0;transform:translateX(-35vw) scale(.82)}
+  8%{opacity:1}
+  100%{transform:translateX(calc(50vw - 130px)) scale(1.08)}
+}
+
+.welcome-wordmark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);text-align:center;opacity:0;
+  animation:wordReveal 1s cubic-bezier(.2,.8,.3,1) forwards;animation-delay:2.05s;
+}
+.welcome-flash{
+  position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,#fff 0%,rgba(233,214,172,.6) 40%,transparent 75%);
+  transform:translate(-50%,-50%) scale(1);opacity:0;
+  animation:flashBurst .9s ease-out forwards;animation-delay:1.95s;
+}
+@keyframes flashBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(1)}15%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(70)}}
+@keyframes wordReveal{0%{opacity:0;transform:translate(-50%,-40%) scale(.9)}100%{opacity:1;transform:translate(-50%,-46%) scale(1)}}
+.welcome-word{font-family:'Fraunces',serif;font-weight:600;font-size:15px;letter-spacing:6px;color:rgba(233,214,172,.8);text-transform:uppercase;margin:0 0 10px}
+.welcome-name{font-family:'Fraunces',serif;font-weight:600;font-size:34px;color:#fff;margin:0 0 8px;text-shadow:0 0 40px rgba(198,161,91,.4)}
+.welcome-tag{font-size:13.5px;color:rgba(255,255,255,.5);margin:0}
+
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:58px 84px;animation:boatRock 2.8s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2px)}}
-.oar-stroke{transform-origin:58px 78px;animation:rowStroke 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowStroke{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(10deg)}}
-.rower-body{animation:rowLean 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowLean{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
-.sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
-.sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
-.sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
-@keyframes sparkleTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.boat-anim{transform-origin:58px 84px;animation:boatRock 1.3s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-3px)}}
+.oar-stroke{transform-origin:58px 78px;animation:rowStroke 0.85s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowStroke{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(14deg)}}
+.rower-body{animation:rowLean 0.85s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes rowLean{0%,100%{transform:translateY(-1.5px)}50%{transform:translateY(2px)}}
+@media (max-width:700px){
+  .welcome-name{font-size:24px}
+  .welcome-boat-travel{bottom:24%;width:120px;height:96px}
+  @keyframes welcomeBoatTravel{0%{opacity:0;transform:translateX(-55vw) scale(.7)}8%{opacity:1}100%{transform:translateX(calc(50vw - 100px)) scale(.95)}}
+}
 
 /* Setup-not-connected screen */
 .setup-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
@@ -253,42 +286,38 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 
 <div id="welcomeOverlay" class="welcome-overlay">
-  <div class="boat-wrap">
-<svg viewBox="0 0 120 120" width="100%" height="100%">
-      <circle cx="60" cy="60" r="58" fill="none" stroke="#CBA05C" stroke-width="1" opacity=".55"/>
-      <circle cx="60" cy="60" r="50" fill="none" stroke="#CBA05C" stroke-width=".6" opacity=".3"/>
-      <g stroke="#CBA05C" stroke-width="1" opacity=".5">
-        <line x1="110" y1="60" x2="118" y2="60"/><line x1="103.3" y1="85" x2="110.3" y2="89"/>
-        <line x1="85" y1="103.3" x2="89" y2="110.3"/><line x1="60" y1="110" x2="60" y2="118"/>
-        <line x1="35" y1="103.3" x2="31" y2="110.3"/><line x1="16.7" y1="85" x2="9.7" y2="89"/>
-        <line x1="10" y1="60" x2="2" y2="60"/><line x1="16.7" y1="35" x2="9.7" y2="31"/>
-        <line x1="35" y1="16.7" x2="31" y2="9.7"/><line x1="60" y1="10" x2="60" y2="2"/>
-        <line x1="85" y1="16.7" x2="89" y2="9.7"/><line x1="103.3" y1="35" x2="110.3" y2="31"/>
-      </g>
-      <path class="sparkle-star" d="M85 26 L87.5 33 L94 35 L87.5 37 L85 44 L82.5 37 L76 35 L82.5 33 Z" fill="#EAD9AE"/>
-      <path class="sparkle-dot" d="M40 44 L41 47 L44 48 L41 49 L40 52 L39 49 L36 48 L39 47 Z" fill="#EAD9AE" opacity=".55"/>
-      <path class="sparkle-dot2" d="M74 50 L74.7 52 L77 52.7 L74.7 53.4 L74 55.5 L73.3 53.4 L71 52.7 L73.3 52 Z" fill="#EAD9AE" opacity=".4"/>
-      <g class="wave-anim" fill="none" stroke="#CBA05C" stroke-width="1.6" opacity=".5">
-        <path d="M-20 90 Q-10 85 0 90 T20 90 T40 90 T60 90 T80 90 T100 90 T120 90 T140 90"/></g>
-      <g class="wave-anim2" fill="none" stroke="#EAD9AE" stroke-width="1.2" opacity=".3">
-        <path d="M-20 96 Q-10 92 0 96 T20 96 T40 96 T60 96 T80 96 T100 96 T120 96 T140 96"/></g>
+  <div class="welcome-sky"></div>
+  <div class="welcome-glow"></div>
+  <div class="welcome-sea">
+    <svg class="wave-far" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 30 Q25 15 50 30 T100 30 T150 30 T200 30 T250 30 T300 30 T350 30 T400 30 T450 30 T500 30 T550 30 T600 30 T650 30 T700 30 T750 30 T800 30 V60 H0 Z" fill="#16274A" opacity=".55"/></svg>
+    <svg class="wave-mid" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 34 Q25 20 50 34 T100 34 T150 34 T200 34 T250 34 T300 34 T350 34 T400 34 T450 34 T500 34 T550 34 T600 34 T650 34 T700 34 T750 34 T800 34 V60 H0 Z" fill="#1B2C52" opacity=".75"/></svg>
+    <svg class="wave-near" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 38 Q25 26 50 38 T100 38 T150 38 T200 38 T250 38 T300 38 T350 38 T400 38 T450 38 T500 38 T550 38 T600 38 T650 38 T700 38 T750 38 T800 38 V60 H0 Z" fill="#0B1428"/></svg>
+  </div>
+  <div class="welcome-boat-travel">
+    <svg viewBox="0 0 160 120" width="100%" height="100%">
+      <ellipse cx="80" cy="98" rx="34" ry="4" fill="#000" opacity=".18"/>
       <g class="boat-anim">
-        <path d="M36 88 L80 88 L72 98 L44 98 Z" fill="#EAD9AE"/>
+        <path d="M44 92 L116 92 L102 108 L58 108 Z" fill="#E9D6AC"/>
+        <path d="M44 92 L116 92 L113 96 L47 96 Z" fill="#C6A15B"/>
         <g class="rower-body">
-          <path d="M58 84 Q54 77 56 70" stroke="#0A1120" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-          <circle cx="56.5" cy="65.5" r="4.4" fill="#0A1120"/>
+          <path d="M80 88 Q73 76 77 62" stroke="#0A1120" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <circle cx="78" cy="55" r="7" fill="#0A1120"/>
           <g class="oar-stroke">
-            <line x1="57" y1="78" x2="32" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
-            <line x1="57" y1="78" x2="82" y2="66" stroke="#CBA05C" stroke-width="2.2" stroke-linecap="round"/>
-            <ellipse cx="29" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(-25 29 65)"/>
-            <ellipse cx="85" cy="65" rx="3.2" ry="1.6" fill="#EAD9AE" transform="rotate(25 85 65)"/>
+            <line x1="79" y1="80" x2="34" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
+            <line x1="79" y1="80" x2="124" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
+            <ellipse cx="29" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(-22 29 58)"/>
+            <ellipse cx="129" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(22 129 58)"/>
           </g>
         </g>
       </g>
     </svg>
   </div>
-  <h2 id="welcomeText">Welcome back</h2>
-  <p>Charting your course into Wayfinder...</p>
+  <div class="welcome-flash"></div>
+  <div class="welcome-wordmark">
+    <div class="welcome-word">Wayfinder</div>
+    <div class="welcome-name" id="welcomeText">Welcome back</div>
+    <div class="welcome-tag">Charting your course into onboarding...</div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -429,7 +458,7 @@ if (!CONFIGURED) {
       const dest = role === "agent" ? "agent.html" : "master.html";
       document.getElementById("welcomeText").textContent = "Welcome back, " + (data.name ? data.name.split(" ")[0] : "there");
       document.getElementById("welcomeOverlay").classList.add("show");
-      setTimeout(() => { window.location.href = dest; }, 950);
+      setTimeout(() => { window.location.href = dest; }, 3100);
     } catch (err) {
       const errorBox = document.getElementById("loginError");
       errorBox.textContent = "Something went wrong loading your account. Try again.";
