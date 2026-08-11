@@ -557,16 +557,15 @@ if (!CONFIGURED) {
     }
   }
 
-  function render() {
-    const main = document.getElementById("main");
-    const totalAgents = agents.length;
-    const overallPct = totalAgents === 0 ? 0 : agents.reduce((acc, a) => acc + overallProgress(tasksByAgent[a.id] || []), 0) / totalAgents;
-    const onTrack = agents.filter(a => a.riskStatus === "green").length;
-    const atRisk = agents.filter(a => a.riskStatus === "yellow").length;
-    const blocked = agents.filter(a => a.riskStatus === "red").length;
-    const pipeline = phasePipelineCounts();
-    const activity = recentActivity(8);
+  let shellBuilt = false;
 
+  function render() {
+    if (!shellBuilt) { buildShell(); shellBuilt = true; }
+    patchData();
+  }
+
+  function buildShell() {
+    const main = document.getElementById("main");
     main.innerHTML = `
       <div class="page-head"><h1 class="serif">Onboarding Overview <span class="live-badge"><span class="live-dot"></span>Live</span></h1><p class="muted">Every checkmark from Skalvya and every agent syncs here instantly.</p></div>
       ${me.role === "tyson" && !me.roleUnknown ? `<div class="tyson-note">You're seeing this live — no need to ask Skalvya for a status update.</div>` : ""}
@@ -575,40 +574,36 @@ if (!CONFIGURED) {
       <div class="fleet-grid">
         <div class="card fleet-hero reveal-up">
           <div class="fleet-ring-wrap">
-            <div class="fleet-ring" style="--pct:${Math.round(overallPct*100)}"><span>${Math.round(overallPct*100)}<small>%</small></span></div>
+            <div class="fleet-ring" id="fleetRing" style="--pct:0"><span id="fleetRingVal">0<small>%</small></span></div>
           </div>
           <div class="fleet-hero-info">
             <h3 style="margin-bottom:2px">Fleet Progress</h3>
             <p class="muted small" style="margin-bottom:16px">Average completion across every agent in the pipeline.</p>
             <div class="fleet-legend">
-              <div class="fleet-legend-item"><span class="dot" style="background:var(--green)"></span>${onTrack} on track</div>
-              <div class="fleet-legend-item"><span class="dot" style="background:var(--yellow)"></span>${atRisk} at risk</div>
-              <div class="fleet-legend-item"><span class="dot" style="background:var(--red)"></span>${blocked} blocked</div>
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--green)"></span><span id="legendOnTrack">0</span> on track</div>
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--yellow)"></span><span id="legendAtRisk">0</span> at risk</div>
+              <div class="fleet-legend-item"><span class="dot" style="background:var(--red)"></span><span id="legendBlocked">0</span> blocked</div>
             </div>
           </div>
         </div>
 
         <div class="card reveal-up">
           <h3>Pipeline by Phase</h3>
-          <div class="pipeline-list">
-            ${PHASES.map(p => {
-              const count = pipeline[p.id] || 0;
-              const pct = totalAgents === 0 ? 0 : Math.round((count/totalAgents)*100);
-              return `<div class="pipeline-row">
+          <div class="pipeline-list" id="pipelineList">
+            ${PHASES.map(p => `<div class="pipeline-row">
                 <span class="pipeline-label">Phase ${p.id}</span>
-                <div class="pipeline-track"><div class="pipeline-fill" style="width:${pct}%"></div></div>
-                <span class="pipeline-count">${count}</span>
-              </div>`;
-            }).join("")}
+                <div class="pipeline-track"><div class="pipeline-fill" id="pipelineFill-${p.id}" style="width:0%"></div></div>
+                <span class="pipeline-count" id="pipelineCount-${p.id}">0</span>
+              </div>`).join("")}
           </div>
         </div>
       </div>
 
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-value" data-count="${totalAgents}">0</div><div class="stat-label">TOTAL AGENTS</div></div>
-        <div class="stat-card accent-green"><div class="stat-value" data-count="${onTrack}">0</div><div class="stat-label">ON TRACK</div></div>
-        <div class="stat-card accent-amber"><div class="stat-value" data-count="${atRisk}">0</div><div class="stat-label">AT RISK</div></div>
-        <div class="stat-card accent-red"><div class="stat-value" data-count="${blocked}">0</div><div class="stat-label">BLOCKED</div></div>
+        <div class="stat-card"><div class="stat-value" id="statTotal" data-count="0">0</div><div class="stat-label">TOTAL AGENTS</div></div>
+        <div class="stat-card accent-green"><div class="stat-value" id="statOnTrack" data-count="0">0</div><div class="stat-label">ON TRACK</div></div>
+        <div class="stat-card accent-amber"><div class="stat-value" id="statAtRisk" data-count="0">0</div><div class="stat-label">AT RISK</div></div>
+        <div class="stat-card accent-red"><div class="stat-value" id="statBlocked" data-count="0">0</div><div class="stat-label">BLOCKED</div></div>
       </div>
 
       <div class="chart-grid">
@@ -624,39 +619,86 @@ if (!CONFIGURED) {
 
       <div class="card reveal-up">
         <div class="card-head-row"><h3>Fleet at a Glance</h3></div>
-        ${renderAgentCards()}
+        <div id="agentCardsContainer"></div>
       </div>
 
       <div class="chart-grid">
-        <div class="card reveal-up"><h3>Recent Activity</h3>${renderActivityFeed(activity)}</div>
-        <div class="card reveal-up"><div class="card-head-row"><h3>Agent Roster</h3></div>${renderRosterTable()}</div>
+        <div class="card reveal-up"><h3>Recent Activity</h3><div id="activityFeedContainer"></div></div>
+        <div class="card reveal-up"><div class="card-head-row"><h3>Agent Roster</h3></div><div id="rosterTableContainer"></div></div>
       </div>
     `;
+    initCharts();
+  }
 
-    // Wire navigation FIRST — this must never be skipped, even if charts below fail to render.
-    document.querySelectorAll("[data-open-agent]").forEach(el => {
-      el.addEventListener("click", () => {
-        document.body.style.transition = "opacity .18s ease";
-        document.body.style.opacity = "0.4";
-        setTimeout(() => { window.location.href = "agent.html?agentId=" + el.dataset.openAgent; }, 150);
-      });
+  function patchData() {
+    const totalAgents = agents.length;
+    const overallPct = totalAgents === 0 ? 0 : agents.reduce((acc, a) => acc + overallProgress(tasksByAgent[a.id] || []), 0) / totalAgents;
+    const onTrack = agents.filter(a => a.riskStatus === "green").length;
+    const atRisk = agents.filter(a => a.riskStatus === "yellow").length;
+    const blocked = agents.filter(a => a.riskStatus === "red").length;
+    const pipeline = phasePipelineCounts();
+    const activity = recentActivity(8);
+    const pctInt = Math.round(overallPct * 100);
+
+    const fleetRing = document.getElementById("fleetRing");
+    if (fleetRing) { fleetRing.style.setProperty("--pct", pctInt); document.getElementById("fleetRingVal").innerHTML = pctInt + "<small>%</small>"; }
+    setText("legendOnTrack", onTrack); setText("legendAtRisk", atRisk); setText("legendBlocked", blocked);
+
+    PHASES.forEach(p => {
+      const count = pipeline[p.id] || 0;
+      const pct = totalAgents === 0 ? 0 : Math.round((count/totalAgents)*100);
+      const fill = document.getElementById("pipelineFill-" + p.id);
+      if (fill) fill.style.width = pct + "%";
+      setText("pipelineCount-" + p.id, count);
     });
 
-    try { drawOwnerChart(); } catch (e) { console.error("Owner chart failed:", e); }
-    try { drawPhaseChart(); } catch (e) { console.error("Phase chart failed:", e); }
-    try { animateCounts(); } catch (e) { console.error("Count animation failed:", e); }
+    patchStat("statTotal", totalAgents);
+    patchStat("statOnTrack", onTrack);
+    patchStat("statAtRisk", atRisk);
+    patchStat("statBlocked", blocked);
 
-    // Visually flash any row whose progress just changed — confirms live sync at a glance
+    try { updateOwnerChart(); } catch (e) { console.error("Owner chart failed:", e); }
+    try { updatePhaseChart(); } catch (e) { console.error("Phase chart failed:", e); }
+
+    const agentCardsEl = document.getElementById("agentCardsContainer");
+    if (agentCardsEl) agentCardsEl.innerHTML = renderAgentCards();
+    const activityEl = document.getElementById("activityFeedContainer");
+    if (activityEl) activityEl.innerHTML = renderActivityFeed(activity);
+    const rosterEl = document.getElementById("rosterTableContainer");
+    if (rosterEl) rosterEl.innerHTML = renderRosterTable();
+
+    // Flash any row whose progress just changed — confirms live sync at a glance
     agents.forEach(agent => {
       const pct = Math.round(overallProgress(tasksByAgent[agent.id] || []) * 100);
       if (prevProgress[agent.id] !== undefined && prevProgress[agent.id] !== pct) {
         document.querySelectorAll(`[data-open-agent="${agent.id}"]`).forEach(el => {
-          el.classList.remove("row-flash"); void el.offsetWidth; el.classList.add("row-flash");
+          el.classList.add("row-flash");
+          setTimeout(() => el.classList.remove("row-flash"), 900);
         });
       }
       prevProgress[agent.id] = pct;
     });
     setupScrollReveal();
+  }
+
+  function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+  function patchStat(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const from = parseInt(el.dataset.count || "0", 10);
+    el.dataset.count = val;
+    if (from === val) { el.textContent = val; return; }
+    animateNumber(el, from, val);
+  }
+  function animateNumber(el, from, to) {
+    const dur = 500, start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   function setupScrollReveal() {
@@ -676,7 +718,7 @@ if (!CONFIGURED) {
       const phase = currentPhase(tasks);
       const risk = agent.riskStatus || "green";
       const days = daysUntil(agent.targetDate);
-      return `<div class="agent-card" data-open-agent="${agent.id}" style="animation-delay:${i*45}ms">
+      return `<div class="agent-card" onclick="window.location.href='agent.html?agentId=${agent.id}'" data-open-agent="${agent.id}" style="animation-delay:${i*45}ms; cursor:pointer;">
         <div class="agent-card-top">
           <div class="agent-card-avatar">${initials(agent.name)}</div>
           <span class="risk-dot risk-dot-${risk}"></span>
@@ -709,7 +751,7 @@ if (!CONFIGURED) {
       const phase = currentPhase(tasks);
       const risk = agent.riskStatus || "green";
       const days = daysUntil(agent.targetDate);
-      return `<tr data-open-agent="${agent.id}">
+      return `<tr onclick="window.location.href='agent.html?agentId=${agent.id}'" data-open-agent="${agent.id}" style="cursor:pointer;">
         <td class="cell-name">${agent.name}</td>
         <td>${formatDate(agent.startDate)}</td>
         <td>${formatDate(agent.targetDate)}</td>
@@ -723,9 +765,32 @@ if (!CONFIGURED) {
     return `<table class="roster-table"><thead><tr><th>Agent</th><th>Start Date</th><th>Target Transfer</th><th>Phase</th><th>Progress</th><th>Risk</th><th>Days Left</th><th>Current Task</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
-  function drawOwnerChart() {
-    const ctx = document.getElementById("ownerChart"); if (!ctx) return;
-    if (typeof Chart === "undefined") { ctx.parentElement.innerHTML = '<p class="muted small">Chart library didn\'t load — data is still live, just shown in the table below.</p>'; return; }
+  function initCharts() {
+    if (typeof Chart === "undefined") return;
+    const ownerCtx = document.getElementById("ownerChart");
+    const phaseCtx = document.getElementById("phaseChart");
+    if (ownerChart) { try { ownerChart.destroy(); } catch(e){} }
+    if (phaseChart) { try { phaseChart.destroy(); } catch(e){} }
+    if (ownerCtx) {
+      ownerChart = new Chart(ownerCtx, { type:"doughnut",
+        data:{ labels:["Agent","Skalvya","Shared"], datasets:[{ data:[0,0,0], backgroundColor:[OWNER_COLORS.Agent,OWNER_COLORS.Skalvya,OWNER_COLORS.Shared], borderWidth:0, hoverOffset:6 }] },
+        options:{ animation:{ duration:700, easing:"easeOutQuart" },
+          plugins:{ legend:{ position:"bottom", labels:{ font:{ family:"Inter", size:12 }, padding:14, usePointStyle:true, pointStyle:"circle" } },
+            tooltip:{ backgroundColor:"#101C34", padding:10, cornerRadius:8, titleFont:{ family:"Inter", weight:"700" }, bodyFont:{ family:"Inter" } } },
+          cutout:"70%" } });
+    }
+    if (phaseCtx) {
+      phaseChart = new Chart(phaseCtx, { type:"bar",
+        data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:[0,0,0,0], backgroundColor:"#C6A15B", borderRadius:8, maxBarThickness:52 }] },
+        options:{ animation:{ duration:700, easing:"easeOutQuart" },
+          plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:"#101C34", padding:10, cornerRadius:8, callbacks:{ label:(c)=>c.parsed.y+"% complete" } } },
+          scales:{ y:{ beginAtZero:true, max:100, grid:{ color:"#EFEBE0" }, ticks:{ callback:v=>v+"%", font:{ family:"Inter" } } },
+                   x:{ grid:{ display:false }, ticks:{ font:{ family:"Inter", weight:"600" } } } } } });
+    }
+  }
+
+  function updateOwnerChart() {
+    if (!ownerChart) return;
     const totals = { Agent:[0,0], Skalvya:[0,0], Shared:[0,0] };
     Object.values(tasksByAgent).flat().forEach(t => { totals[t.owner][1]+=1; if(isTaskComplete(t)) totals[t.owner][0]+=1; });
     const dataVals = [totals.Agent[0],totals.Skalvya[0],totals.Shared[0]];
@@ -734,31 +799,17 @@ if (!CONFIGURED) {
     const centerPct = totalAll === 0 ? 0 : Math.round((totalDone/totalAll)*100);
     const centerLabel = document.getElementById("ownerCenterLabel");
     if (centerLabel) centerLabel.querySelector(".n").textContent = centerPct + "%";
-    if (ownerChart && ownerChart.canvas === ctx) {
-      ownerChart.data.datasets[0].data = dataVals;
-      ownerChart.update();
-      return;
-    }
-    if (ownerChart) { try { ownerChart.destroy(); } catch(e){} }
-    ownerChart = new Chart(ctx, { type:"doughnut",
-      data:{ labels:["Agent","Skalvya","Shared"], datasets:[{ data:dataVals, backgroundColor:[OWNER_COLORS.Agent,OWNER_COLORS.Skalvya,OWNER_COLORS.Shared], borderWidth:0 }] },
-      options:{ animation:{ duration:600, easing:"easeOutQuart" }, plugins:{ legend:{ position:"bottom", labels:{ font:{ family:"Inter" } } } }, cutout:"65%" } });
+    ownerChart.data.datasets[0].data = dataVals;
+    ownerChart.update();
   }
-  function drawPhaseChart() {
-    const ctx = document.getElementById("phaseChart"); if (!ctx) return;
-    if (typeof Chart === "undefined") { ctx.parentElement.innerHTML = '<p class="muted small">Chart library didn\'t load — data is still live, just shown in the table below.</p>'; return; }
+
+  function updatePhaseChart() {
+    if (!phaseChart) return;
     const totals = {}; PHASES.forEach(p => totals[p.id]=[0,0]);
     Object.values(tasksByAgent).flat().forEach(t => { totals[t.phase][1]+=1; if(isTaskComplete(t)) totals[t.phase][0]+=1; });
     const pct = PHASES.map(p => { const [d,tt]=totals[p.id]; return tt===0?0:Math.round((d/tt)*100); });
-    if (phaseChart && phaseChart.canvas === ctx) {
-      phaseChart.data.datasets[0].data = pct;
-      phaseChart.update();
-      return;
-    }
-    if (phaseChart) { try { phaseChart.destroy(); } catch(e){} }
-    phaseChart = new Chart(ctx, { type:"bar",
-      data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:pct, backgroundColor:"#101C34", borderRadius:6, maxBarThickness:46 }] },
-      options:{ animation:{ duration:600, easing:"easeOutQuart" }, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, max:100, ticks:{ callback:v=>v+"%" } } } } });
+    phaseChart.data.datasets[0].data = pct;
+    phaseChart.update();
   }
 }
 </script>
