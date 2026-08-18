@@ -443,19 +443,22 @@ if (!CONFIGURED) {
 
   function canEditTask(task){ if(me.role==="skalvya") return true; if(me.role==="tyson") return false; return task.owner==="Agent"||task.owner==="Shared"; }
 
+  let checklistBuilt = false;
+
   function render() {
     if (!liveAgent) return;
     checkCelebrations(liveTasks);
-    const pct = Math.round(overallProgress(liveTasks)*100);
-    const phase = currentPhase(liveTasks);
-    const main = document.getElementById("main");
-    const complete = pct === 100;
+    if (!checklistBuilt) { buildChecklistShell(); checklistBuilt = true; }
+    patchChecklistData();
+  }
 
+  function buildChecklistShell() {
+    const main = document.getElementById("main");
     main.innerHTML = `
       ${me.role !== "agent" ? `<button class="back-btn" id="backBtn">&larr; Back to Master Dashboard</button>` : ""}
       ${me.role === "tyson" && !me.roleUnknown ? `<div class="tyson-note">Read-only, live view — no need to ask for a status update.</div>` : ""}
       ${me.roleUnknown ? `<div class="warn-note">Your account's role isn't set correctly in Firestore, so you're seeing a safe read-only view. Fix the <code>role</code> field on your <code>users</code> document to get full access.</div>` : ""}
-      ${complete ? `<div class="celebrate"><span class="emoji">🎉</span><div><div class="t">${liveAgent.name} is fully onboarded</div><div class="s">Every task across all 4 phases is complete.</div></div></div>` : ""}
+      <div id="celebrateSlot"></div>
 
       <div class="agent-header card">
         <div>
@@ -464,21 +467,15 @@ if (!CONFIGURED) {
             <span><strong>Start:</strong> ${formatDate(liveAgent.startDate)}</span>
             <span><strong>Target Transfer:</strong> ${formatDate(liveAgent.targetDate)}</span>
           </div>
-          <div class="mini-tracker">
-            ${PHASES.map(p => {
-              const pt = liveTasks.filter(t => t.phase === p.id);
-              const donePt = pt.filter(isTaskComplete).length;
-              const segPct = pt.length === 0 ? 0 : Math.round((donePt/pt.length)*100);
-              const isCurrent = phase.id === p.id;
-              return `<div class="mini-seg" title="Phase ${p.id}: ${segPct}% complete">
-                <div class="mini-seg-track"><div class="mini-seg-fill" style="width:${segPct}%"></div></div>
-                <span class="mini-seg-label ${isCurrent ? "mini-seg-current" : ""}">P${p.id}</span>
-              </div>`;
-            }).join("")}
+          <div class="mini-tracker" id="miniTracker">
+            ${PHASES.map(p => `<div class="mini-seg" id="miniSeg-${p.id}" title="Phase ${p.id}">
+                <div class="mini-seg-track"><div class="mini-seg-fill" id="miniSegFill-${p.id}" style="width:0%"></div></div>
+                <span class="mini-seg-label" id="miniSegLabel-${p.id}">P${p.id}</span>
+              </div>`).join("")}
           </div>
         </div>
         <div class="agent-header-side">
-          <div class="ring" style="--pct:${pct}"><span>${pct}%</span></div>
+          <div class="ring" id="headerRing" style="--pct:0"><span id="headerRingVal">0%</span></div>
           <select id="riskSelect" class="risk-select risk-${liveAgent.riskStatus}" ${me.role==="skalvya"?"":"disabled"}>
             <option value="green" ${liveAgent.riskStatus==="green"?"selected":""}>On Track</option>
             <option value="yellow" ${liveAgent.riskStatus==="yellow"?"selected":""}>At Risk</option>
@@ -497,8 +494,110 @@ if (!CONFIGURED) {
 
     if (me.role !== "agent") document.getElementById("backBtn").addEventListener("click", () => window.location.href="master.html");
     if (me.role === "skalvya") document.getElementById("riskSelect").addEventListener("change", (e) => db.collection("agents").doc(viewedAgentId).update({riskStatus:e.target.value}));
-    wireTaskInteractions();
+
+    // Event delegation — attached ONCE to a container that never gets destroyed,
+    // so interactions stay instant no matter how many times data patches afterward.
+    main.addEventListener("click", (e) => {
+      const toggleBtn = e.target.closest("[data-toggle-task]");
+      if (toggleBtn) {
+        const id = toggleBtn.dataset.toggleTask;
+        if (openTaskIds.has(id)) openTaskIds.delete(id); else openTaskIds.add(id);
+        document.querySelector(`[data-task-body="${id}"]`).classList.toggle("open");
+        toggleBtn.classList.toggle("open");
+      }
+    });
+    main.addEventListener("change", (e) => {
+      const cb = e.target.closest("[data-subtask]");
+      if (cb && !cb.disabled) {
+        const [taskId, subId] = cb.dataset.subtask.split("|");
+        const task = liveTasks.find(t => t.id === taskId);
+        const sub = task.subtasks.find(s => s.id === subId);
+        sub.done = cb.checked;
+        patchChecklistData(); // instant local feedback, no full rebuild
+        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(taskId).update({
+          subtasks: task.subtasks,
+          lastEditedBy: { name: me.name || me.role, role: me.role, at: new Date().toISOString() },
+        }).catch(err => { console.error(err); showConnErr(err); });
+        return;
+      }
+      const field = e.target.closest("[data-field]");
+      if (field && !field.disabled) {
+        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(field.dataset.task).update({
+          [field.dataset.field]: field.value,
+          lastEditedBy: { name: me.name || me.role, role: me.role, at: new Date().toISOString() },
+        }).catch(err => { console.error(err); showConnErr(err); });
+      }
+    });
+
     setupScrollReveal();
+  }
+
+  function patchChecklistData() {
+    const pct = Math.round(overallProgress(liveTasks)*100);
+    const phase = currentPhase(liveTasks);
+    const complete = pct === 100;
+
+    const ring = document.getElementById("headerRing");
+    if (ring) { ring.style.setProperty("--pct", pct); document.getElementById("headerRingVal").textContent = pct + "%"; }
+
+    PHASES.forEach(p => {
+      const pt = liveTasks.filter(t => t.phase === p.id);
+      const donePt = pt.filter(isTaskComplete).length;
+      const segPct = pt.length === 0 ? 0 : Math.round((donePt/pt.length)*100);
+      const fill = document.getElementById("miniSegFill-" + p.id);
+      if (fill) fill.style.width = segPct + "%";
+      const label = document.getElementById("miniSegLabel-" + p.id);
+      if (label) label.classList.toggle("mini-seg-current", phase.id === p.id);
+    });
+
+    const celebrateSlot = document.getElementById("celebrateSlot");
+    if (celebrateSlot) {
+      celebrateSlot.innerHTML = complete ? `<div class="celebrate"><span class="emoji">🎉</span><div><div class="t">${liveAgent.name} is fully onboarded</div><div class="s">Every task across all 4 phases is complete.</div></div></div>` : "";
+    }
+
+    PHASES.forEach(p => {
+      const tasks = liveTasks.filter(t => t.phase === p.id);
+      const doneCount = tasks.filter(isTaskComplete).length;
+      const phasePct = tasks.length===0 ? 0 : Math.round((doneCount/tasks.length)*100);
+      const fill = document.getElementById("phaseFill-" + p.id);
+      if (fill) fill.style.width = phasePct + "%";
+      const pctEl = document.getElementById("phasePct-" + p.id);
+      if (pctEl) pctEl.textContent = phasePct + "%";
+    });
+
+    liveTasks.forEach(task => {
+      const row = document.getElementById("taskRow-" + task.id);
+      if (!row) return;
+      const done = isTaskComplete(task);
+      row.classList.toggle("task-complete", done);
+      const dot = document.getElementById("taskDot-" + task.id);
+      if (dot) dot.classList.toggle("dot-complete", done);
+      const subpct = document.getElementById("taskSubpct-" + task.id);
+      if (subpct) subpct.textContent = Math.round(taskProgress(task)*100) + "%";
+
+      task.subtasks.forEach(s => {
+        const cb = document.getElementById("subtask-" + task.id + "-" + s.id);
+        if (cb && cb.checked !== s.done) cb.checked = s.done;
+      });
+
+      ["dueDate","blocker","evidence","nextAction"].forEach(field => {
+        const input = document.getElementById("field-" + field + "-" + task.id);
+        if (input && document.activeElement !== input) {
+          const val = task[field] || "";
+          if (input.value !== val) input.value = val;
+        }
+      });
+
+      const attrEl = document.getElementById("attribution-" + task.id);
+      if (attrEl) {
+        if (task.lastEditedBy && task.lastEditedBy.name) {
+          attrEl.style.display = "block";
+          attrEl.textContent = `Last updated by ${task.lastEditedBy.name}${task.lastEditedBy.at ? " · " + formatDate(task.lastEditedBy.at.slice(0,10)) : ""}`;
+        } else {
+          attrEl.style.display = "none";
+        }
+      }
+    });
   }
 
   function setupScrollReveal() {
@@ -511,12 +610,10 @@ if (!CONFIGURED) {
   }
 
   function renderPhaseSection(phase, tasks) {
-    const doneCount = tasks.filter(isTaskComplete).length;
-    const pct = tasks.length===0 ? 0 : Math.round((doneCount/tasks.length)*100);
     return `<div class="card reveal-up">
       <div class="phase-section-head">
         <div><h3>Phase ${phase.id} — ${phase.name}</h3><p class="small">${phase.blurb}</p></div>
-        <div class="phase-section-progress"><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><span class="progress-pct">${pct}%</span></div>
+        <div class="phase-section-progress"><div class="progress-track"><div class="progress-fill" id="phaseFill-${phase.id}" style="width:0%"></div></div><span class="progress-pct" id="phasePct-${phase.id}">0%</span></div>
       </div>
       <div class="task-list">${tasks.map(renderTaskRow).join("")}</div>
     </div>`;
@@ -525,22 +622,20 @@ if (!CONFIGURED) {
   const openTaskIds = new Set();
 
   function renderTaskRow(task) {
-    const complete = isTaskComplete(task);
-    const subPct = Math.round(taskProgress(task)*100);
     const editable = canEditTask(task);
     const isOpen = openTaskIds.has(task.id);
-    return `<div class="task-row ${complete?"task-complete":""}">
+    return `<div class="task-row" id="taskRow-${task.id}">
       <button class="task-toggle ${isOpen?"open":""}" data-toggle-task="${task.id}">
         <span class="chevron">&rsaquo;</span>
-        <span class="task-status-dot ${complete?"dot-complete":""}"></span>
+        <span class="task-status-dot" id="taskDot-${task.id}"></span>
         <span class="task-title">${task.title}</span>
         <span class="owner-chip owner-${task.owner}">${task.owner}</span>
-        <span class="task-subpct">${subPct}%</span>
+        <span class="task-subpct" id="taskSubpct-${task.id}">0%</span>
       </button>
       <div class="task-body ${isOpen?"open":""}" data-task-body="${task.id}">
         <div class="subtask-list">
           ${task.subtasks.map(s => `<label class="subtask-item">
-            <input type="checkbox" data-subtask="${task.id}|${s.id}" ${s.done?"checked":""} ${editable?"":"disabled"} />
+            <input type="checkbox" id="subtask-${task.id}-${s.id}" data-subtask="${task.id}|${s.id}" ${s.done?"checked":""} ${editable?"":"disabled"} />
             <span class="check-box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4"/></svg></span>
             <span class="subtask-label">${s.label}</span></label>`).join("")}
         </div>
@@ -550,34 +645,9 @@ if (!CONFIGURED) {
           <svg class="ext-icon" viewBox="0 0 20 20" width="11" height="11"><path d="M7 13 L13 7 M9 7 H13 V11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>` : ""; })()}
         ${!editable && me.role==="agent" ? `<p class="readonly-note">This one's handled by Skalvya — you'll see it update automatically.</p>` : ""}
-        ${task.lastEditedBy && task.lastEditedBy.name ? `<p class="attribution">Last updated by ${escapeAttr(task.lastEditedBy.name)}${task.lastEditedBy.at ? " · " + formatDate(task.lastEditedBy.at.slice(0,10)) : ""}</p>` : ""}
+        <p class="attribution" id="attribution-${task.id}" style="display:none"></p>
       </div>
     </div>`;
-  }
-
-  function wireTaskInteractions() {
-    document.querySelectorAll("[data-toggle-task]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.toggleTask;
-        if (openTaskIds.has(id)) openTaskIds.delete(id); else openTaskIds.add(id);
-        document.querySelector(`[data-task-body="${id}"]`).classList.toggle("open");
-        btn.classList.toggle("open");
-      });
-    });
-    document.querySelectorAll("[data-subtask]").forEach(cb => {
-      if (cb.disabled) return;
-      cb.addEventListener("change", (e) => {
-        const [taskId, subId] = e.target.dataset.subtask.split("|");
-        const task = liveTasks.find(t => t.id === taskId);
-        const sub = task.subtasks.find(s => s.id === subId);
-        sub.done = e.target.checked;
-        render(); // instant local feedback — don't wait on the network round-trip
-        db.collection("agents").doc(viewedAgentId).collection("tasks").doc(taskId).update({
-          subtasks: task.subtasks,
-          lastEditedBy: { name: me.name || me.role, role: me.role, at: new Date().toISOString() },
-        }).catch(err => { console.error(err); showConnErr(err); });
-      });
-    });
   }
 }
 </script>
