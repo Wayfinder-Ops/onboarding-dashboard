@@ -90,50 +90,78 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .login-footer{margin-top:26px;text-align:center;font-size:12.5px;color:var(--muted)}
 .login-footer a{color:var(--navy);font-weight:600}
 
-/* Welcome cinematic sequence — post-login, personalized. Mirrors the intro splash's
-   proven wave/boat technique for visual consistency and reliability. */
+/* Welcome cinematic sequence — abstract, premium, no illustrated character.
+   Moonlit water with light glitter, slow elegant wave drift, kinetic wordmark reveal. */
 .welcome-overlay{
-  position:fixed;inset:0;z-index:999;overflow:hidden;background:#060B18;
-  opacity:0;pointer-events:none;transition:opacity .5s ease;
+  position:fixed;inset:0;z-index:999;overflow:hidden;background:#060A16;
+  opacity:0;pointer-events:none;transition:opacity .6s ease;
 }
 .welcome-overlay.show{opacity:1;pointer-events:all}
-.welcome-sky{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#1c2e56 0%,#0e1830 45%,#060B18 100%)}
-.welcome-glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:340px;height:340px;border-radius:50%;
-  background:radial-gradient(circle,rgba(198,161,91,.22) 0%,transparent 70%);opacity:0;animation:moonFade 1.6s ease forwards .1s}
-@keyframes moonFade{to{opacity:1}}
+.welcome-sky{position:absolute;inset:0;background:radial-gradient(130% 100% at 50% -10%,#1a2c54 0%,#0d1830 42%,#060A16 100%)}
 
-.welcome-sea{position:absolute;left:0;right:0;bottom:0;height:44%;overflow:hidden}
+.welcome-moon{
+  position:absolute;top:12%;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fdf6e3,#e9d6ac 60%,#c6a15b 100%);
+  box-shadow:0 0 60px 18px rgba(233,214,172,.25),0 0 140px 50px rgba(198,161,91,.12);
+  opacity:0;animation:moonRise 2.2s cubic-bezier(.2,.7,.2,1) forwards .1s;
+}
+@keyframes moonRise{0%{opacity:0;transform:translateX(-50%) translateY(14px) scale(.85)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+.welcome-glitter{
+  position:absolute;top:12%;left:50%;width:2px;height:58%;transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(233,214,172,.5),rgba(233,214,172,.05) 80%);
+  filter:blur(1px);opacity:0;animation:glitterFade 2s ease forwards .5s;
+}
+@keyframes glitterFade{to{opacity:1}}
+
+.welcome-sea{position:absolute;left:0;right:0;bottom:0;height:46%;overflow:hidden}
 .welcome-sea svg{position:absolute;bottom:0;width:220%;height:100%}
-.wave-far{animation:introWaveScroll 9s linear infinite}
-.wave-mid{animation:introWaveScroll 6s linear infinite reverse}
-.wave-near{animation:introWaveScroll 4s linear infinite}
+.wave-far{animation:introWaveScroll 14s linear infinite;opacity:.5}
+.wave-mid{animation:introWaveScroll 10s linear infinite reverse;opacity:.72}
+.wave-near{animation:introWaveScroll 7s linear infinite}
 @keyframes introWaveScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-.welcome-boat-travel{
-  position:absolute;bottom:20%;left:0;width:150px;height:120px;
-  animation:welcomeBoatTravel 2.5s cubic-bezier(.4,.05,.3,1) forwards .3s;opacity:0;
+.welcome-shimmer{
+  position:absolute;bottom:0;left:50%;width:180px;height:46%;transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(233,214,172,.22),transparent 75%);
+  clip-path:polygon(42% 0%,58% 0%,78% 100%,22% 100%);
+  opacity:0;animation:shimmerFade 2.4s ease forwards .6s;
+  mix-blend-mode:screen;
 }
-@keyframes welcomeBoatTravel{
-  0%{opacity:0;transform:translateX(-35vw) scale(.82)}
-  8%{opacity:1}
-  100%{transform:translateX(calc(50vw - 130px)) scale(1.08)}
+@keyframes shimmerFade{to{opacity:1}}
+.welcome-shimmer::after{
+  content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 48%,transparent 62%);
+  background-size:220% 100%;animation:shimmerSweep 3.4s ease-in-out infinite;animation-delay:1.4s;
+}
+@keyframes shimmerSweep{0%{background-position:120% 0}100%{background-position:-40% 0}}
+
+.welcome-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.welcome-particle{position:absolute;bottom:6%;width:3px;height:3px;border-radius:50%;background:#E9D6AC;opacity:0;
+  animation:particleFloat 5s ease-in infinite;box-shadow:0 0 6px 1px rgba(233,214,172,.7)}
+@keyframes particleFloat{
+  0%{opacity:0;transform:translateY(0) scale(.6)}
+  10%{opacity:.85}
+  85%{opacity:.3}
+  100%{opacity:0;transform:translateY(-220px) scale(1.1)}
 }
 
 .welcome-wordmark{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-46%);text-align:center;opacity:0;
-  animation:wordReveal 1s cubic-bezier(.2,.8,.3,1) forwards;animation-delay:2.05s;
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%;
 }
-.welcome-flash{
-  position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
-  background:radial-gradient(circle,#fff 0%,rgba(233,214,172,.6) 40%,transparent 75%);
-  transform:translate(-50%,-50%) scale(1);opacity:0;
-  animation:flashBurst .9s ease-out forwards;animation-delay:1.95s;
+.welcome-word{
+  font-family:'Fraunces',serif;font-weight:600;font-size:clamp(34px,6vw,58px);color:#fff;margin:0 0 14px;
+  letter-spacing:.5em;text-shadow:0 0 50px rgba(198,161,91,.35);
 }
-@keyframes flashBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(1)}15%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(70)}}
-@keyframes wordReveal{0%{opacity:0;transform:translate(-50%,-40%) scale(.9)}100%{opacity:1;transform:translate(-50%,-46%) scale(1)}}
-.welcome-word{font-family:'Fraunces',serif;font-weight:600;font-size:15px;letter-spacing:6px;color:rgba(233,214,172,.8);text-transform:uppercase;margin:0 0 10px}
-.welcome-name{font-family:'Fraunces',serif;font-weight:600;font-size:34px;color:#fff;margin:0 0 8px;text-shadow:0 0 40px rgba(198,161,91,.4)}
-.welcome-tag{font-size:13.5px;color:rgba(255,255,255,.5);margin:0}
+.welcome-word span{display:inline-block;opacity:0;filter:blur(6px);animation:letterRise .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes letterRise{to{opacity:1;filter:blur(0);transform:translateY(0)}from{transform:translateY(10px)}}
+.welcome-rule{width:0;height:1px;background:linear-gradient(90deg,transparent,rgba(233,214,172,.7),transparent);margin:0 auto 16px;
+  animation:ruleGrow 1s ease forwards;animation-delay:1.5s}
+@keyframes ruleGrow{to{width:180px}}
+.welcome-name{font-family:'Fraunces',serif;font-weight:500;font-size:19px;color:rgba(255,255,255,.82);margin:0 0 6px;
+  opacity:0;transform:translateY(6px);animation:softRise .8s ease forwards;animation-delay:1.75s}
+.welcome-tag{font-size:12.5px;color:rgba(255,255,255,.4);margin:0;letter-spacing:.3px;
+  opacity:0;transform:translateY(6px);animation:softRise .8s ease forwards;animation-delay:1.95s}
+@keyframes softRise{to{opacity:1;transform:translateY(0)}}
 
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
@@ -287,34 +315,18 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <div id="welcomeOverlay" class="welcome-overlay">
   <div class="welcome-sky"></div>
-  <div class="welcome-glow"></div>
+  <div class="welcome-moon"></div>
+  <div class="welcome-glitter"></div>
   <div class="welcome-sea">
     <svg class="wave-far" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 30 Q25 15 50 30 T100 30 T150 30 T200 30 T250 30 T300 30 T350 30 T400 30 T450 30 T500 30 T550 30 T600 30 T650 30 T700 30 T750 30 T800 30 V60 H0 Z" fill="#16274A" opacity=".55"/></svg>
     <svg class="wave-mid" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 34 Q25 20 50 34 T100 34 T150 34 T200 34 T250 34 T300 34 T350 34 T400 34 T450 34 T500 34 T550 34 T600 34 T650 34 T700 34 T750 34 T800 34 V60 H0 Z" fill="#1B2C52" opacity=".75"/></svg>
     <svg class="wave-near" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 38 Q25 26 50 38 T100 38 T150 38 T200 38 T250 38 T300 38 T350 38 T400 38 T450 38 T500 38 T550 38 T600 38 T650 38 T700 38 T750 38 T800 38 V60 H0 Z" fill="#0B1428"/></svg>
+    <div class="welcome-shimmer"></div>
   </div>
-  <div class="welcome-boat-travel">
-    <svg viewBox="0 0 160 120" width="100%" height="100%">
-      <ellipse cx="80" cy="98" rx="34" ry="4" fill="#000" opacity=".18"/>
-      <g class="boat-anim">
-        <path d="M44 92 L116 92 L102 108 L58 108 Z" fill="#E9D6AC"/>
-        <path d="M44 92 L116 92 L113 96 L47 96 Z" fill="#C6A15B"/>
-        <g class="rower-body">
-          <path d="M80 88 Q73 76 77 62" stroke="#0A1120" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-          <circle cx="78" cy="55" r="7" fill="#0A1120"/>
-          <g class="oar-stroke">
-            <line x1="79" y1="80" x2="34" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
-            <line x1="79" y1="80" x2="124" y2="60" stroke="#C6A15B" stroke-width="3.4" stroke-linecap="round"/>
-            <ellipse cx="29" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(-22 29 58)"/>
-            <ellipse cx="129" cy="58" rx="5.5" ry="2.6" fill="#E9D6AC" transform="rotate(22 129 58)"/>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </div>
-  <div class="welcome-flash"></div>
+  <div class="welcome-particles" id="welcomeParticles"></div>
   <div class="welcome-wordmark">
-    <div class="welcome-word">Wayfinder</div>
+    <div class="welcome-word" id="welcomeWord"></div>
+    <div class="welcome-rule"></div>
     <div class="welcome-name" id="welcomeText">Welcome back</div>
     <div class="welcome-tag">Charting your course into onboarding...</div>
   </div>
@@ -456,13 +468,35 @@ if (!CONFIGURED) {
       const data = snap.exists ? snap.data() : {};
       const role = ["skalvya", "agent", "tyson"].includes(data.role) ? data.role : "unknown";
       const dest = role === "agent" ? "agent.html" : "master.html";
+      buildWordmark("WAYFINDER");
+      spawnParticles();
       document.getElementById("welcomeText").textContent = "Welcome back, " + (data.name ? data.name.split(" ")[0] : "there");
       document.getElementById("welcomeOverlay").classList.add("show");
-      setTimeout(() => { window.location.href = dest; }, 3100);
+      setTimeout(() => { window.location.href = dest; }, 3000);
     } catch (err) {
       const errorBox = document.getElementById("loginError");
       errorBox.textContent = "Something went wrong loading your account. Try again.";
       errorBox.classList.add("show");
+    }
+  }
+
+  function buildWordmark(text) {
+    const el = document.getElementById("welcomeWord");
+    el.innerHTML = text.split("").map((ch, i) =>
+      `<span style="animation-delay:${0.55 + i * 0.055}s">${ch}</span>`
+    ).join("");
+  }
+
+  function spawnParticles() {
+    const wrap = document.getElementById("welcomeParticles");
+    wrap.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement("div");
+      p.className = "welcome-particle";
+      p.style.left = (10 + Math.random() * 80) + "%";
+      p.style.animationDelay = (Math.random() * 4) + "s";
+      p.style.animationDuration = (4 + Math.random() * 2.5) + "s";
+      wrap.appendChild(p);
     }
   }
 
