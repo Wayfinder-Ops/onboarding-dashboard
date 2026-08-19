@@ -166,12 +166,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .wave-anim{animation:waveMove 3.2s linear infinite}
 .wave-anim2{animation:waveMove 4s linear infinite reverse}
 @keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:58px 84px;animation:boatRock 1.3s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-3px)}}
-.oar-stroke{transform-origin:58px 78px;animation:rowStroke 0.85s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowStroke{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(14deg)}}
-.rower-body{animation:rowLean 0.85s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowLean{0%,100%{transform:translateY(-1.5px)}50%{transform:translateY(2px)}}
+.boat-anim{transform-origin:58px 84px;animation:boatRock 1.9s ease-in-out infinite}
+@keyframes boatRock{0%,100%{transform:rotate(-1.6deg) translateY(0)}50%{transform:rotate(1.6deg) translateY(-1.5px)}}
+.oar-stroke{transform-origin:58px 78px;animation:rowStroke 1.9s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes rowStroke{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(8deg)}}
+.rower-body{animation:rowLean 1.9s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes rowLean{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.2px)}}
 @media (max-width:700px){
   .welcome-name{font-size:24px}
   .welcome-boat-travel{bottom:24%;width:120px;height:96px}
@@ -515,5 +515,5 @@ if (!CONFIGURED) {
   }
 }
 </script>
-</body>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(120,120,120,.45);font-family:monospace;z-index:9998;pointer-events:none;">build 2026-08-19 21:40</div></body>
 </html>
