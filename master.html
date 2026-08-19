@@ -764,8 +764,11 @@ if (!CONFIGURED) {
           cutout:"70%" } });
     }
     if (phaseCtx) {
+      const gradient = phaseCtx.getContext("2d").createLinearGradient(0, 0, 0, 240);
+      gradient.addColorStop(0, "#D9B879");
+      gradient.addColorStop(1, "#A67F3F");
       phaseChart = new Chart(phaseCtx, { type:"bar",
-        data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:[0,0,0,0], backgroundColor:"#C6A15B", borderRadius:8, maxBarThickness:52 }] },
+        data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:[0,0,0,0], backgroundColor:gradient, borderRadius:8, maxBarThickness:52 }] },
         options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:"easeOutQuart" },
           plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:"#101C34", padding:10, cornerRadius:8, callbacks:{ label:(c)=>c.parsed.y+"% complete" } } },
           scales:{ y:{ beginAtZero:true, max:100, grid:{ color:"#EFEBE0" }, ticks:{ callback:v=>v+"%", font:{ family:"Inter" } } },
@@ -800,5 +803,5 @@ if (!CONFIGURED) {
   }
 }
 </script>
-</body>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(120,120,120,.45);font-family:monospace;z-index:9998;pointer-events:none;">build 2026-08-19 21:40</div></body>
 </html>
