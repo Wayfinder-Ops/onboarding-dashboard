@@ -97,7 +97,7 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .chart-card{position:relative;overflow:hidden}
 .chart-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--navy-2))}
 .chart-card-head h3{margin-bottom:2px}
-.chart-canvas-wrap{position:relative;margin-top:8px}
+.chart-canvas-wrap{position:relative;margin-top:8px;height:260px}
 .chart-center-label{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
 .chart-center-label .n{font-family:'Fraunces',serif;font-size:26px;font-weight:600;color:var(--navy)}
 .chart-center-label .l{font-size:10px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-top:2px}
@@ -180,16 +180,13 @@ a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
 .error-panel h3{font-family:'Fraunces',serif;color:var(--navy);margin:0 0 8px;font-size:18px}
 .error-panel .code{font-size:12px;color:#B23C3C;background:#FDECEC;border-radius:7px;padding:6px 10px;display:inline-block;margin:6px 0 14px;font-family:monospace}
 .error-panel .hint{font-size:13px;color:var(--muted);line-height:1.6}
-.boat-loader{width:76px;height:76px;margin:0 auto 16px}
-.wave-anim{animation:waveMove 3.2s linear infinite}
-.wave-anim2{animation:waveMove 4s linear infinite reverse}
-@keyframes waveMove{from{transform:translateX(0)}to{transform:translateX(-40px)}}
-.boat-anim{transform-origin:58px 84px;animation:boatRock 2.8s ease-in-out infinite}
-@keyframes boatRock{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2px)}}
-.oar-stroke{transform-origin:58px 78px;animation:rowStroke 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowStroke{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(10deg)}}
-.rower-body{animation:rowLean 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
-@keyframes rowLean{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
+.compass-loader{width:78px;height:78px;margin:0 auto 16px;filter:drop-shadow(0 0 18px rgba(198,161,91,.22))}
+.cl-ripple{transform-origin:100px 100px;opacity:0;stroke-width:1}
+.cl-ripple.r1{animation:clRippleOut 2.3s ease-out infinite}
+.cl-ripple.r2{animation:clRippleOut 2.3s ease-out infinite 1.15s}
+@keyframes clRippleOut{0%{opacity:.6;transform:scale(.55)}100%{opacity:0;transform:scale(1.3)}}
+.cl-needle{transform-origin:100px 100px;animation:clNeedleSearch 2.6s ease-in-out infinite}
+@keyframes clNeedleSearch{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(16deg)}}
 .sparkle-star{transform-origin:85px 35px;animation:sparkleTwinkle 2.4s ease-in-out infinite}
 .sparkle-dot{transform-origin:40px 48px;animation:sparkleTwinkle 2.8s ease-in-out infinite .3s}
 .sparkle-dot2{transform-origin:74px 52px;animation:sparkleTwinkle 3.1s ease-in-out infinite .65s}
@@ -303,6 +300,9 @@ if (!CONFIGURED) {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+  db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+    if (err.code !== "failed-precondition" && err.code !== "unimplemented") console.warn("Offline cache unavailable:", err.code);
+  });
 
   const PHASES = [
     { id: 1, name: "Application & License Transfer", blurb: "Tied to the agent's personal identity and legal filings." },
@@ -758,7 +758,7 @@ if (!CONFIGURED) {
     if (ownerCtx) {
       ownerChart = new Chart(ownerCtx, { type:"doughnut",
         data:{ labels:["Agent","Skalvya","Shared"], datasets:[{ data:[0,0,0], backgroundColor:[OWNER_COLORS.Agent,OWNER_COLORS.Skalvya,OWNER_COLORS.Shared], borderWidth:0, hoverOffset:6 }] },
-        options:{ animation:{ duration:700, easing:"easeOutQuart" },
+        options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:"easeOutQuart" },
           plugins:{ legend:{ position:"bottom", labels:{ font:{ family:"Inter", size:12 }, padding:14, usePointStyle:true, pointStyle:"circle" } },
             tooltip:{ backgroundColor:"#101C34", padding:10, cornerRadius:8, titleFont:{ family:"Inter", weight:"700" }, bodyFont:{ family:"Inter" } } },
           cutout:"70%" } });
@@ -766,7 +766,7 @@ if (!CONFIGURED) {
     if (phaseCtx) {
       phaseChart = new Chart(phaseCtx, { type:"bar",
         data:{ labels:PHASES.map(p=>"Phase "+p.id), datasets:[{ data:[0,0,0,0], backgroundColor:"#C6A15B", borderRadius:8, maxBarThickness:52 }] },
-        options:{ animation:{ duration:700, easing:"easeOutQuart" },
+        options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:"easeOutQuart" },
           plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:"#101C34", padding:10, cornerRadius:8, callbacks:{ label:(c)=>c.parsed.y+"% complete" } } },
           scales:{ y:{ beginAtZero:true, max:100, grid:{ color:"#EFEBE0" }, ticks:{ callback:v=>v+"%", font:{ family:"Inter" } } },
                    x:{ grid:{ display:false }, ticks:{ font:{ family:"Inter", weight:"600" } } } } } });
