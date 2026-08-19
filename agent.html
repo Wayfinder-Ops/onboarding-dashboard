@@ -317,7 +317,7 @@ if (!CONFIGURED) {
   function initials(name){ return (name||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
 
   /* ---------------- Auth guard ---------------- */
-  let me=null, viewedAgentId=null, liveTasks=[], liveAgent=null;
+  let me=null, viewedAgentId=null, liveTasks=[], liveAgent=null, tasksLoadedOnce=false;
   let expandedTasks = new Set();
   let prevPhaseComplete={}, prevOverallComplete=null;
 
@@ -380,6 +380,17 @@ if (!CONFIGURED) {
     }
     renderShell();
     listenToAgent(viewedAgentId);
+    setTimeout(() => {
+      if (!tasksLoadedOnce) {
+        const main = document.getElementById("main");
+        if (main) main.innerHTML = `<div class="error-panel">
+          <div class="icon">&#9888;</div>
+          <h3>This agent's checklist never arrived</h3>
+          <p class="hint">The agent record loaded, but no tasks were found in their checklist after several seconds. This can happen if the agent was created before the task list existed, or a permissions issue is silently blocking the read.</p>
+          <p class="hint" style="margin-top:10px;">Try refreshing. If it still doesn't load, check the browser console (F12) for the exact error.</p>
+        </div>`;
+      }
+    }, 6000);
   }
 
   function renderShell() {
@@ -423,6 +434,7 @@ if (!CONFIGURED) {
         const tpl = TEMPLATE_BY_ID[d.id] || {};
         return { id: d.id, ...saved, title: tpl.title || saved.title, helpUrl: tpl.helpUrl, helpLabel: tpl.helpLabel };
       });
+      tasksLoadedOnce = true;
       render();
     }, showConnErr);
   }
@@ -448,6 +460,7 @@ if (!CONFIGURED) {
 
   function render() {
     if (!liveAgent) return;
+    if (liveTasks.length === 0 && !tasksLoadedOnce) return; // wait for tasks to actually arrive before building anything
     checkCelebrations(liveTasks);
     if (!checklistBuilt) { buildChecklistShell(); checklistBuilt = true; }
     patchChecklistData();
